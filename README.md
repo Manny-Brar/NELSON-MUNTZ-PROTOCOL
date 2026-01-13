@@ -63,7 +63,84 @@ If you see the help menu, you're ready! 🎉
 /nelson-stop
 ```
 
-That's it! Nelson handles the rest automatically.
+---
+
+## All Commands
+
+| Command | Description |
+|---------|-------------|
+| `/nelson "prompt"` | Start loop in standard mode |
+| `/ha-ha "prompt"` | Start loop in HA-HA (peak performance) mode |
+| `/nelson-status` | Check current loop status |
+| `/nelson-stop` | Stop running loop |
+| `/nelson-resume` | Resume a stopped loop |
+| `/nelson-help` | Show help documentation |
+
+---
+
+## All Options
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `--max-iterations N` | unlimited | Stop after N iterations (safety limit) |
+| `--completion-promise "TEXT"` | none | Stop when this text appears in output |
+| `--model MODEL` | claude-opus-4-5-20250514 | Claude model to use |
+| `--delay N` | 3 | Seconds to wait between iterations |
+| `--background` | false | Run loop in background |
+| `--ha-ha` | false | Enable HA-HA peak performance mode |
+
+---
+
+## Usage Examples
+
+### Basic (Routine Tasks)
+```bash
+# Simple feature with safety limit
+/nelson "Add a logout button to the navbar" --max-iterations 10
+```
+
+### With Completion Promise
+```bash
+# Stop when all tests pass
+/nelson "Fix the authentication bug" --completion-promise "ALL TESTS PASS"
+```
+
+### Complex Tasks (HA-HA Mode)
+```bash
+# Full HA-HA mode for complex features
+/ha-ha "Build multi-tenant calendar OAuth integration" --max-iterations 30
+```
+
+### Production-Critical
+```bash
+# Maximum safety for critical systems
+/ha-ha "Refactor payment webhook handler" \
+  --completion-promise "ALL TESTS PASS" \
+  --max-iterations 40
+```
+
+### Background Mode
+```bash
+# Run in background, check progress later
+/nelson "Update all API endpoints" --background --max-iterations 20
+
+# Check progress anytime
+/nelson-status
+tail -f .claude/nelson-muntz.log
+```
+
+---
+
+## When to Use What
+
+| Situation | Command | Options |
+|-----------|---------|---------|
+| Simple bug fix | `/nelson` | `--max-iterations 10` |
+| Routine feature | `/nelson` | `--max-iterations 20` |
+| Complex feature | `/ha-ha` | `--max-iterations 30` |
+| Critical system | `/ha-ha` | `--max-iterations 40 --completion-promise "..."` |
+| Unfamiliar tech | `/ha-ha` | (HA-HA does mandatory pre-research) |
+| Standard Nelson keeps failing | `/ha-ha` | (5-attempt escalation vs 3-fix rule) |
 
 ---
 
