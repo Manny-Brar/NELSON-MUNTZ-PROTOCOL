@@ -15,11 +15,5 @@
     "automation"
   ],
   "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/anthropics/claude-code"
-  },
-  "engines": {
-    "claude-code": ">=1.0.0"
-  }
+  "repository": "https://github.com/Manny-Brar/NELSON-MUNTZ-PROTOCOL"
 }
