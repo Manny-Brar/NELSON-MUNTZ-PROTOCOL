@@ -1,15 +1,10 @@
 # Nelson Muntz Protocol
 
+![Nelson Muntz Banner](NELSON_MUNTZ.gif)
+
 **Peak Performance AI Development Loop** - Fresh context every iteration. No more context rot.
 
-```
-         ╭─────────────────╮
-         │     HA-HA!      │
-         ╰────────┬────────╯
-                  │
-            Fresh Context
-            Every Iteration
-```
+![Nelson Muntz Protocol](NELSON_MUNTZ_2.png)
 
 ---
 
