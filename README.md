@@ -28,31 +28,41 @@ Me? I show up with a **fresh 200k tokens every single iteration**. While your ag
 
 ---
 
-## Installation (3 Steps)
+## Installation (2 Commands)
 
-### Step 1: Clone to Claude Plugins Directory
+**Using Claude's official plugin system** *(recommended)*:
 
 ```bash
-# Create plugins directory if it doesn't exist
-mkdir -p ~/.claude/plugins
+# Step 1: Add my marketplace
+claude plugin marketplace add https://github.com/Manny-Brar/NELSON-MUNTZ-PROTOCOL
 
-# Clone the repo
-cd ~/.claude/plugins
-git clone https://github.com/Manny-Brar/NELSON-MUNTZ-PROTOCOL.git
+# Step 2: Install me
+claude plugin install nelson-muntz@nelson-muntz-marketplace
 ```
 
-### Step 2: Restart Claude Code
+Then restart Claude Code. That's it. Don't make it complicated.
 
-Close and reopen Claude Code (or VS Code with Claude extension) to load the plugin.
-
-### Step 3: Verify Installation
+### Verify I'm Here
 
 In Claude Code, type:
 ```
-/nelson-help
+/nelson-muntz:help
 ```
 
-If you see the help menu, you're ready! 🎉
+If you see the help menu, I'm ready to beat up your bugs. 🥊
+
+### Uninstall (If You're A Quitter)
+
+```bash
+claude plugin uninstall nelson-muntz@nelson-muntz-marketplace
+claude plugin marketplace remove nelson-muntz-marketplace
+```
+
+### Update Me
+
+```bash
+claude plugin update nelson-muntz@nelson-muntz-marketplace
+```
 
 ---
 

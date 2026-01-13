@@ -1,0 +1,23 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "nelson-muntz-marketplace",
+  "version": "1.0.0",
+  "description": "Nelson Muntz Protocol - Peak performance AI development loops with fresh context",
+  "owner": {
+    "name": "Manny Brar",
+    "email": "dev@projectaurora.ai"
+  },
+  "plugins": [
+    {
+      "name": "nelson-muntz",
+      "description": "Peak performance AI development loops with fresh context, ultrathink integration, two-stage validation, and the 3-fix rule. HA-HA!",
+      "version": "3.0.0",
+      "author": {
+        "name": "Manny Brar",
+        "email": "dev@projectaurora.ai"
+      },
+      "source": ".",
+      "category": "development"
+    }
+  ]
+}
