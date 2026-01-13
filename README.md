@@ -1,6 +1,6 @@
-# Nelson Muntz
+# Nelson Muntz Protocol
 
-**Peak Performance AI Development Loop** - The evolved successor to Ralph Wiggum.
+**Peak Performance AI Development Loop** - Fresh context every iteration. No more context rot.
 
 ```
          ╭─────────────────╮
@@ -10,6 +10,62 @@
             Fresh Context
             Every Iteration
 ```
+
+---
+
+## Installation (3 Steps)
+
+### Step 1: Clone to Claude Plugins Directory
+
+```bash
+# Create plugins directory if it doesn't exist
+mkdir -p ~/.claude/plugins
+
+# Clone the repo
+cd ~/.claude/plugins
+git clone https://github.com/Manny-Brar/NELSON-MUNTZ-PROTOCOL.git
+```
+
+### Step 2: Restart Claude Code
+
+Close and reopen Claude Code (or VS Code with Claude extension) to load the plugin.
+
+### Step 3: Verify Installation
+
+In Claude Code, type:
+```
+/nelson-help
+```
+
+If you see the help menu, you're ready! 🎉
+
+---
+
+## Simple Usage
+
+**Start a development loop:**
+```bash
+/nelson "Build a REST API with user authentication"
+```
+
+**For complex tasks, use HA-HA Mode:**
+```bash
+/ha-ha "Build OAuth + JWT + MFA authentication system"
+```
+
+**Check progress:**
+```bash
+/nelson-status
+```
+
+**Stop the loop:**
+```bash
+/nelson-stop
+```
+
+That's it! Nelson handles the rest automatically.
+
+---
 
 ## Why Nelson Muntz?
 
