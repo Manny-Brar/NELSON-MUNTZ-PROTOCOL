@@ -2,9 +2,29 @@
 
 ![Nelson Muntz Banner](NELSON_MUNTZ.gif)
 
-**Peak Performance AI Development Loop** - Fresh context every iteration. No more context rot.
+**HA-HA!** Your AI agent choked on context again? Pathetic.
 
 ![Nelson Muntz Protocol](NELSON_MUNTZ_2.png)
+
+> *"Who hath summoned me?"*
+
+---
+
+## 🥊 Listen Up, Nerds
+
+So your fancy AI agent gets confused after 50k tokens? Can't remember what it was doing? Keeps making the same dumb mistakes? **HA-HA!**
+
+That's because you're using some wimpy single-session setup that gets tired and stupid.
+
+Me? I show up with a **fresh 200k tokens every single iteration**. While your agent is drooling in the corner, mine is cracking knuckles and shipping features.
+
+**When context rot tries to mess with me:** *"Smell you later!"* 👋
+
+**When scope creep sneaks in:** Gets beat up. I only work on ONE thing at a time.
+
+**When the same bug shows up twice:** *"Stop hitting yourself!"* — That's what the 3-fix rule is for.
+
+**When I finally ship:** ***HA-HA!*** 🥊
 
 ---
 
@@ -36,24 +56,24 @@ If you see the help menu, you're ready! 🎉
 
 ---
 
-## Simple Usage
+## How To Summon Me
 
-**Start a development loop:**
+**Want me to build something? Say the magic words:**
 ```bash
 /nelson "Build a REST API with user authentication"
 ```
 
-**For complex tasks, use HA-HA Mode:**
+**Got something hard? Bring out the big guns — HA-HA Mode:**
 ```bash
 /ha-ha "Build OAuth + JWT + MFA authentication system"
 ```
 
-**Check progress:**
+**Wanna see me work?**
 ```bash
 /nelson-status
 ```
 
-**Stop the loop:**
+**Need me to stop? (wimp)**
 ```bash
 /nelson-stop
 ```
@@ -139,24 +159,42 @@ tail -f .claude/nelson-muntz.log
 
 ---
 
-## Why Nelson Muntz?
+## Why Me?
 
-Named after the bully from The Simpsons who says "HA-HA!" - but here the HA-HA comes when we **succeed**, because we've conquered the problem through persistent iteration!
+Look, I'm the most feared kid at Springfield Elementary. When I laugh at your broken code, you KNOW it's broken.
+
+But here's the thing — I only say **"HA-HA!"** when someone else fails. When YOUR code ships? That's MY victory. And I get to laugh at all the OTHER developers still stuck in context rot.
+
+### How I Handle Problems
+
+| Your Problem | What I Do |
+|--------------|-----------|
+| Context rot after 50k tokens | *"Smell you later!"* — I start fresh every time, dweeb |
+| Scope creep sneaking in | I punch it. One feature. That's it. Don't get greedy. |
+| Same bug appearing twice | *"Stop hitting yourself!"* — 3 strikes and I mark it blocked |
+| Task too complicated | *"Aw, crud..."* — I break it into pieces and research each one |
+| Feature actually ships | ***"HA-HA!"*** — Git commit, victory lap |
+
+> *"I like to cry at the ocean, because only there do my tears seem small."*
+>
+> — Me, debugging production issues at 3am. What? I got layers.
 
 ---
 
-## Key Innovations Over Ralph Wiggum
+## Why I'm Better Than Ralph Wiggum
 
-| Feature | Ralph Wiggum v1 | Nelson Muntz v3 |
-|---------|-----------------|-----------------|
-| Context | Same session (rots) | Fresh 200k each iteration |
-| Thinking | Basic prompts | Ultrathink protocol |
-| Validation | Single check | Two-stage (spec + quality) |
-| Failure handling | Infinite retry | 3-fix rule |
-| Git | Manual | Auto-checkpoint on feature |
-| Focus | Prone to scope creep | Single-feature enforced |
-| State | Minimal | Full tracking system |
-| Model | Any | Opus 4.5 default |
+Ralph's nice and all, but the kid eats paste. Here's why I'm the upgrade:
+
+| Thing | Ralph Wiggum v1 | Me (Nelson v3) |
+|-------|-----------------|----------------|
+| Context | Same session (gets confused) | Fresh 200k every time. I don't forget. |
+| Thinking | Basic prompts | Ultrathink. I actually THINK before punching. |
+| Validation | One check | Two stages. Spec AND quality. I'm thorough. |
+| Failure handling | Tries forever (dumb) | 3 strikes, you're blocked. I move on. |
+| Git | Manual (who has time?) | Auto-commit when I win |
+| Focus | Gets distracted | ONE feature. Period. |
+| State | Barely remembers anything | Full tracking. I take notes. |
+| Model | Whatever | Opus 4.5. Only the best for me. |
 
 ---
 
@@ -353,28 +391,28 @@ Cannot exit iteration with:
 
 ---
 
-## HA-HA Mode - Peak Performance
+## HA-HA Mode — When I Get Serious
 
-**HA-HA Mode** is the ultimate configuration that activates every enhancement simultaneously.
+Regular Nelson is tough. **HA-HA Mode** is when I take off the vest and actually try.
 
-### Enable HA-HA Mode
+### Summon Maximum Power
 
 ```bash
 /nelson "Complex authentication system" --ha-ha --max-iterations 50
-# Or use the dedicated command
+# Or just yell it
 /ha-ha "Build OAuth + JWT + MFA"
 ```
 
-### What HA-HA Mode Adds
+### What Changes When I Get Mad
 
-| Standard Nelson | HA-HA Mode |
-|-----------------|------------|
-| Ultrathink | Multi-dimensional thinking (4 levels) |
-| Research on 2nd failure | Pre-research MANDATORY |
-| 3-fix rule | 5-attempt escalation with research |
-| Single validation | Aggressive validation + self-review |
-| Basic pattern tracking | Full pattern library |
-| Standard handoff | Comprehensive iteration reports |
+| Regular Me | HA-HA Mode Me |
+|------------|---------------|
+| Think before punching | Think 4 different ways before punching |
+| Research after failing twice | Research BEFORE I even start |
+| 3 strikes you're out | 5 attempts with research between each |
+| One validation check | Aggressive checking + I review my own work |
+| Remember patterns | Full pattern library like a nerd |
+| Normal handoff | Detailed report so next iteration is armed |
 
 ### HA-HA Mode Protocol Stack
 
@@ -406,55 +444,57 @@ Cannot exit iteration with:
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-### Wall-Breaker Auto-Research
+### Wall-Breaker — When I Hit A Wall, I Break It
 
-When Nelson hits ANY wall in HA-HA Mode:
+Some wimpy agents just give up when they hit a problem. Not me.
 
 ```
-🔴 ERROR WALL      → Search error message + solutions
-🟠 KNOWLEDGE WALL  → Search tutorials + documentation
-🟡 DESIGN WALL     → Search approach comparisons
-🟢 DEPENDENCY WALL → Search alternatives
-🔵 COMPLEXITY WALL → Decompose + research sub-problems
+🔴 ERROR WALL      → I search what the heck that error means
+🟠 KNOWLEDGE WALL  → I look up how to do it (yeah, I can Google)
+🟡 DESIGN WALL     → I compare approaches like a responsible adult
+🟢 DEPENDENCY WALL → I find alternatives or mark it blocked
+🔵 COMPLEXITY WALL → I break it into smaller pieces and beat each one up
 ```
 
-All research is documented in `scratchpad.md` for future iterations.
+Everything I find goes in `scratchpad.md` so future me ain't starting from zero.
 
-### When to Use HA-HA Mode
+### When To Use Which Version of Me
 
-**Use HA-HA Mode for:**
-- Complex, multi-component features
-- Unfamiliar technologies
-- Critical system components
-- When standard Nelson keeps failing
+**Bring out HA-HA Mode when:**
+- The task is actually hard
+- You don't know the tech
+- It's important and can't break
+- Regular me keeps failing (fine, I'll admit it happens)
 
-**Standard Nelson is fine for:**
-- Simple bug fixes
-- Well-understood patterns
-- Routine implementations
+**Regular me is fine for:**
+- Easy stuff
+- Stuff you've done before
+- Boring routine work
 
 ---
 
-## Research Sources
+## Where I Learned This Stuff
 
-This implementation synthesizes best practices from:
+Yeah I can read. Stole the best ideas from these nerds:
 
-- **[GSD (Get Shit Done)](https://github.com/kogumauk/get-shit-done-plus)** - Hierarchical docs, XML tasks, fresh context per task
-- **[Multi-Agent Ralph](https://github.com/alfredolopez80/multi-agent-ralph-loop)** - Ultrathink, two-stage review, 3-fix rule
-- **[Ralph Orchestrator](https://github.com/mikeyobrien/ralph-orchestrator)** - Token tracking, git checkpointing, scratchpad
-- **[Anthropic Harness](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents)** - Initializer/executor split, JSON features
-- **[Original Ralph](https://ghuntley.com/ralph/)** - The foundational technique by Geoffrey Huntley
+- **[GSD (Get Shit Done)](https://github.com/kogumauk/get-shit-done-plus)** - Fresh context, task management
+- **[Multi-Agent Ralph](https://github.com/alfredolopez80/multi-agent-ralph-loop)** - Ultrathink, two-stage review
+- **[Ralph Orchestrator](https://github.com/mikeyobrien/ralph-orchestrator)** - Git checkpoints, scratchpad
+- **[Anthropic Harness](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents)** - The smart people at Anthropic figured out the pattern
+- **[Original Ralph](https://ghuntley.com/ralph/)** - Geoffrey Huntley started it. I finished it.
 
 ---
 
-## Philosophy
+## My Rules (Don't Break 'Em)
 
-1. **Fresh Context > Accumulated Garbage**
-2. **Ultrathink > Quick Action**
-3. **Single Focus > Multitasking**
-4. **Validation > Assumption**
-5. **Persistence > Perfection**
-6. **Clean Handoff > Complete History**
+Yeah, I'm *"a riddle wrapped in an enigma wrapped in a vest."* But my rules ain't complicated:
+
+1. **Fresh Context > Old Garbage** — *"Smell you later!"* to whatever you remember from 10 hours ago
+2. **Think First > Punch First** — Even I know you gotta plan before you swing
+3. **One Problem > Many Problems** — Beat up ONE thing at a time. Don't be greedy.
+4. **Prove It > Trust Me Bro** — *"Stop hitting yourself!"* — run the tests
+5. **Keep Punching > Give Up** — Persistence beats talent. I would know.
+6. **Clean Handoff > Giant Brain Dump** — Next iteration should know exactly where to swing
 
 ---
 
@@ -476,4 +516,10 @@ MIT
 
                     MUNTZ v3.0
          Peak Performance Development Loop
+
+      "Others try. We triumph. HA-HA!" 🥊
 ```
+
+---
+
+*Now go beat up some bugs. Smell you later!*
