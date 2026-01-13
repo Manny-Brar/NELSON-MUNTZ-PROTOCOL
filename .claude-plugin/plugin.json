@@ -1,0 +1,25 @@
+{
+  "name": "nelson-muntz",
+  "version": "3.0.0",
+  "description": "Peak performance AI development loops with fresh context, ultrathink integration, two-stage validation, and the 3-fix rule. The evolved successor to Ralph Wiggum. HA-HA!",
+  "author": {
+    "name": "Project Aurora",
+    "email": "dev@projectaurora.ai"
+  },
+  "keywords": [
+    "agent-loop",
+    "fresh-context",
+    "ultrathink",
+    "peak-performance",
+    "development",
+    "automation"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/anthropics/claude-code"
+  },
+  "engines": {
+    "claude-code": ">=1.0.0"
+  }
+}

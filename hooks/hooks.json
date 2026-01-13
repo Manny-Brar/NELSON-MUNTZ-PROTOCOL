@@ -1,0 +1,30 @@
+{
+  "hooks": [
+    {
+      "event": "PostToolCall",
+      "matcher": {
+        "tool_name": "Bash",
+        "output_contains": "<promise>"
+      },
+      "action": {
+        "type": "notify",
+        "message": "🎉 HA-HA! Nelson Muntz loop detected completion promise!"
+      }
+    },
+    {
+      "event": "PostToolCall",
+      "matcher": {
+        "tool_name": "Write",
+        "file_pattern": ".claude/ralph-v3/handoff.md"
+      },
+      "action": {
+        "type": "notify",
+        "message": "📋 Handoff document updated - ready for next iteration"
+      }
+    }
+  ],
+  "notes": {
+    "architecture": "Nelson Muntz uses an external bash loop that spawns fresh Claude sessions. Unlike Ralph Wiggum v1 which used stop-hooks to intercept exit, Nelson Muntz relies on the bash script (nelson-muntz.sh) to orchestrate iterations.",
+    "why_minimal_hooks": "The main loop logic is in scripts/nelson-muntz.sh, not in hooks. Hooks here are optional notifications for visibility into loop progress."
+  }
+}
