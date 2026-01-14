@@ -107,9 +107,39 @@ claude plugin update nelson-muntz@nelson-muntz-marketplace
 
 | Option | Default | Description |
 |--------|---------|-------------|
-| `--max-iterations N` | unlimited | Stop after N iterations (safety limit) |
+| `--max-iterations N` | unlimited | Stop after N full passes through all tasks |
 | `--completion-promise "TEXT"` | none | Stop when this text appears in `<promise>` tags |
 | `--ha-ha` | false | Enable HA-HA peak performance mode |
+
+---
+
+## Task Lists (v3.4.0 - NEW!)
+
+**Got multiple things to do? Give me a numbered list:**
+
+```bash
+/nelson "
+1. Audit business portal security
+2. Fix tenant isolation issues
+3. Add rate limiting to APIs
+4. Run verification tests
+" --max-iterations 3
+```
+
+**What happens:**
+- I detect the 4 numbered tasks
+- I work through them in order: Task 1 → Task 2 → Task 3 → Task 4
+- When ALL 4 are done = **1 iteration complete**
+- Then I start over for iteration 2
+- With `--max-iterations 3`, I do all 4 tasks **three times** (12 total task completions)
+
+**Why this matters:**
+- Before: `--max-iterations 5` meant 5 responses total (lame)
+- Now: `--max-iterations 5` means 5 FULL PASSES through your entire task list (powerful)
+
+**Task detection:**
+- Uses numbered format: `1.`, `2.`, `3.`, etc.
+- No numbered list? Treats whole prompt as 1 task (behaves like before)
 
 ---
 
@@ -125,6 +155,17 @@ claude plugin update nelson-muntz@nelson-muntz-marketplace
 ```bash
 # Stop when all tests pass
 /nelson "Fix the authentication bug" --completion-promise "ALL TESTS PASS"
+```
+
+### With Task List (v3.4.0)
+```bash
+# Multiple tasks - 3 full passes through all of them
+/nelson "
+1. Review authentication flow
+2. Add input validation
+3. Write unit tests
+4. Update documentation
+" --max-iterations 3
 ```
 
 ### Complex Tasks (HA-HA Mode)
@@ -627,8 +668,8 @@ MIT
    ██║ ╚████║███████╗███████╗███████║╚██████╔╝██║ ╚████║
    ╚═╝  ╚═══╝╚══════╝╚══════╝╚══════╝ ╚═════╝ ╚═╝  ╚═══╝
 
-                    MUNTZ v3.3.1
-      STRICT CONTENT VALIDATION + REJECTION LOOP
+                    MUNTZ v3.4.0
+      TASK LISTS + STRICT VALIDATION + REJECTION LOOP
 
       "Others try. We triumph. HA-HA!" 🥊
 ```

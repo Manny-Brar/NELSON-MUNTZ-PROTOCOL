@@ -105,10 +105,29 @@ else
   COMPLETION_PROMISE_YAML="null"
 fi
 
+# Parse tasks from prompt (look for numbered list: 1. Task, 2. Task, etc.)
+# If no numbered list found, treat entire prompt as single task
+TASK_COUNT=0
+TASK_LIST=""
+
+# Check if prompt contains numbered tasks (1. something, 2. something)
+if echo "$PROMPT" | grep -qE '^\s*[0-9]+\.\s+'; then
+  # Extract numbered items
+  TASK_LIST=$(echo "$PROMPT" | grep -E '^\s*[0-9]+\.\s+' | sed 's/^\s*//')
+  TASK_COUNT=$(echo "$TASK_LIST" | wc -l | tr -d ' ')
+fi
+
+# Default to 1 task if no numbered list found
+if [[ $TASK_COUNT -eq 0 ]]; then
+  TASK_COUNT=1
+fi
+
 cat > .claude/nelson-loop.local.md <<EOF
 ---
 active: true
 iteration: 1
+current_task: 1
+task_count: $TASK_COUNT
 max_iterations: $MAX_ITERATIONS
 completion_promise: $COMPLETION_PROMISE_YAML
 ha_ha_mode: $HA_HA_MODE
@@ -122,20 +141,26 @@ EOF
 cat > .claude/nelson-handoff.local.md <<EOF
 # Nelson Handoff - Iteration 0 (Initial)
 
-## Status
-Starting fresh - no previous work
+## Progress
+- Iteration: 1 of $(if [[ $MAX_ITERATIONS -gt 0 ]]; then echo $MAX_ITERATIONS; else echo "unlimited"; fi)
+- Task: 1 of $TASK_COUNT
+- Status: Starting fresh
 
-## Task
+## Task List
 $PROMPT
 
-## Next Iteration Should
+## Next Should
 1. Read this handoff
-2. Plan the approach
-3. Select ONE feature to implement
-4. Complete it fully before moving on
+2. Work on Task 1
+3. Complete it fully before moving to next task
+4. Update this handoff with progress
 
 ## Completion Criteria
 $(if [[ "$COMPLETION_PROMISE" != "null" ]]; then echo "Promise: $COMPLETION_PROMISE"; else echo "Signal: ALL_FEATURES_COMPLETE"; fi)
+
+## Important
+- One "iteration" = completing ALL $TASK_COUNT tasks once
+- Complete tasks in order: 1 → 2 → ... → $TASK_COUNT → (next iteration)
 EOF
 
 # Output activation message with protocol
@@ -158,9 +183,11 @@ PROTOCOL_EOF
 fi
 
 cat <<EOF
-Iteration: 1
-Max iterations: $(if [[ $MAX_ITERATIONS -gt 0 ]]; then echo $MAX_ITERATIONS; else echo "unlimited"; fi)
+Iteration: 1 of $(if [[ $MAX_ITERATIONS -gt 0 ]]; then echo $MAX_ITERATIONS; else echo "unlimited"; fi)
+Task: 1 of $TASK_COUNT
 Completion promise: $(if [[ "$COMPLETION_PROMISE" != "null" ]]; then echo "$COMPLETION_PROMISE"; else echo "none"; fi)
+
+NOTE: One "iteration" = completing ALL $TASK_COUNT tasks once.
 
 ═══════════════════════════════════════════════════════════════════
                     ITERATION PROTOCOL (MANDATORY)

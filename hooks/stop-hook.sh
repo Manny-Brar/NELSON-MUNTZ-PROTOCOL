@@ -32,10 +32,20 @@ FRONTMATTER=$(sed -n '/^---$/,/^---$/{ /^---$/d; p; }' "$NELSON_STATE_FILE")
 # Extract fields
 ACTIVE=$(echo "$FRONTMATTER" | grep '^active:' | sed 's/active: *//')
 ITERATION=$(echo "$FRONTMATTER" | grep '^iteration:' | sed 's/iteration: *//')
+CURRENT_TASK=$(echo "$FRONTMATTER" | grep '^current_task:' | sed 's/current_task: *//' || echo "1")
+TASK_COUNT=$(echo "$FRONTMATTER" | grep '^task_count:' | sed 's/task_count: *//' || echo "1")
 MAX_ITERATIONS=$(echo "$FRONTMATTER" | grep '^max_iterations:' | sed 's/max_iterations: *//')
 HA_HA_MODE=$(echo "$FRONTMATTER" | grep '^ha_ha_mode:' | sed 's/ha_ha_mode: *//')
 COMPLETION_PROMISE=$(echo "$FRONTMATTER" | grep '^completion_promise:' | sed 's/completion_promise: *//' | sed 's/^"\(.*\)"$/\1/')
 VERIFICATION_PENDING=$(echo "$FRONTMATTER" | grep '^verification_pending:' | sed 's/verification_pending: *//' || echo "false")
+
+# Default task values if not set
+if [[ -z "$CURRENT_TASK" ]] || [[ "$CURRENT_TASK" == "" ]]; then
+  CURRENT_TASK=1
+fi
+if [[ -z "$TASK_COUNT" ]] || [[ "$TASK_COUNT" == "" ]]; then
+  TASK_COUNT=1
+fi
 
 # Check if loop is active
 if [[ "$ACTIVE" != "true" ]]; then
@@ -58,16 +68,8 @@ if [[ ! "$MAX_ITERATIONS" =~ ^[0-9]+$ ]]; then
   exit 0
 fi
 
-# Check if max iterations reached
-if [[ $MAX_ITERATIONS -gt 0 ]] && [[ $ITERATION -ge $MAX_ITERATIONS ]]; then
-  echo ""
-  echo "HA-HA! Nelson loop: Max iterations ($MAX_ITERATIONS) reached."
-  echo ""
-  rm "$NELSON_STATE_FILE"
-  rm "$NELSON_HANDOFF_FILE" 2>/dev/null || true
-  rm "$NELSON_VERIFICATION_FILE" 2>/dev/null || true
-  exit 0
-fi
+# NOTE: Max iterations check moved to after task cycling logic (line ~458)
+# This ensures "iteration" means "full pass through all tasks"
 
 # Get transcript path from hook input
 TRANSCRIPT_PATH=$(echo "$HOOK_INPUT" | jq -r '.transcript_path')
@@ -415,8 +417,8 @@ fi
 # Check if handoff was updated this iteration
 HANDOFF_UPDATED=false
 if [[ -f "$NELSON_HANDOFF_FILE" ]]; then
-  # Check if handoff mentions current iteration
-  if grep -q "Iteration $ITERATION" "$NELSON_HANDOFF_FILE"; then
+  # Check if handoff mentions current iteration or task
+  if grep -q "Iteration $ITERATION" "$NELSON_HANDOFF_FILE" || grep -q "Task $CURRENT_TASK" "$NELSON_HANDOFF_FILE"; then
     HANDOFF_UPDATED=true
   fi
 fi
@@ -431,8 +433,31 @@ if [[ "$HANDOFF_UPDATED" != "true" ]]; then
 "
 fi
 
-# Not complete - continue loop
-NEXT_ITERATION=$((ITERATION + 1))
+# Task-based iteration logic:
+# - Increment current_task after each response
+# - When current_task > task_count, reset to 1 and increment iteration
+# - This means "iteration" = one full pass through all tasks
+
+NEXT_TASK=$((CURRENT_TASK + 1))
+NEXT_ITERATION=$ITERATION
+
+if [[ $NEXT_TASK -gt $TASK_COUNT ]]; then
+  # Completed all tasks in this iteration - start new iteration
+  NEXT_TASK=1
+  NEXT_ITERATION=$((ITERATION + 1))
+fi
+
+# Check if max iterations reached (only after completing a full pass)
+if [[ $MAX_ITERATIONS -gt 0 ]] && [[ $NEXT_ITERATION -gt $MAX_ITERATIONS ]]; then
+  echo ""
+  echo "HA-HA! Nelson loop: Max iterations ($MAX_ITERATIONS) reached."
+  echo "Completed $MAX_ITERATIONS full passes through all $TASK_COUNT tasks."
+  echo ""
+  rm "$NELSON_STATE_FILE"
+  rm "$NELSON_HANDOFF_FILE" 2>/dev/null || true
+  rm "$NELSON_VERIFICATION_FILE" 2>/dev/null || true
+  exit 0
+fi
 
 # Extract prompt (everything after the closing ---)
 PROMPT_TEXT=$(awk '/^---$/{i++; next} i>=2' "$NELSON_STATE_FILE")
@@ -443,9 +468,10 @@ if [[ -z "$PROMPT_TEXT" ]]; then
   exit 0
 fi
 
-# Update iteration in state file
+# Update iteration and current_task in state file
 TEMP_FILE="${NELSON_STATE_FILE}.tmp.$$"
-sed "s/^iteration: .*/iteration: $NEXT_ITERATION/" "$NELSON_STATE_FILE" > "$TEMP_FILE"
+sed "s/^iteration: .*/iteration: $NEXT_ITERATION/" "$NELSON_STATE_FILE" | \
+  sed "s/^current_task: .*/current_task: $NEXT_TASK/" > "$TEMP_FILE"
 mv "$TEMP_FILE" "$NELSON_STATE_FILE"
 
 # Build system message based on mode
@@ -455,10 +481,21 @@ else
   MODE_LABEL="Nelson"
 fi
 
+# Build task progress indicator
+if [[ $TASK_COUNT -gt 1 ]]; then
+  TASK_PROGRESS="Task $NEXT_TASK of $TASK_COUNT"
+  if [[ $NEXT_TASK -eq 1 ]] && [[ $CURRENT_TASK -eq $TASK_COUNT ]]; then
+    TASK_PROGRESS="$TASK_PROGRESS (Starting new iteration!)"
+  fi
+else
+  TASK_PROGRESS=""
+fi
+
 # Build iteration prompt with protocol reminder
 if [[ "$HA_HA_MODE" == "true" ]]; then
   ITERATION_PROMPT="
-## HA-HA MODE - ITERATION $NEXT_ITERATION
+## HA-HA MODE - ITERATION $NEXT_ITERATION of $(if [[ $MAX_ITERATIONS -gt 0 ]]; then echo $MAX_ITERATIONS; else echo 'unlimited'; fi)
+$(if [[ -n "$TASK_PROGRESS" ]]; then echo "### $TASK_PROGRESS"; fi)
 $VALIDATION_WARNING
 ### ITERATION PROTOCOL (MANDATORY)
 
@@ -510,7 +547,8 @@ $(if [[ "$COMPLETION_PROMISE" != "null" ]]; then echo "- Promise: <promise>$COMP
 "
 else
   ITERATION_PROMPT="
-## Nelson Muntz - Iteration $NEXT_ITERATION
+## Nelson Muntz - Iteration $NEXT_ITERATION of $(if [[ $MAX_ITERATIONS -gt 0 ]]; then echo $MAX_ITERATIONS; else echo 'unlimited'; fi)
+$(if [[ -n "$TASK_PROGRESS" ]]; then echo "### $TASK_PROGRESS"; fi)
 $VALIDATION_WARNING
 ### ITERATION PROTOCOL (MANDATORY)
 
@@ -552,7 +590,11 @@ $(if [[ "$COMPLETION_PROMISE" != "null" ]]; then echo "- <promise>$COMPLETION_PR
 fi
 
 # Build system message
-SYSTEM_MSG="$MODE_LABEL iteration $NEXT_ITERATION | Read handoff first! | Completion triggers VERIFICATION CHALLENGE"
+if [[ $TASK_COUNT -gt 1 ]]; then
+  SYSTEM_MSG="$MODE_LABEL iteration $NEXT_ITERATION | Task $NEXT_TASK/$TASK_COUNT | Read handoff first!"
+else
+  SYSTEM_MSG="$MODE_LABEL iteration $NEXT_ITERATION | Read handoff first! | Completion triggers VERIFICATION CHALLENGE"
+fi
 
 # Output JSON to block the stop and feed prompt back
 jq -n \
