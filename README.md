@@ -412,7 +412,7 @@ Cannot exit iteration with:
 - Build failures
 - Missing handoff
 
-### 8. VERIFICATION CHALLENGE (v3.3.0 - THE BIG ONE)
+### 8. VERIFICATION CHALLENGE (v3.3.1 - THE BIG ONE)
 
 **You think you're done? PROVE IT.**
 
@@ -454,12 +454,26 @@ MANDATORY VERIFICATION STEPS:
 <nelson-verified>VERIFICATION_COMPLETE</nelson-verified>
 ```
 
-**The hook checks the verification file for:**
-- `## Tests` section (with actual output)
-- `## Edge Cases` section (with 3+ cases)
-- `## Self-Review` section (honest assessment)
+**The hook validates CONTENT QUALITY (v3.3.1):**
+- `## Tests` - Must contain pass/fail keywords or test counts (regex validated)
+- `## Build` - Must contain "success/pass/complete" confirmation
+- `## Edge Cases` - Must have 3+ numbered/bulleted items (counted!)
+- `## Self-Review` - Must mention weakness/criticism/debt/todos
+- `## Git Status` - Must exist with commit info
 
-**No proof = No exit.** HA-HA!
+**Weak verification? REJECTED with specific failures:**
+```
+🔴 VERIFICATION REJECTED - ITERATION 6
+
+FAILURES DETECTED:
+- Tests section lacks actual test output (need pass/fail counts)
+- Edge Cases needs 3+ items (found: 1)
+- Self-Review lacks required analysis
+
+FIX YOUR VERIFICATION FILE and resubmit!
+```
+
+**No cheating Nelson.** HA-HA!
 
 This prevents:
 - Claiming done when tests fail
@@ -613,8 +627,8 @@ MIT
    ██║ ╚████║███████╗███████╗███████║╚██████╔╝██║ ╚████║
    ╚═╝  ╚═══╝╚══════╝╚══════╝╚══════╝ ╚═════╝ ╚═╝  ╚═══╝
 
-                    MUNTZ v3.3
-       AGGRESSIVE VALIDATION + VERIFICATION CHALLENGE
+                    MUNTZ v3.3.1
+      STRICT CONTENT VALIDATION + REJECTION LOOP
 
       "Others try. We triumph. HA-HA!" 🥊
 ```
