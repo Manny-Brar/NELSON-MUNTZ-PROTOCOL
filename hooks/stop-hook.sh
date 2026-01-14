@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Nelson Muntz Stop Hook (v3.3.0) - AGGRESSIVE VALIDATION
+# Nelson Muntz Stop Hook (v3.3.1) - AGGRESSIVE VALIDATION + STRICT CONTENT CHECKING
 # In-session looping with mandatory verification, self-review, and quality gates
 #
 # Key Features:
@@ -111,35 +111,163 @@ fi
 
 # Check for VERIFIED completion (after verification challenge passed)
 if echo "$LAST_OUTPUT" | grep -q "<nelson-verified>VERIFICATION_COMPLETE</nelson-verified>"; then
-  # Check that verification file exists and has required sections
+  # Check that verification file exists and has required sections WITH CONTENT
   if [[ -f "$NELSON_VERIFICATION_FILE" ]]; then
-    VERIFICATION_VALID=true
+    VERIFICATION_FAILURES=""
 
-    # Check for required verification sections
+    # === STRICT VALIDATION: Tests section must have actual results ===
     if ! grep -q "## Tests" "$NELSON_VERIFICATION_FILE"; then
-      VERIFICATION_VALID=false
-    fi
-    if ! grep -q "## Edge Cases" "$NELSON_VERIFICATION_FILE"; then
-      VERIFICATION_VALID=false
-    fi
-    if ! grep -q "## Self-Review" "$NELSON_VERIFICATION_FILE"; then
-      VERIFICATION_VALID=false
+      VERIFICATION_FAILURES="${VERIFICATION_FAILURES}\n- Missing '## Tests' section"
+    else
+      # Check for actual test output indicators (numbers, pass/fail keywords)
+      TESTS_SECTION=$(sed -n '/## Tests/,/## /p' "$NELSON_VERIFICATION_FILE" | head -20)
+      if ! echo "$TESTS_SECTION" | grep -qiE '(pass|fail|[0-9]+ (test|spec|assertion))'; then
+        VERIFICATION_FAILURES="${VERIFICATION_FAILURES}\n- Tests section lacks actual test output (need pass/fail counts)"
+      fi
     fi
 
-    if [[ "$VERIFICATION_VALID" == "true" ]]; then
+    # === STRICT VALIDATION: Edge Cases must have at least 3 items ===
+    if ! grep -q "## Edge Cases" "$NELSON_VERIFICATION_FILE"; then
+      VERIFICATION_FAILURES="${VERIFICATION_FAILURES}\n- Missing '## Edge Cases' section"
+    else
+      # Count numbered or bulleted items in Edge Cases section
+      EDGE_CASES_SECTION=$(sed -n '/## Edge Cases/,/## /p' "$NELSON_VERIFICATION_FILE")
+      EDGE_CASE_COUNT=$(echo "$EDGE_CASES_SECTION" | grep -cE '^[0-9]+\.|^- |^\* ' || echo "0")
+      if [[ "$EDGE_CASE_COUNT" -lt 3 ]]; then
+        VERIFICATION_FAILURES="${VERIFICATION_FAILURES}\n- Edge Cases needs 3+ items (found: $EDGE_CASE_COUNT)"
+      fi
+    fi
+
+    # === STRICT VALIDATION: Self-Review must have actual content ===
+    if ! grep -q "## Self-Review" "$NELSON_VERIFICATION_FILE"; then
+      VERIFICATION_FAILURES="${VERIFICATION_FAILURES}\n- Missing '## Self-Review' section"
+    else
+      SELF_REVIEW_SECTION=$(sed -n '/## Self-Review/,/## /p' "$NELSON_VERIFICATION_FILE")
+      # Check for required self-review fields
+      if ! echo "$SELF_REVIEW_SECTION" | grep -qiE '(weak|criticism|debt|todo)'; then
+        VERIFICATION_FAILURES="${VERIFICATION_FAILURES}\n- Self-Review lacks required analysis (weakness, criticism, debt, todos)"
+      fi
+    fi
+
+    # === STRICT VALIDATION: Build section must exist ===
+    if ! grep -q "## Build" "$NELSON_VERIFICATION_FILE"; then
+      VERIFICATION_FAILURES="${VERIFICATION_FAILURES}\n- Missing '## Build' section"
+    else
+      BUILD_SECTION=$(sed -n '/## Build/,/## /p' "$NELSON_VERIFICATION_FILE")
+      if ! echo "$BUILD_SECTION" | grep -qiE '(success|pass|complete|built)'; then
+        VERIFICATION_FAILURES="${VERIFICATION_FAILURES}\n- Build section lacks success confirmation"
+      fi
+    fi
+
+    # === STRICT VALIDATION: Git Status section ===
+    if ! grep -q "## Git Status" "$NELSON_VERIFICATION_FILE"; then
+      VERIFICATION_FAILURES="${VERIFICATION_FAILURES}\n- Missing '## Git Status' section"
+    fi
+
+    # If all validations passed, allow exit
+    if [[ -z "$VERIFICATION_FAILURES" ]]; then
       echo ""
       echo "HA-HA! Nelson loop: VERIFIED completion after $ITERATION iterations!"
-      echo "Verification passed all quality gates."
+      echo "All quality gates passed. Work verified."
       echo ""
       rm "$NELSON_STATE_FILE"
       rm "$NELSON_HANDOFF_FILE" 2>/dev/null || true
       rm "$NELSON_VERIFICATION_FILE" 2>/dev/null || true
       exit 0
     else
-      echo "Nelson loop: Verification file incomplete - missing required sections" >&2
+      # REJECT - verification file doesn't meet standards
+      NEXT_ITERATION=$((ITERATION + 1))
+
+      TEMP_FILE="${NELSON_STATE_FILE}.tmp.$$"
+      sed "s/^iteration: .*/iteration: $NEXT_ITERATION/" "$NELSON_STATE_FILE" > "$TEMP_FILE"
+      mv "$TEMP_FILE" "$NELSON_STATE_FILE"
+
+      REJECT_PROMPT="
+## 🔴 VERIFICATION REJECTED - ITERATION $NEXT_ITERATION
+
+Your verification file doesn't meet quality standards. HA-HA!
+
+**FAILURES DETECTED:**
+$(echo -e "$VERIFICATION_FAILURES")
+
+**REQUIREMENTS:**
+1. **## Tests** - Must contain actual test output with pass/fail counts
+   Example: 'Tests: 15 passed, 0 failed' or actual test runner output
+
+2. **## Edge Cases** - Must list at least 3 numbered/bulleted edge cases
+   Example:
+   1. Empty input: handled with validation
+   2. Network timeout: retry with exponential backoff
+   3. Concurrent requests: mutex lock on shared state
+
+3. **## Self-Review** - Must analyze: weakness, potential criticism, tech debt, TODOs
+   Example:
+   - Weakest part: Error messages could be more descriptive
+   - Criticism: Should add retry logic for database connections
+   - Tech debt: None introduced
+   - TODOs: 0 remaining
+
+4. **## Build** - Must confirm build succeeded
+   Example: 'npm run build: SUCCESS (no errors)'
+
+5. **## Git Status** - Must show commit status
+   Example: 'Uncommitted: 0, Last commit: abc123 feat: add auth'
+
+**FIX YOUR VERIFICATION FILE** at .claude/nelson-verification.local.md
+
+Then output: <nelson-verified>VERIFICATION_COMPLETE</nelson-verified>
+
+Nelson is not impressed. Try again!
+"
+
+      jq -n \
+        --arg prompt "$REJECT_PROMPT" \
+        --arg msg "🔴 VERIFICATION REJECTED | Fix failures and resubmit" \
+        '{
+          "decision": "block",
+          "reason": $prompt,
+          "systemMessage": $msg
+        }'
+
+      exit 0
     fi
   else
-    echo "Nelson loop: Verification claimed but no verification file found" >&2
+    # No verification file - reject with instructions
+    NEXT_ITERATION=$((ITERATION + 1))
+
+    TEMP_FILE="${NELSON_STATE_FILE}.tmp.$$"
+    sed "s/^iteration: .*/iteration: $NEXT_ITERATION/" "$NELSON_STATE_FILE" > "$TEMP_FILE"
+    mv "$TEMP_FILE" "$NELSON_STATE_FILE"
+
+    NO_FILE_PROMPT="
+## 🔴 VERIFICATION REJECTED - NO FILE FOUND
+
+You claimed verification complete but there's no verification file!
+
+**CREATE:** .claude/nelson-verification.local.md
+
+**REQUIRED SECTIONS:**
+- ## Tests (with actual pass/fail output)
+- ## Build (with success confirmation)
+- ## Edge Cases (3+ items)
+- ## Self-Review (weakness, criticism, debt, todos)
+- ## Git Status (commit info)
+
+Then output: <nelson-verified>VERIFICATION_COMPLETE</nelson-verified>
+
+Don't try to cheat Nelson. HA-HA!
+"
+
+    jq -n \
+      --arg prompt "$NO_FILE_PROMPT" \
+      --arg msg "🔴 NO VERIFICATION FILE | Create .claude/nelson-verification.local.md first" \
+      '{
+        "decision": "block",
+        "reason": $prompt,
+        "systemMessage": $msg
+      }'
+
+    exit 0
   fi
 fi
 
