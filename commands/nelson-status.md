@@ -1,6 +1,6 @@
 ---
 description: "Check Nelson Muntz loop status"
-allowed-tools: ["Bash(${CLAUDE_PLUGIN_ROOT}/scripts/nelson-muntz.sh:*)", "Read(.claude/ralph-v3/*)", "Read(.claude/nelson-muntz.log)"]
+allowed-tools: ["Bash(head *)", "Read(.claude/nelson-loop.local.md)"]
 hide-from-slash-command-tool: "true"
 ---
 
@@ -9,16 +9,37 @@ hide-from-slash-command-tool: "true"
 Check the current status of the Nelson Muntz loop.
 
 ```!
-"${CLAUDE_PLUGIN_ROOT}/scripts/nelson-muntz.sh" status
+if [ -f .claude/nelson-loop.local.md ]; then
+  echo "=== Nelson Muntz Status ==="
+  echo ""
+  head -10 .claude/nelson-loop.local.md
+  echo ""
+  echo "State file: .claude/nelson-loop.local.md"
+  echo ""
+  # Extract values from YAML frontmatter
+  ITERATION=$(sed -n '/^---$/,/^---$/p' .claude/nelson-loop.local.md | grep 'iteration:' | sed 's/iteration: *//')
+  MAX_ITER=$(sed -n '/^---$/,/^---$/p' .claude/nelson-loop.local.md | grep 'max_iterations:' | sed 's/max_iterations: *//')
+  HA_HA=$(sed -n '/^---$/,/^---$/p' .claude/nelson-loop.local.md | grep 'ha_ha_mode:' | sed 's/ha_ha_mode: *//')
+  echo "Current Iteration: $ITERATION"
+  echo "Max Iterations: $(if [ "$MAX_ITER" = "0" ]; then echo "unlimited"; else echo "$MAX_ITER"; fi)"
+  echo "HA-HA Mode: $HA_HA"
+else
+  echo "=== Nelson Muntz Status ==="
+  echo ""
+  echo "Status: NOT ACTIVE"
+  echo ""
+  echo "No active Nelson loop. Start one with:"
+  echo "  /nelson \"Your task here\""
+  echo "  /ha-ha \"Complex task here\""
+fi
 ```
 
 ## What This Shows
 
-- **Running State**: Whether the loop is active, stopped, or completed
+- **Active State**: Whether a loop is currently running
 - **Iteration Count**: Current iteration number
-- **Feature Summary**: Total, completed, blocked, pending
-- **Configuration**: Model, max iterations, completion promise
-- **Git Stats**: Number of checkpoints created
+- **Mode**: Standard or HA-HA Mode
+- **Max Iterations**: Limit if set
 
 ## Quick Status Commands
 
@@ -26,15 +47,9 @@ Check the current status of the Nelson Muntz loop.
 # Full status report
 /nelson-status
 
-# Just check if running
-test -f .claude/nelson-muntz.pid && echo "RUNNING" || echo "NOT RUNNING"
+# Just check if active
+test -f .claude/nelson-loop.local.md && echo "ACTIVE" || echo "NOT ACTIVE"
 
-# Check latest handoff
-cat .claude/ralph-v3/handoff.md
-
-# Check feature progress
-cat .claude/ralph-v3/features.json | jq '.summary'
-
-# View recent log entries
-tail -20 .claude/nelson-muntz.log
+# View full state file
+cat .claude/nelson-loop.local.md
 ```

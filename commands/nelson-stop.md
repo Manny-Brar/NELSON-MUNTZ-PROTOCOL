@@ -1,6 +1,6 @@
 ---
 description: "Stop Nelson Muntz loop"
-allowed-tools: ["Bash(${CLAUDE_PLUGIN_ROOT}/scripts/nelson-muntz.sh:*)", "Bash(rm .claude/nelson-muntz.pid)"]
+allowed-tools: ["Bash(rm .claude/nelson-loop.local.md)"]
 hide-from-slash-command-tool: "true"
 ---
 
@@ -9,33 +9,37 @@ hide-from-slash-command-tool: "true"
 Stop the active Nelson Muntz loop.
 
 ```!
-"${CLAUDE_PLUGIN_ROOT}/scripts/nelson-muntz.sh" stop
+if [ -f .claude/nelson-loop.local.md ]; then
+  rm .claude/nelson-loop.local.md
+  echo ""
+  echo "HA-HA! Nelson loop stopped."
+  echo ""
+  echo "The loop has been terminated."
+  echo "Start a new one with /nelson or /ha-ha"
+else
+  echo ""
+  echo "No active Nelson loop to stop."
+  echo ""
+fi
 ```
 
 ## What Happens
 
-1. Sends stop signal to running loop
-2. Removes PID file
-3. Marks loop as inactive in config.json
-4. State files are preserved for later resume
+1. Removes the state file
+2. Stop hook will no longer intercept exit
+3. Session can end normally
 
-## Resume Later
+## Starting a New Loop
 
 ```bash
-# Resume stopped loop
-/nelson-resume
+# Standard mode
+/nelson "Build a REST API" --max-iterations 20
 
-# Or via script directly
-./.claude/plugins/repos/anthropics-claude-code/plugins/nelson-muntz/scripts/nelson-muntz.sh resume
+# HA-HA mode (Peak Performance)
+/ha-ha "Build OAuth authentication"
 ```
 
-## State Preserved
+## Note
 
-All state files are kept:
-- `config.json` - Settings (marked inactive)
-- `features.json` - Feature progress
-- `handoff.md` - Context for resume
-- `progress.md` - Full iteration history
-- `scratchpad.md` - Debug notes
-
-You can resume exactly where you left off.
+Unlike the previous CLI-based version, this in-session loop has no resume feature.
+The loop is either active or stopped. To continue work, start a new loop with the same prompt.

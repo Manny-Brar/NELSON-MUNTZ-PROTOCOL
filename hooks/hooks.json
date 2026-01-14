@@ -1,30 +1,20 @@
 {
-  "hooks": [
-    {
-      "event": "PostToolCall",
-      "matcher": {
-        "tool_name": "Bash",
-        "output_contains": "<promise>"
-      },
-      "action": {
-        "type": "notify",
-        "message": "🎉 HA-HA! Nelson Muntz loop detected completion promise!"
+  "description": "Nelson Muntz plugin hooks for in-session self-referential loops",
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/stop-hook.sh"
+          }
+        ]
       }
-    },
-    {
-      "event": "PostToolCall",
-      "matcher": {
-        "tool_name": "Write",
-        "file_pattern": ".claude/ralph-v3/handoff.md"
-      },
-      "action": {
-        "type": "notify",
-        "message": "📋 Handoff document updated - ready for next iteration"
-      }
-    }
-  ],
+    ]
+  },
   "notes": {
-    "architecture": "Nelson Muntz uses an external bash loop that spawns fresh Claude sessions. Unlike Ralph Wiggum v1 which used stop-hooks to intercept exit, Nelson Muntz relies on the bash script (nelson-muntz.sh) to orchestrate iterations.",
-    "why_minimal_hooks": "The main loop logic is in scripts/nelson-muntz.sh, not in hooks. Hooks here are optional notifications for visibility into loop progress."
+    "architecture": "Nelson Muntz now uses in-session stop hooks (like Ralph Wiggum v2) instead of external bash loops. This enables proper looping in VS Code and other Claude Code environments.",
+    "state_file": ".claude/nelson-loop.local.md - YAML frontmatter with prompt content",
+    "completion": "Loop stops when: max_iterations reached, <promise>PHRASE</promise> detected, or <nelson-complete>ALL_FEATURES_COMPLETE</nelson-complete> output"
   }
 }

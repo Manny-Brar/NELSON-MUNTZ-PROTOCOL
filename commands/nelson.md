@@ -1,7 +1,7 @@
 ---
 description: "Start Nelson Muntz peak performance development loop"
 argument-hint: "PROMPT [--max-iterations N] [--completion-promise TEXT]"
-allowed-tools: ["Bash(${CLAUDE_PLUGIN_ROOT}/scripts/nelson-muntz.sh:*)"]
+allowed-tools: ["Bash(${CLAUDE_PLUGIN_ROOT}/scripts/setup-nelson-loop.sh:*)"]
 hide-from-slash-command-tool: "true"
 ---
 
@@ -10,18 +10,17 @@ hide-from-slash-command-tool: "true"
 Execute the Nelson Muntz loop:
 
 ```!
-"${CLAUDE_PLUGIN_ROOT}/scripts/nelson-muntz.sh" start $ARGUMENTS
+"${CLAUDE_PLUGIN_ROOT}/scripts/setup-nelson-loop.sh" $ARGUMENTS
 ```
 
 ## What is Nelson Muntz?
 
-Nelson Muntz is the evolved successor to Ralph Wiggum - a peak performance AI development loop with:
+Nelson Muntz is a peak performance AI development loop with:
 
-- **Fresh Context Every Iteration** - No context rot, 200k clean tokens per session
+- **In-Session Looping** - Stop hook intercepts exit, feeds prompt back
 - **Ultrathink Integration** - Extended reasoning before every action
 - **Two-Stage Validation** - Spec compliance + quality checks
 - **3-Fix Rule** - Auto-escalate after 3 failed attempts
-- **Git Checkpointing** - Automatic commits on feature completion
 - **Single-Feature Focus** - ONE feature per iteration, enforced
 - **Clean State Gate** - Cannot exit with broken code
 
@@ -32,12 +31,10 @@ Nelson Muntz is the evolved successor to Ralph Wiggum - a peak performance AI de
 /nelson "Build a REST API with auth" --max-iterations 30
 
 # With completion promise
-/nelson "Add user authentication" \
-  --completion-promise "ALL TESTS PASS" \
-  --max-iterations 50
+/nelson "Add user authentication" --completion-promise "ALL TESTS PASS"
 
-# Run in background
-/nelson "Refactor the module" --background
+# For complex tasks, use HA-HA mode
+/ha-ha "Build OAuth authentication system"
 ```
 
 ## Options
@@ -46,60 +43,68 @@ Nelson Muntz is the evolved successor to Ralph Wiggum - a peak performance AI de
 |--------|-------------|
 | `--max-iterations N` | Stop after N iterations (default: unlimited) |
 | `--completion-promise TXT` | Text that signals completion |
-| `--model MODEL` | Claude model (default: claude-opus-4-5-20250514) |
-| `--delay N` | Seconds between iterations (default: 3) |
-| `--background` | Run in background |
+| `--ha-ha` | Enable HA-HA Mode (Peak Performance) |
 
-## State Files
+## Completion Signals
+
+To complete the loop, output one of:
 
 ```
-.claude/ralph-v3/
-├── config.json         # Loop configuration
-├── features.json       # Feature list with status
-├── scratchpad.md       # Debug notes (persistent)
-├── progress.md         # Iteration log (append-only)
-├── handoff.md          # Context for next iteration
-└── validation/
-    ├── spec-check.json     # Requirements tracking
-    └── quality-check.json  # Quality metrics
+<nelson-complete>ALL_FEATURES_COMPLETE</nelson-complete>
+```
+
+Or if you set a completion promise:
+
+```
+<promise>YOUR_PROMISE_TEXT</promise>
+```
+
+## State File
+
+```
+.claude/nelson-loop.local.md    # YAML frontmatter + prompt
 ```
 
 ## Monitoring
 
 ```bash
-# Watch live log
-tail -f .claude/nelson-muntz.log
+# Check state
+head -10 .claude/nelson-loop.local.md
 
 # Check status
 /nelson-status
 
 # Stop loop
 /nelson-stop
-
-# Check features
-cat .claude/ralph-v3/features.json | jq '.summary'
 ```
 
 ## How It Works
 
-1. **Iteration 1 (Initializer)**
-   - Sets up project scaffolding
-   - Decomposes task into features
-   - Creates init.sh for subsequent iterations
-   - Writes handoff for iteration 2
+1. **Setup Phase**
+   - Creates state file with prompt and settings
+   - Activates stop hook
 
-2. **Iteration 2+ (Executor)**
-   - Reads handoff from previous iteration
-   - Selects highest-priority feature
-   - Implements single feature
-   - Validates with two-stage check
-   - Creates git checkpoint on success
-   - Writes handoff for next iteration
+2. **Iteration Loop**
+   - Work on the task
+   - When you try to exit, stop hook intercepts
+   - Feeds prompt back for next iteration
+   - Your work persists in files
 
 3. **Completion**
-   - When all features pass OR completion promise detected
-   - Final status report
+   - Output completion signal
+   - Hook allows exit
    - HA-HA!
+
+## Standard vs HA-HA Mode
+
+| Standard Nelson | HA-HA Mode |
+|-----------------|------------|
+| Ultrathink | Multi-dimensional thinking (4 levels) |
+| Research on 2nd failure | Pre-research MANDATORY |
+| 3-fix rule | 5-attempt escalation |
+| Standard validation | Aggressive validation + self-review |
+
+Use `/ha-ha` for complex, multi-component features or unfamiliar technologies.
 
 ## HA-HA!
 
