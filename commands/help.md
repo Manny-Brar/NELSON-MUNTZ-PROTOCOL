@@ -2,24 +2,23 @@
 description: "Nelson Muntz plugin help and documentation"
 ---
 
-# Nelson Muntz - Peak Performance Development Loop
+# Nelson Muntz v3.3.1 - Peak Performance Development Loop
 
-**HA-HA!** Welcome to Nelson Muntz, the evolved successor to Ralph Wiggum.
+**HA-HA!** Welcome to Nelson Muntz with AGGRESSIVE VALIDATION.
 
 ## What Is This?
 
-Nelson Muntz is an AI development loop system that:
-- Spawns **fresh Claude sessions** for each iteration (no context rot)
-- Uses **Opus 4.5** for peak performance
-- Implements **ultrathink protocol** for extended reasoning
+Nelson Muntz is an **in-session AI development loop** that:
+- Uses **Stop hooks** to intercept exit and continue automatically
+- Enforces **mandatory 4-phase protocol** (Plan → Work → Verify → Handoff)
+- Implements **aggressive verification challenge** on completion claims
 - Enforces **single-feature focus** per iteration
-- Provides **two-stage validation** (spec + quality)
-- Applies the **3-fix rule** (escalate after 3 failures)
+- Provides **strict content validation** (not just section checks)
 - Creates **git checkpoints** on feature completion
 
 ## Why "Nelson Muntz"?
 
-Named after the bully from The Simpsons who says "HA-HA!" when things fail. Here, the HA-HA comes when we **succeed** - because we've conquered the problem through persistent iteration!
+Named after the bully from The Simpsons who says "HA-HA!" The HA-HA comes when we **succeed** after conquering problems through persistent iteration!
 
 ---
 
@@ -27,12 +26,10 @@ Named after the bully from The Simpsons who says "HA-HA!" when things fail. Here
 
 | Command | Description |
 |---------|-------------|
-| `/nelson` | Start a new development loop (standard mode) |
-| `/ha-ha` | Start in HA-HA Mode (Peak Performance) |
+| `/nelson "prompt"` | Start a development loop (standard mode) |
+| `/ha-ha "prompt"` | Start in HA-HA Mode (Peak Performance) |
 | `/nelson-status` | Check loop status |
 | `/nelson-stop` | Stop running loop |
-| `/nelson-resume` | Resume stopped loop |
-| `/nelson-help` | Show this help |
 
 ---
 
@@ -46,7 +43,7 @@ Named after the bully from The Simpsons who says "HA-HA!" when things fail. Here
 
 # Monitor progress
 /nelson-status
-tail -f .claude/nelson-muntz.log
+cat .claude/nelson-handoff.local.md
 
 # Stop if needed
 /nelson-stop
@@ -54,134 +51,84 @@ tail -f .claude/nelson-muntz.log
 
 ---
 
-## Key Innovations
-
-### 1. Fresh Context Every Iteration
-
-Each iteration gets a clean 200k token context window. No accumulated garbage, no context rot, no degraded performance.
+## How It Works (In-Session Hooks)
 
 ```
-Iteration 1: Fresh 200k context
-     ↓ (state files persist)
-Iteration 2: Fresh 200k context
-     ↓ (state files persist)
-Iteration N: Fresh 200k context
+1. /nelson or /ha-ha creates state files
+2. You work following the 4-phase protocol
+3. When you try to exit, Stop hook intercepts
+4. If not complete: Hook feeds prompt back
+5. If completion claimed: VERIFICATION CHALLENGE triggered
+6. If verification passes: Loop exits
 ```
 
-### 2. Ultrathink Protocol
-
-Before ANY action, Claude engages extended thinking:
-- "think hard" about current state
-- "ultrathink" about optimal approach
-- Document reasoning in scratchpad.md
-
-### 3. Two-Stage Validation
-
-**Stage 1: Spec Compliance**
-- Did we implement what was asked?
-- Are all requirements satisfied?
-
-**Stage 2: Quality Check**
-- Do tests pass?
-- Does lint pass?
-- Does build succeed?
-
-Both stages must pass for a feature to be complete.
-
-### 4. 3-Fix Rule
-
-If a feature fails 3 times:
-1. Mark it as "blocked"
-2. Document why it failed
-3. Move to next feature
-
-Prevents infinite loops on impossible problems.
-
-### 5. Initializer/Executor Split
-
-**Iteration 1 (Initializer):**
-- Set up project scaffolding
-- Decompose task into features
-- Create init.sh for subsequent iterations
-- NO implementation
-
-**Iteration 2+ (Executor):**
-- Read handoff from previous iteration
-- Work on ONE feature
-- Validate and checkpoint
-- Write handoff for next iteration
-
-### 6. Single-Feature Focus
-
-Each iteration works on exactly ONE feature:
-- Select highest-priority incomplete feature
-- Complete it fully OR mark as blocked
-- Do NOT touch other features
-- Do NOT "quickly fix" unrelated issues
-
-### 7. Clean State Gate
-
-Cannot exit iteration with broken code:
-- All tests must pass
-- No lint errors
-- Build must succeed
-- Handoff must be written
-
----
-
-## State Files
+### State Files
 
 ```
-.claude/ralph-v3/
-├── config.json         # Loop configuration
-├── features.json       # Feature list with status
-├── scratchpad.md       # Debug notes (persistent across all iterations)
-├── progress.md         # Iteration log (append-only)
-├── handoff.md          # Context for next iteration (rewritten each iter)
-├── init.sh             # Project init script (created by initializer)
-└── validation/
-    ├── spec-check.json     # Requirements tracking
-    └── quality-check.json  # Test/lint/build results
+.claude/
+├── nelson-loop.local.md        # YAML frontmatter + prompt
+├── nelson-handoff.local.md     # REQUIRED - updated every iteration
+├── nelson-scratchpad.local.md  # Optional planning notes
+└── nelson-verification.local.md # Created during verification
 ```
 
 ---
 
-## Skills
+## The 4-Phase Protocol (MANDATORY)
 
-Nelson Muntz includes specialized skills for common operations:
-
-### Nelson-Specific Skills
-
-| Skill | Purpose |
-|-------|---------|
-| `nelson-validate` | Two-stage validation protocol (spec + quality) |
-| `nelson-handoff` | Generate high-quality iteration handoffs |
-| `nelson-decompose` | Feature decomposition for initialization |
-| `nelson-wall-breaker` | Auto-research protocol when hitting obstacles |
-
-### Domain Skills
-
-| Skill | Purpose |
-|-------|---------|
-| `frontend-ui-ux` | Peak performance UI/UX with anti-slop design |
-| `database-supabase` | Postgres/Supabase with RLS and multi-tenant patterns |
-
-### Using Skills
-
-Skills are prompt templates that guide specific operations. Use them during Nelson iterations:
+Every iteration follows this:
 
 ```
-When hitting a wall:
-"I'm invoking the nelson-wall-breaker skill to research this error"
+PHASE 1: PLAN
+├─ Read handoff: cat .claude/nelson-handoff.local.md
+├─ Think hard about current state
+├─ Select ONE feature to complete
+└─ Write plan to scratchpad
 
-When validating a feature:
-"I'm using the nelson-validate skill for two-stage validation"
+PHASE 2: WORK
+├─ Implement the ONE selected feature
+├─ Do NOT touch other features
+└─ Commit working code
 
-When building UI:
-"I'm applying the frontend-ui-ux skill for this component"
+PHASE 3: VERIFY
+├─ Stage 1: Spec Check - matches requirements?
+├─ Stage 2: Quality Check - tests pass? build works?
+└─ BOTH stages must pass!
+
+PHASE 4: HANDOFF
+├─ Update .claude/nelson-handoff.local.md
+└─ What was completed, what's pending, next steps
 ```
 
-Skills are in: `~/.claude/plugins/repos/anthropics-claude-code/plugins/nelson-muntz/skills/`
+---
+
+## Verification Challenge (v3.3.1)
+
+When you claim completion with `<nelson-complete>ALL_FEATURES_COMPLETE</nelson-complete>`:
+
+**Hook does NOT just exit.** It triggers a VERIFICATION CHALLENGE:
+
+1. **RUN TESTS** - Actually run them, paste real output
+2. **BUILD CHECK** - Run build, confirm success
+3. **EDGE CASE AUDIT** - List 3+ edge cases handled
+4. **SELF-REVIEW** - Weakness, criticism, debt, TODOs
+5. **WRITE VERIFICATION FILE** - Create .claude/nelson-verification.local.md
+
+Then output: `<nelson-verified>VERIFICATION_COMPLETE</nelson-verified>`
+
+### Strict Content Validation
+
+The hook validates **content quality**:
+
+| Section | Validation |
+|---------|------------|
+| `## Tests` | Must contain pass/fail keywords or test counts |
+| `## Build` | Must contain "success/pass/complete" |
+| `## Edge Cases` | Must have 3+ numbered/bulleted items |
+| `## Self-Review` | Must mention weakness/criticism/debt/todos |
+| `## Git Status` | Must exist |
+
+**Weak verification?** REJECTED with specific failures. Fix and resubmit!
 
 ---
 
@@ -189,91 +136,32 @@ Skills are in: `~/.claude/plugins/repos/anthropics-claude-code/plugins/nelson-mu
 
 | Option | Default | Description |
 |--------|---------|-------------|
-| `--max-iterations` | unlimited | Stop after N iterations |
-| `--completion-promise` | none | Text that signals completion |
-| `--model` | claude-opus-4-5-20250514 | Claude model to use |
-| `--delay` | 3 | Seconds between iterations |
-| `--background` | false | Run loop in background |
-| `--ha-ha` | false | Enable HA-HA Mode (Peak Performance) |
+| `--max-iterations N` | unlimited | Stop after N iterations |
+| `--completion-promise "TEXT"` | none | Stop when TEXT in `<promise>` tags |
+| `--ha-ha` | false | Enable HA-HA Mode |
 
 ---
 
 ## HA-HA Mode - Peak Performance
 
-**HA-HA Mode** is the ultimate configuration with all enhancements enabled.
-
-### Quick Start (HA-HA Mode)
-
-```bash
-# Use the dedicated command
-/ha-ha "Build OAuth + JWT + MFA auth system"
-
-# Or use the flag
-/nelson "Complex task" --ha-ha --max-iterations 50
-```
-
-### What HA-HA Mode Adds
+**HA-HA Mode** adds extra protocols:
 
 | Standard | HA-HA Mode |
 |----------|------------|
 | Ultrathink | Multi-dimensional thinking (4 levels) |
-| Research on 2nd failure | Pre-research MANDATORY |
+| Research on failure | Pre-research MANDATORY |
 | 3-fix rule | 5-attempt escalation |
 | Basic validation | Aggressive validation + self-review |
 
-### HA-HA Mode Protocols
+### HA-HA Mode Extras
 
 1. **Pre-Flight Research** - Search best practices BEFORE coding
-2. **Multi-Dimensional Thinking** - 4 levels including adversarial & meta
-3. **Parallel Exploration** - Evaluate multiple approaches
-4. **Wall-Breaker Protocol** - Auto web search on ANY obstacle
-5. **Aggressive Validation** - Pre, incremental, and post checks
-6. **Self-Reflection Checkpoints** - Verify at key decision points
-7. **Pattern Recognition** - Learn from previous iterations
-8. **No-Surrender Persistence** - 5 attempts with research between
-
-### Wall-Breaker Auto-Research
-
-When hitting walls, Nelson automatically searches for solutions:
-
-```
-🔴 ERROR WALL      → Search error + solutions
-🟠 KNOWLEDGE WALL  → Search tutorials + docs
-🟡 DESIGN WALL     → Search comparisons
-🟢 DEPENDENCY WALL → Search alternatives
-🔵 COMPLEXITY WALL → Decompose + research
-```
-
-### When to Use HA-HA Mode
-
-**Use HA-HA Mode for:**
-- Complex, multi-component features
-- Unfamiliar technologies
-- Critical system components
-- When standard mode keeps failing
-
----
-
-## Monitoring
+2. **Wall-Breaker Protocol** - Auto web search on ANY obstacle
+3. **No-Surrender Persistence** - 5 attempts with research between
 
 ```bash
-# Watch live log
-tail -f .claude/nelson-muntz.log
-
-# Check iteration progress
-cat .claude/ralph-v3/config.json | jq '.iteration, .stats'
-
-# Check feature status
-cat .claude/ralph-v3/features.json | jq '.summary'
-
-# Read latest handoff
-cat .claude/ralph-v3/handoff.md
-
-# See what was done
-cat .claude/ralph-v3/progress.md
-
-# Check validation status
-cat .claude/ralph-v3/validation/quality-check.json
+# Start HA-HA mode
+/ha-ha "Build OAuth + JWT + MFA auth system"
 ```
 
 ---
@@ -281,45 +169,29 @@ cat .claude/ralph-v3/validation/quality-check.json
 ## Completion Signals
 
 The loop stops when:
-1. All features in `features.json` have `passes: true` or `status: blocked`
-2. Completion promise is detected in handoff.md: `<promise>YOUR_PROMISE</promise>`
-3. Max iterations is reached
-4. Loop is manually stopped
+1. `<nelson-verified>VERIFICATION_COMPLETE</nelson-verified>` after passing verification
+2. `<promise>YOUR_PROMISE</promise>` after verification (if promise set)
+3. Max iterations reached
+4. Loop manually stopped with `/nelson-stop`
+
+**Note:** `<nelson-complete>` triggers verification, doesn't exit!
 
 ---
 
-## Best Practices
+## Monitoring
 
-### Writing Good Prompts
-
-**Good:**
-```
-Build a REST API with:
-- User registration (email, password, validation)
-- JWT authentication
-- Protected endpoints
-- Unit tests for all endpoints
-
-Success criteria: All tests pass, no lint errors.
-```
-
-**Bad:**
-```
-Make an API
-```
-
-### Setting Iteration Limits
-
-Always set `--max-iterations` as a safety net:
 ```bash
-/nelson "Complex task" --max-iterations 50
-```
+# Check status
+/nelson-status
 
-### Using Completion Promises
+# View state file
+cat .claude/nelson-loop.local.md
 
-For clear end conditions:
-```bash
-/nelson "Fix the auth bug" --completion-promise "ALL TESTS PASS"
+# View handoff
+cat .claude/nelson-handoff.local.md
+
+# Check if active
+test -f .claude/nelson-loop.local.md && echo "ACTIVE" || echo "NOT ACTIVE"
 ```
 
 ---
@@ -329,32 +201,23 @@ For clear end conditions:
 1. **Fresh Context > Accumulated Garbage** - Start clean each iteration
 2. **Ultrathink > Quick Action** - Plan before executing
 3. **Single Focus > Multitasking** - One feature at a time
-4. **Validation > Assumption** - Two-stage checks
-5. **Persistence > Perfection** - Keep iterating until done
-6. **Clean Handoff > Complete History** - Next iteration only needs context
-
----
-
-## Credits
-
-- **Ralph Wiggum** - The original technique by Geoffrey Huntley
-- **GSD (Get Shit Done)** - Context engineering inspiration
-- **Multi-Agent Ralph** - Ultrathink and quality gates
-- **Ralph Orchestrator** - Git checkpointing and scratchpad
-- **Anthropic Harness** - Initializer/executor pattern
+4. **Prove It > Trust Me** - Verification required
+5. **Clean Handoff > Giant Brain Dump** - Next iteration needs context
 
 ---
 
 ## HA-HA!
 
-You've reached the end of the help. Now go build something!
-
 ```
-         ╭─────────────────╮
-         │     HA-HA!      │
-         ╰────────┬────────╯
-                  │
-               ╭──┴──╮
-               │ :-) │
-               ╰─────╯
+   ███╗   ██╗███████╗██╗     ███████╗ ██████╗ ███╗   ██╗
+   ████╗  ██║██╔════╝██║     ██╔════╝██╔═══██╗████╗  ██║
+   ██╔██╗ ██║█████╗  ██║     ███████╗██║   ██║██╔██╗ ██║
+   ██║╚██╗██║██╔══╝  ██║     ╚════██║██║   ██║██║╚██╗██║
+   ██║ ╚████║███████╗███████╗███████║╚██████╔╝██║ ╚████║
+   ╚═╝  ╚═══╝╚══════╝╚══════╝╚══════╝ ╚═════╝ ╚═╝  ╚═══╝
+
+                    MUNTZ v3.3.1
+      STRICT CONTENT VALIDATION + REJECTION LOOP
+
+      "Others try. We triumph. HA-HA!"
 ```
