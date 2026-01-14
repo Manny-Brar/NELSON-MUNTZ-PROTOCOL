@@ -1,15 +1,14 @@
 #!/bin/bash
 
-# Nelson Muntz Stop Hook
-# In-session looping with ultrathink, two-stage validation, and HA-HA mode
+# Nelson Muntz Stop Hook (v3.2.0)
+# In-session looping with mandatory planning, validation gates, and handoff
 #
 # Key Features:
 #   - Fresh context each iteration (via stop hook blocking)
-#   - HA-HA mode for peak performance
-#   - Ultrathink protocol integration
+#   - Mandatory planning phase
 #   - Two-stage validation (spec + quality)
-#   - 3-fix rule (5 in HA-HA mode)
-#   - Single-feature focus enforcement
+#   - Handoff verification before exit
+#   - HA-HA mode for peak performance
 
 set -euo pipefail
 
@@ -18,6 +17,7 @@ HOOK_INPUT=$(cat)
 
 # Check for Nelson loop state file
 NELSON_STATE_FILE=".claude/nelson-loop.local.md"
+NELSON_HANDOFF_FILE=".claude/nelson-handoff.local.md"
 
 if [[ ! -f "$NELSON_STATE_FILE" ]]; then
   # No active loop - allow exit
@@ -37,6 +37,7 @@ COMPLETION_PROMISE=$(echo "$FRONTMATTER" | grep '^completion_promise:' | sed 's/
 # Check if loop is active
 if [[ "$ACTIVE" != "true" ]]; then
   rm "$NELSON_STATE_FILE" 2>/dev/null || true
+  rm "$NELSON_HANDOFF_FILE" 2>/dev/null || true
   exit 0
 fi
 
@@ -59,6 +60,7 @@ if [[ $MAX_ITERATIONS -gt 0 ]] && [[ $ITERATION -ge $MAX_ITERATIONS ]]; then
   echo "HA-HA! Nelson loop: Max iterations ($MAX_ITERATIONS) reached."
   echo ""
   rm "$NELSON_STATE_FILE"
+  rm "$NELSON_HANDOFF_FILE" 2>/dev/null || true
   exit 0
 fi
 
@@ -105,9 +107,10 @@ if [[ "$COMPLETION_PROMISE" != "null" ]] && [[ -n "$COMPLETION_PROMISE" ]]; then
   if [[ -n "$PROMISE_TEXT" ]] && [[ "$PROMISE_TEXT" = "$COMPLETION_PROMISE" ]]; then
     echo ""
     echo "HA-HA! Nelson loop: Detected <promise>$COMPLETION_PROMISE</promise>"
-    echo "All done!"
+    echo "Iterations completed: $ITERATION"
     echo ""
     rm "$NELSON_STATE_FILE"
+    rm "$NELSON_HANDOFF_FILE" 2>/dev/null || true
     exit 0
   fi
 fi
@@ -115,10 +118,32 @@ fi
 # Check for ALL_FEATURES_COMPLETE signal
 if echo "$LAST_OUTPUT" | grep -q "<nelson-complete>ALL_FEATURES_COMPLETE</nelson-complete>"; then
   echo ""
-  echo "HA-HA! Nelson loop: All features completed!"
+  echo "HA-HA! Nelson loop: All features completed after $ITERATION iterations!"
   echo ""
   rm "$NELSON_STATE_FILE"
+  rm "$NELSON_HANDOFF_FILE" 2>/dev/null || true
   exit 0
+fi
+
+# === VALIDATION GATES ===
+
+# Check if handoff was updated this iteration
+HANDOFF_UPDATED=false
+if [[ -f "$NELSON_HANDOFF_FILE" ]]; then
+  # Check if handoff mentions current iteration
+  if grep -q "Iteration $ITERATION" "$NELSON_HANDOFF_FILE"; then
+    HANDOFF_UPDATED=true
+  fi
+fi
+
+# Build validation warning if handoff not updated
+VALIDATION_WARNING=""
+if [[ "$HANDOFF_UPDATED" != "true" ]]; then
+  VALIDATION_WARNING="
+!! HANDOFF NOT UPDATED !!
+   You MUST update .claude/nelson-handoff.local.md before completing.
+   Include: what you did, what's pending, next steps.
+"
 fi
 
 # Not complete - continue loop
@@ -140,46 +165,103 @@ mv "$TEMP_FILE" "$NELSON_STATE_FILE"
 
 # Build system message based on mode
 if [[ "$HA_HA_MODE" == "true" ]]; then
-  SYSTEM_MSG="HA-HA MODE - Iteration $NEXT_ITERATION | Peak Performance | To complete: <promise>$COMPLETION_PROMISE</promise> or <nelson-complete>ALL_FEATURES_COMPLETE</nelson-complete>"
+  MODE_LABEL="HA-HA MODE"
 else
-  SYSTEM_MSG="Nelson Iteration $NEXT_ITERATION | To complete: <promise>$COMPLETION_PROMISE</promise> or <nelson-complete>ALL_FEATURES_COMPLETE</nelson-complete>"
+  MODE_LABEL="Nelson"
 fi
 
-# Add HA-HA mode banner if active
+# Build iteration prompt with protocol reminder
 if [[ "$HA_HA_MODE" == "true" ]]; then
-  PROMPT_TEXT="## HA-HA MODE ACTIVE - ITERATION $NEXT_ITERATION
+  ITERATION_PROMPT="
+## HA-HA MODE - ITERATION $NEXT_ITERATION
+$VALIDATION_WARNING
+### ITERATION PROTOCOL (MANDATORY)
 
-**Peak Performance Protocol:**
-1. Pre-flight research MANDATORY before coding
-2. Multi-dimensional thinking (4 levels of ultrathink)
-3. Wall-Breaker protocol on any obstacle
-4. 5-attempt escalation (not 3)
-5. Aggressive validation + self-review
+**PHASE 1: PLAN (Do this FIRST!)**
+1. Read handoff: cat .claude/nelson-handoff.local.md
+2. Think hard about current state and what's done
+3. Select ONE feature/task to complete this iteration
+4. Write brief plan to .claude/nelson-scratchpad.local.md
 
-**Previous iteration output available in transcript. Continue from where you left off.**
+**PHASE 2: WORK (Single-feature focus)**
+1. Implement the ONE selected feature
+2. Do NOT touch other features
+3. Commit working code: git commit -m \"feat: description\"
+
+**PHASE 3: VERIFY (Before claiming completion)**
+- Stage 1 - Spec Check: Does it match requirements?
+- Stage 2 - Quality Check: Tests pass? Build works?
+- BOTH stages must pass before claiming done!
+
+**PHASE 4: HANDOFF (REQUIRED before exit)**
+Update .claude/nelson-handoff.local.md with:
+- What was completed this iteration
+- What's still pending
+- Exact next steps
+
+**HA-HA MODE EXTRAS:**
+- Pre-flight research MANDATORY before coding
+- Multi-dimensional ultrathink (4 levels)
+- Wall-Breaker protocol on obstacles
+- 5-attempt escalation ladder
 
 ---
 
-$PROMPT_TEXT"
+### YOUR TASK
+
+$PROMPT_TEXT
+
+---
+
+To complete: <nelson-complete>ALL_FEATURES_COMPLETE</nelson-complete>
+$(if [[ "$COMPLETION_PROMISE" != "null" ]]; then echo "Or: <promise>$COMPLETION_PROMISE</promise> (only if TRUE!)"; fi)
+
+**START: Read handoff -> Plan -> Select ONE feature -> Work**
+"
 else
-  PROMPT_TEXT="## Nelson Muntz - Iteration $NEXT_ITERATION
+  ITERATION_PROMPT="
+## Nelson Muntz - Iteration $NEXT_ITERATION
+$VALIDATION_WARNING
+### ITERATION PROTOCOL (MANDATORY)
 
-**Continue the task. Your previous work is visible in files and git history.**
+**PHASE 1: PLAN**
+1. Read handoff: cat .claude/nelson-handoff.local.md
+2. Think about current state and what's done
+3. Select ONE feature/task to complete this iteration
 
-**Protocol:**
-1. Engage ultrathink before acting
-2. Single-feature focus
-3. Two-stage validation (spec + quality)
-4. 3-fix rule (escalate after 3 failures)
+**PHASE 2: WORK**
+1. Implement the ONE selected feature
+2. Do NOT touch other features
+3. Commit working code
+
+**PHASE 3: VERIFY**
+- Stage 1 - Spec Check: Does it match requirements?
+- Stage 2 - Quality Check: Tests pass? Build works?
+
+**PHASE 4: HANDOFF (REQUIRED)**
+Update .claude/nelson-handoff.local.md before exit
 
 ---
 
-$PROMPT_TEXT"
+### YOUR TASK
+
+$PROMPT_TEXT
+
+---
+
+To complete: <nelson-complete>ALL_FEATURES_COMPLETE</nelson-complete>
+$(if [[ "$COMPLETION_PROMISE" != "null" ]]; then echo "Or: <promise>$COMPLETION_PROMISE</promise> (only if TRUE!)"; fi)
+
+**START: Read handoff -> Plan -> Work**
+"
 fi
+
+# Build system message
+SYSTEM_MSG="$MODE_LABEL iteration $NEXT_ITERATION | Read handoff first! | To complete: <nelson-complete>ALL_FEATURES_COMPLETE</nelson-complete>"
 
 # Output JSON to block the stop and feed prompt back
 jq -n \
-  --arg prompt "$PROMPT_TEXT" \
+  --arg prompt "$ITERATION_PROMPT" \
   --arg msg "$SYSTEM_MSG" \
   '{
     "decision": "block",

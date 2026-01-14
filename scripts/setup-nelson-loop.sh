@@ -1,10 +1,13 @@
 #!/bin/bash
 
-# Nelson Muntz In-Session Loop Setup
+# Nelson Muntz In-Session Loop Setup (v3.2.0)
 # Creates state file for stop hook-based looping in VS Code
 #
-# Unlike the external CLI loop, this works WITHIN your Claude Code session
-# by using a stop hook that intercepts exit and feeds the prompt back.
+# Enhanced with:
+#   - Mandatory planning phase
+#   - Two-stage validation gates
+#   - Structured handoff requirements
+#   - Quality enforcement before completion
 
 set -euo pipefail
 
@@ -18,7 +21,7 @@ while [[ $# -gt 0 ]]; do
   case $1 in
     -h|--help)
       cat << 'HELP_EOF'
-Nelson Muntz - In-Session Development Loop
+Nelson Muntz - In-Session Development Loop (v3.2.0)
 
 USAGE:
   /nelson [PROMPT...] [OPTIONS]
@@ -33,12 +36,11 @@ OPTIONS:
   --ha-ha                        Enable HA-HA Mode (Peak Performance)
   -h, --help                     Show this help
 
-HA-HA MODE FEATURES:
-  - Pre-flight research MANDATORY before coding
-  - Multi-dimensional thinking (4 levels)
-  - Wall-Breaker protocol with auto web search
-  - 5-attempt escalation (extended from 3)
-  - Comprehensive iteration reports
+ITERATION PROTOCOL:
+  1. PLAN   - Read handoff, understand state, select ONE feature
+  2. WORK   - Implement with single-feature focus
+  3. VERIFY - Two-stage validation (spec + quality)
+  4. HANDOFF - Write structured handoff for next iteration
 
 COMPLETION SIGNALS:
   - <promise>YOUR_PHRASE</promise>
@@ -48,10 +50,6 @@ EXAMPLES:
   /nelson Build a REST API --max-iterations 20
   /ha-ha Build OAuth authentication system
   /nelson --completion-promise 'ALL TESTS PASS' Add user auth
-
-STOPPING:
-  Only by reaching --max-iterations, detecting promise, or ALL_FEATURES_COMPLETE.
-  The loop runs until completion!
 
 HA-HA!
 HELP_EOF
@@ -120,78 +118,147 @@ started_at: "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 $PROMPT
 EOF
 
-# Output activation message
-if [[ "$HA_HA_MODE" == "true" ]]; then
-  cat <<EOF
+# Create initial handoff template
+cat > .claude/nelson-handoff.local.md <<EOF
+# Nelson Handoff - Iteration 0 (Initial)
 
- HA-HA MODE ACTIVATED
+## Status
+Starting fresh - no previous work
 
- Iteration: 1
- Max iterations: $(if [[ $MAX_ITERATIONS -gt 0 ]]; then echo $MAX_ITERATIONS; else echo "unlimited"; fi)
- Completion promise: $(if [[ "$COMPLETION_PROMISE" != "null" ]]; then echo "$COMPLETION_PROMISE"; else echo "none"; fi)
+## Task
+$PROMPT
 
- PEAK PERFORMANCE PROTOCOL:
-   Pre-flight research MANDATORY
-   Multi-dimensional thinking (4 levels)
-   Wall-Breaker protocol enabled
-   5-attempt escalation ladder
-   Aggressive validation + self-review
+## Next Iteration Should
+1. Read this handoff
+2. Plan the approach
+3. Select ONE feature to implement
+4. Complete it fully before moving on
 
- The stop hook is now active. When you try to exit, the prompt
- will be fed back for the next iteration. Your work persists in files.
-
- To complete: output <nelson-complete>ALL_FEATURES_COMPLETE</nelson-complete>
-$(if [[ "$COMPLETION_PROMISE" != "null" ]]; then echo " Or: <promise>$COMPLETION_PROMISE</promise>"; fi)
-
- Monitor: head -10 .claude/nelson-loop.local.md
-
-HA-HA!
-
+## Completion Criteria
+$(if [[ "$COMPLETION_PROMISE" != "null" ]]; then echo "Promise: $COMPLETION_PROMISE"; else echo "Signal: ALL_FEATURES_COMPLETE"; fi)
 EOF
+
+# Output activation message with protocol
+if [[ "$HA_HA_MODE" == "true" ]]; then
+  cat <<'PROTOCOL_EOF'
+
+╔══════════════════════════════════════════════════════════════════╗
+║                    HA-HA MODE ACTIVATED                          ║
+╚══════════════════════════════════════════════════════════════════╝
+
+PROTOCOL_EOF
 else
-  cat <<EOF
+  cat <<'PROTOCOL_EOF'
 
-Nelson Muntz Loop Activated
+╔══════════════════════════════════════════════════════════════════╗
+║                 NELSON MUNTZ LOOP ACTIVATED                      ║
+╚══════════════════════════════════════════════════════════════════╝
 
+PROTOCOL_EOF
+fi
+
+cat <<EOF
 Iteration: 1
 Max iterations: $(if [[ $MAX_ITERATIONS -gt 0 ]]; then echo $MAX_ITERATIONS; else echo "unlimited"; fi)
 Completion promise: $(if [[ "$COMPLETION_PROMISE" != "null" ]]; then echo "$COMPLETION_PROMISE"; else echo "none"; fi)
 
-PROTOCOL:
-  Engage ultrathink before acting
-  Single-feature focus
-  Two-stage validation (spec + quality)
-  3-fix rule (escalate after 3 failures)
+═══════════════════════════════════════════════════════════════════
+                    ITERATION PROTOCOL (MANDATORY)
+═══════════════════════════════════════════════════════════════════
 
-The stop hook is now active. When you try to exit, the prompt
-will be fed back for the next iteration. Your work persists in files.
+PHASE 1: PLAN (Start of every iteration)
+┌─────────────────────────────────────────────────────────────────┐
+│ 1. Read handoff: cat .claude/nelson-handoff.local.md            │
+│ 2. Think hard about current state and what's done               │
+│ 3. Select ONE feature/task to complete this iteration           │
+│ 4. Write brief plan to .claude/nelson-scratchpad.local.md       │
+└─────────────────────────────────────────────────────────────────┘
 
-To complete: output <nelson-complete>ALL_FEATURES_COMPLETE</nelson-complete>
-$(if [[ "$COMPLETION_PROMISE" != "null" ]]; then echo "Or: <promise>$COMPLETION_PROMISE</promise>"; fi)
+PHASE 2: WORK (Single-feature focus)
+┌─────────────────────────────────────────────────────────────────┐
+│ 1. Implement the ONE selected feature                           │
+│ 2. Do NOT touch other features                                  │
+│ 3. Do NOT "quickly fix" unrelated issues                        │
+│ 4. Commit working code: git commit -m "feat: description"       │
+└─────────────────────────────────────────────────────────────────┘
 
-Monitor: head -10 .claude/nelson-loop.local.md
+PHASE 3: VERIFY (Before claiming completion)
+┌─────────────────────────────────────────────────────────────────┐
+│ Stage 1 - Spec Check:                                           │
+│   □ Does implementation match requirements?                     │
+│   □ Are all acceptance criteria met?                            │
+│                                                                 │
+│ Stage 2 - Quality Check:                                        │
+│   □ Do tests pass? (run them!)                                  │
+│   □ Does build succeed?                                         │
+│   □ Is code clean? (no TODOs, no hacks)                         │
+│                                                                 │
+│ ⚠️  BOTH stages must pass before claiming done!                  │
+└─────────────────────────────────────────────────────────────────┘
+
+PHASE 4: HANDOFF (Before every exit)
+┌─────────────────────────────────────────────────────────────────┐
+│ MUST update .claude/nelson-handoff.local.md with:               │
+│   - What was completed this iteration                           │
+│   - What's still pending                                        │
+│   - Any blockers or issues                                      │
+│   - Exact next steps for next iteration                         │
+│                                                                 │
+│ ⚠️  Loop will NOT exit without updated handoff!                  │
+└─────────────────────────────────────────────────────────────────┘
+
+═══════════════════════════════════════════════════════════════════
+                       COMPLETION RULES
+═══════════════════════════════════════════════════════════════════
+
+To complete the loop, you MUST:
+  1. Verify ALL features are done (two-stage validation)
+  2. Update handoff with final status
+  3. Output completion signal:
+
+EOF
+
+if [[ "$COMPLETION_PROMISE" != "null" ]]; then
+  cat <<EOF
+     <promise>$COMPLETION_PROMISE</promise>
+     (ONLY if the statement is genuinely TRUE!)
+
+     OR: <nelson-complete>ALL_FEATURES_COMPLETE</nelson-complete>
+EOF
+else
+  cat <<EOF
+     <nelson-complete>ALL_FEATURES_COMPLETE</nelson-complete>
+EOF
+fi
+
+cat <<EOF
+
+⚠️  FALSE completion signals will be detected and rejected!
+    The loop continues until work is ACTUALLY complete.
+
+═══════════════════════════════════════════════════════════════════
+                          YOUR TASK
+═══════════════════════════════════════════════════════════════════
+
+$PROMPT
+
+═══════════════════════════════════════════════════════════════════
+
+EOF
+
+if [[ "$HA_HA_MODE" == "true" ]]; then
+  cat <<'EOF'
+HA-HA MODE EXTRAS:
+  • Pre-flight research MANDATORY before coding
+  • Multi-dimensional thinking (4 levels of ultrathink)
+  • Wall-Breaker protocol on ANY obstacle
+  • 5-attempt escalation (not 3)
+  • Aggressive self-review before completion
 
 EOF
 fi
 
-echo "$PROMPT"
-echo ""
+cat <<EOF
+▶ START: Read handoff → Plan → Select ONE feature → Begin work
 
-# Show completion requirements
-if [[ "$COMPLETION_PROMISE" != "null" ]]; then
-  echo "================================================================"
-  echo "COMPLETION REQUIREMENTS"
-  echo "================================================================"
-  echo ""
-  echo "To complete this loop, output EXACTLY:"
-  echo "  <promise>$COMPLETION_PROMISE</promise>"
-  echo ""
-  echo "STRICT REQUIREMENTS:"
-  echo "  The statement MUST be completely TRUE"
-  echo "  Do NOT output false statements to exit"
-  echo "  The loop is designed to continue until genuine completion"
-  echo ""
-  echo "Or signal all features done:"
-  echo "  <nelson-complete>ALL_FEATURES_COMPLETE</nelson-complete>"
-  echo "================================================================"
-fi
+EOF
