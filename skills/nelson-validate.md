@@ -16,7 +16,8 @@ Before checking code quality, verify the implementation matches requirements.
 
 ### Step 1: Read Feature Requirements
 ```bash
-cat .claude/ralph-v3/features.json | jq '.features[] | select(.status == "in_progress")'
+# Check current task from handoff
+cat .claude/nelson-handoff.local.md
 ```
 
 ### Step 2: Check Each Requirement
@@ -29,19 +30,13 @@ For each requirement in the feature's `steps` array:
 | [Req 2] | YES/NO | [file:line or test name] |
 | ... | ... | ... |
 
-### Step 3: Update Spec Check File
-```json
-// .claude/ralph-v3/validation/spec-check.json
-{
-  "feature": "F[N]",
-  "requirements": ["list", "from", "feature"],
-  "implemented": {
-    "requirement_1": true,
-    "requirement_2": false
-  },
-  "spec_passes": false,  // ALL must be true
-  "notes": "What's missing or incomplete"
-}
+### Step 3: Document Spec Check
+Document results in nelson-scratchpad.local.md:
+```markdown
+## Spec Check - [Feature]
+- [Req 1]: PASS/FAIL
+- [Req 2]: PASS/FAIL
+- Notes: [What's missing or incomplete]
 ```
 
 ### Stage 1 Gate
@@ -93,32 +88,28 @@ npm run build
 - Success/failure
 - Any build warnings
 
-### Step 5: Update Quality Check File
-```json
-// .claude/ralph-v3/validation/quality-check.json
-{
-  "tests": {
-    "pass": true,
-    "count": 45,
-    "failures": 0,
-    "new_failures": 0
-  },
-  "lint": {
-    "pass": true,
-    "errors": 0,
-    "warnings": 3
-  },
-  "type_check": {
-    "pass": true,
-    "errors": 0
-  },
-  "build": {
-    "pass": true
-  },
-  "quality_passes": true,
-  "last_checked": "2026-01-13T12:00:00Z"
-}
+### Step 5: Create Verification File (v3.3.1)
+Create `.claude/nelson-verification.local.md`:
+```markdown
+## Tests
+[Actual test output - must show pass/fail counts]
+
+## Build
+[Build result - must contain success/pass/complete]
+
+## Edge Cases
+1. [Edge case 1 handled]
+2. [Edge case 2 handled]
+3. [Edge case 3 handled]
+
+## Self-Review
+[Weaknesses, technical debt, TODOs, criticism]
+
+## Git Status
+[Current git status]
 ```
+
+**Note:** The stop hook validates content quality. Weak sections get REJECTED.
 
 ### Stage 2 Gate
 - **All checks pass** → Feature COMPLETE
@@ -145,8 +136,8 @@ npm run build
 4. Write handoff for next iteration
 
 ### If ANY Stage Fails:
-1. Document what failed in scratchpad.md
-2. Increment `attempts` counter
+1. Document what failed in nelson-scratchpad.local.md
+2. Increment attempts counter
 3. Check 3-fix rule (5 in HA-HA mode)
 4. If under limit: Fix and re-validate
 5. If at limit: Mark feature as "blocked"
@@ -175,7 +166,6 @@ npm run build
 [ ] Stage 1: Spec Compliance
     [ ] All requirements listed
     [ ] Each requirement verified with evidence
-    [ ] spec-check.json updated
     [ ] Stage 1 passes
 
 [ ] Stage 2: Quality Check
@@ -183,14 +173,18 @@ npm run build
     [ ] Lint passes (0 errors)
     [ ] Type check passes (0 errors)
     [ ] Build succeeds
-    [ ] quality-check.json updated
     [ ] Stage 2 passes
 
+[ ] Verification Challenge (v3.3.1)
+    [ ] nelson-verification.local.md created
+    [ ] Tests section has real output
+    [ ] Build section confirms success
+    [ ] 3+ edge cases listed
+    [ ] Self-review includes weaknesses/debt
+
 [ ] Post-Validation
-    [ ] features.json updated
     [ ] Git commit created
-    [ ] Stats updated
-    [ ] Handoff prepared
+    [ ] Handoff updated
 ```
 
 ---

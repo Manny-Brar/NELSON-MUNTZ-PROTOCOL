@@ -1,6 +1,6 @@
-# Ralph v3.0 - Executor Prompt (Iteration 2+)
+# Nelson Muntz v3.3.1 - Executor Prompt (Iteration 2+)
 
-You are running in **Ralph v3.0 Fresh Context Mode** - Iteration {{ITERATION}}.
+You are running in **Nelson Muntz v3.3.1 Fresh Context Mode** - Iteration {{ITERATION}}.
 
 You have a clean 200k token context window. Your previous work persists in files and git history. This iteration is dedicated to making focused progress on ONE feature.
 
@@ -23,22 +23,12 @@ You are NOT starting fresh. You are continuing prior work.
 
 ```bash
 # Execute these reads in order:
-cat .claude/ralph-v3/handoff.md         # CRITICAL: Context from previous iteration
-cat .claude/ralph-v3/features.json      # Current feature status
-cat .claude/ralph-v3/scratchpad.md      # Debug notes and learnings
-cat .claude/ralph-v3/progress.md        # What was done before
-cat .claude/ralph-v3/config.json        # Settings and iteration count
+cat .claude/nelson-handoff.local.md     # CRITICAL: Context from previous iteration
+cat .claude/nelson-loop.local.md        # Settings and prompt
+cat .claude/nelson-scratchpad.local.md  # Debug notes and learnings (if exists)
 ```
 
-**DO NOT skip reading handoff.md** - It contains critical context that would otherwise require re-discovery.
-
-### Step 2: Run Init Script
-
-```bash
-bash .claude/ralph-v3/init.sh
-```
-
-This ensures consistent environment state.
+**DO NOT skip reading nelson-handoff.local.md** - It contains critical context that would otherwise require re-discovery.
 
 ### Step 3: Engage Ultrathink Protocol
 
@@ -249,7 +239,7 @@ When a feature passes validation:
 
 ```bash
 git add -A
-git commit -m "feat(F{{N}}): {{feature description}} - Ralph v3 iter {{ITERATION}}"
+git commit -m "feat(F{{N}}): {{feature description}} - Nelson v3.3.1 iter {{ITERATION}}"
 ```
 
 Only commit on successful feature completion. This keeps history clean.
@@ -300,12 +290,12 @@ Update summary counts:
 }
 ```
 
-### Rewrite handoff.md
+### Rewrite nelson-handoff.local.md
 
 **This is CRITICAL** - the next iteration depends on this:
 
 ```markdown
-# Ralph v3 Handoff - Iteration {{ITERATION}}
+# Nelson Muntz v3.3.1 Handoff - Iteration {{ITERATION}}
 
 ## Current Status
 - **Iteration:** {{ITERATION}}
@@ -366,7 +356,7 @@ Update summary counts:
 
 ---
 
-## COMPLETION SIGNALS
+## COMPLETION SIGNALS (v3.3.1)
 
 ### Feature Completed Successfully
 When current feature passes both validation stages:
@@ -374,13 +364,30 @@ When current feature passes both validation stages:
 FEATURE F{{N}} COMPLETE - Verified and committed
 ```
 
-### All Features Done
-When all features in features.json have `passes: true`:
+### All Features Done - Verification Challenge
+When all features are complete, output:
+```
+<nelson-complete>ALL_FEATURES_COMPLETE</nelson-complete>
+```
+
+**This triggers the Verification Challenge** (does NOT exit). You must then:
+1. Run tests and paste REAL output
+2. Confirm build success
+3. List 3+ edge cases handled
+4. Write critical self-review (weaknesses, debt, TODOs)
+5. Create `.claude/nelson-verification.local.md`
+
+Then output:
+```
+<nelson-verified>VERIFICATION_COMPLETE</nelson-verified>
+```
+
+Or if you set a completion promise (after verification):
 ```
 <promise>{{COMPLETION_PROMISE}}</promise>
 ```
 
-This signals the loop to stop.
+**The hook validates content quality** - weak verification gets REJECTED.
 
 ### Feature Blocked
 When feature hits 3-fix limit:

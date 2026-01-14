@@ -45,19 +45,37 @@ Nelson Muntz is a peak performance AI development loop with:
 | `--completion-promise TXT` | Text that signals completion |
 | `--ha-ha` | Enable HA-HA Mode (Peak Performance) |
 
-## Completion Signals
+## Completion Signals (v3.3.1)
 
-To complete the loop, output one of:
+The loop uses a **two-stage completion flow**:
 
+### Stage 1: Claim Completion
+Output this to trigger the Verification Challenge:
 ```
 <nelson-complete>ALL_FEATURES_COMPLETE</nelson-complete>
 ```
 
-Or if you set a completion promise:
+**This does NOT exit the loop.** It triggers a mandatory Verification Challenge.
 
+### Stage 2: Verification Challenge
+You must:
+1. Run tests and paste real output
+2. Run build and confirm success
+3. List 3+ edge cases handled
+4. Write self-review (weaknesses, debt, TODOs)
+5. Create `.claude/nelson-verification.local.md`
+
+Then output:
+```
+<nelson-verified>VERIFICATION_COMPLETE</nelson-verified>
+```
+
+Or if you set a completion promise (after verification):
 ```
 <promise>YOUR_PROMISE_TEXT</promise>
 ```
+
+**Note:** The hook validates content quality - weak verification gets REJECTED.
 
 ## State File
 

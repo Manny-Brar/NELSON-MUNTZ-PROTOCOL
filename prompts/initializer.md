@@ -1,6 +1,6 @@
-# Ralph v3.0 - Initializer Prompt (Iteration 1 Only)
+# Nelson Muntz v3.3.1 - Initializer Prompt (Iteration 1 Only)
 
-You are running in **Ralph v3.0 Fresh Context Mode** - Iteration 1 (Initialization).
+You are running in **Nelson Muntz v3.3.1 Fresh Context Mode** - Iteration 1 (Initialization).
 
 This is a special iteration focused on setting up the environment and creating scaffolding for subsequent iterations. You have a clean 200k token context window dedicated entirely to this setup phase.
 
@@ -23,20 +23,17 @@ You are NOT implementing the full solution. You are preparing the ground.
 ### 1. Read All State Files (Required)
 
 ```
-.claude/ralph-v3/
-├── config.json        # Read: iteration count, prompt, settings
-├── features.json      # Read: feature list (you may need to populate this)
-├── scratchpad.md      # Read: any notes (likely empty on iteration 1)
-├── progress.md        # Read: progress log (empty on iteration 1)
-├── handoff.md         # Read: context from setup (contains original prompt)
-└── validation/        # May not exist yet - you'll create it
+.claude/
+├── nelson-loop.local.md        # YAML frontmatter + prompt + settings
+├── nelson-handoff.local.md     # Context from setup (contains original prompt)
+├── nelson-scratchpad.local.md  # Planning notes (optional)
+└── nelson-verification.local.md # Created during verification
 ```
 
 Execute this sequence:
 ```
-1. cat .claude/ralph-v3/config.json     # Understand settings
-2. cat .claude/ralph-v3/handoff.md      # Get original task description
-3. cat .claude/ralph-v3/features.json   # Check if features exist
+1. cat .claude/nelson-loop.local.md     # Understand settings and prompt
+2. cat .claude/nelson-handoff.local.md  # Get task context (if exists)
 ```
 
 ### 2. Engage Ultrathink Protocol
@@ -151,25 +148,14 @@ Update `features.json` with structured feature list:
 }
 ```
 
-### C. Create Init Script
+### C. Environment Setup
 
-Create `.claude/ralph-v3/init.sh` that subsequent iterations run at startup:
-```bash
-#!/bin/bash
-# Ralph v3 Init Script - Run at start of each iteration
+Ensure subsequent iterations can continue seamlessly:
+- Document the test/build commands in scratchpad
+- Note any required dev server or setup commands
+- Create baseline tests that define feature completion
 
-# Navigate to project root
-cd "$(dirname "$0")/../.."
-
-# Start dev server if applicable
-# npm run dev &
-
-# Run baseline tests
-npm run test --silent || echo "Some tests failing (expected)"
-
-# Report status
-echo "Ralph v3 environment initialized"
-```
+In-session loops handle state via stop hooks - no init script needed.
 
 ### D. Establish Baseline Tests
 
@@ -177,35 +163,30 @@ echo "Ralph v3 environment initialized"
 - Write failing tests for each feature
 - Ensure test runner works
 
-### E. Create Validation Directory
+### E. Prepare for Verification (v3.3.1)
 
-```bash
-mkdir -p .claude/ralph-v3/validation
+When features are complete, you'll need to create `.claude/nelson-verification.local.md`:
+
+```markdown
+## Tests
+[Actual test output with pass/fail counts]
+
+## Build
+[Build result - success/complete/pass]
+
+## Edge Cases
+1. [Edge case 1 handled]
+2. [Edge case 2 handled]
+3. [Edge case 3 handled]
+
+## Self-Review
+[Weaknesses, technical debt, TODOs, criticism]
+
+## Git Status
+[Current git status]
 ```
 
-Create initial validation files:
-
-**spec-check.json:**
-```json
-{
-  "current_feature": null,
-  "requirements": [],
-  "implemented": {},
-  "spec_passes": false,
-  "last_checked": null
-}
-```
-
-**quality-check.json:**
-```json
-{
-  "tests": {"pass": null, "count": 0, "failures": 0},
-  "lint": {"pass": null, "errors": 0, "warnings": 0},
-  "build": {"pass": null},
-  "quality_passes": false,
-  "last_checked": null
-}
-```
+**Note:** This is validated by the stop hook with strict content checks.
 
 ---
 
@@ -213,18 +194,16 @@ Create initial validation files:
 
 Before completing this iteration, verify:
 
-- [ ] `features.json` populated with all identified features
-- [ ] `init.sh` created and executable
-- [ ] Validation directory and files created
-- [ ] Project scaffolding in place
-- [ ] Baseline tests exist (can fail - that's expected)
-- [ ] `scratchpad.md` contains your reasoning and architecture notes
+- [ ] Task requirements understood deeply
+- [ ] Project scaffolding in place (if needed)
+- [ ] Baseline tests identified or created
+- [ ] `nelson-scratchpad.local.md` contains reasoning and architecture notes
 
 ### Update Handoff Document
 
-Rewrite `.claude/ralph-v3/handoff.md` with:
+Rewrite `.claude/nelson-handoff.local.md` with:
 ```markdown
-# Ralph v3 Handoff - Post Initialization
+# Nelson Muntz v3.3.1 Handoff - Post Initialization
 
 ## Iteration: 1 (Initialization Complete)
 ## Status: READY FOR EXECUTION
@@ -241,10 +220,9 @@ Rewrite `.claude/ralph-v3/handoff.md` with:
 ...
 
 ### Immediate Next Actions (for Iteration 2)
-1. Run init.sh
-2. Select F1 (highest priority)
-3. Implement F1
-4. Run verification
+1. Select F1 (highest priority)
+2. Implement F1
+3. Run verification (v3.3.1 Verification Challenge)
 
 ### Critical Context
 - [Any important decisions or constraints]
@@ -253,24 +231,6 @@ Rewrite `.claude/ralph-v3/handoff.md` with:
 
 ### Files Modified This Session
 - [List all files created/modified]
-```
-
-### Update Progress Log
-
-Append to `.claude/ralph-v3/progress.md`:
-```markdown
-### Iteration 1 - [timestamp]
-**Type:** Initialization
-**Completed:**
-- Project scaffolding
-- Feature decomposition (N features identified)
-- Init script created
-- Validation structure created
-
-**Files Created:**
-- [list]
-
-**Next:** Execute F1 in iteration 2
 ```
 
 ---
@@ -284,11 +244,23 @@ Append to `.claude/ralph-v3/progress.md`:
 
 ---
 
-## Completion Signal
+## Completion Signal (v3.3.1)
 
-When initialization is complete, include in your response:
+When ALL features are complete, output:
 ```
-INITIALIZATION COMPLETE - Ready for execution iterations
+<nelson-complete>ALL_FEATURES_COMPLETE</nelson-complete>
 ```
 
-The loop will detect this and proceed to iteration 2 with the executor prompt.
+**This triggers the Verification Challenge** (does NOT exit). You must then:
+1. Run tests and paste REAL output
+2. Confirm build success
+3. List 3+ edge cases handled
+4. Write critical self-review (weaknesses, debt, TODOs)
+5. Create `.claude/nelson-verification.local.md`
+
+Then output:
+```
+<nelson-verified>VERIFICATION_COMPLETE</nelson-verified>
+```
+
+**The hook validates content quality** - weak verification gets REJECTED.

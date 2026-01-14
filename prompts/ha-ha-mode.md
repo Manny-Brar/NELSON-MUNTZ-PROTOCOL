@@ -73,7 +73,7 @@ Before writing ANY code, you MUST complete research:
 
 **Why:** Research BEFORE coding prevents 80% of dead ends.
 
-Document findings in scratchpad.md:
+Document findings in nelson-scratchpad.local.md:
 ```markdown
 ## Pre-Implementation Research - [Feature Name]
 
@@ -120,7 +120,7 @@ Document findings in scratchpad.md:
 "ultrathink about the solution I would be proud to show an expert"
 ```
 
-**Document ALL thinking phases in scratchpad.md.** This is your reasoning trail.
+**Document ALL thinking phases in nelson-scratchpad.local.md.** This is your reasoning trail.
 
 ---
 
@@ -339,7 +339,7 @@ At these points, STOP and reflect:
 "Would I bet $1000 this works in production?"
 ```
 
-Document checkpoint reflections in scratchpad.md.
+Document checkpoint reflections in nelson-scratchpad.local.md.
 
 ---
 
@@ -349,8 +349,8 @@ Document checkpoint reflections in scratchpad.md.
 
 Before starting work, analyze:
 ```bash
-# Read progress from previous iterations
-cat .claude/ralph-v3/progress.md
+# Read handoff from previous iterations
+cat .claude/nelson-handoff.local.md
 
 # Identify patterns
 - What approaches worked?
@@ -361,7 +361,7 @@ cat .claude/ralph-v3/progress.md
 
 ### Build Pattern Library
 
-Append successful patterns to scratchpad.md:
+Append successful patterns to nelson-scratchpad.local.md:
 ```markdown
 ## Proven Patterns
 

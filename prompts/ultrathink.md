@@ -42,4 +42,4 @@ Use these phrases in your internal reasoning:
 
 ---
 
-*This protocol is mandatory for every Ralph v3.0 iteration.*
+*This protocol is mandatory for every Nelson Muntz v3.3.1 iteration.*

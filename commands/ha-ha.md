@@ -82,19 +82,35 @@ DEPENDENCY WALL Search alternatives
 COMPLEXITY WALL Decompose + research sub-problems
 ```
 
-## Completion Signals
+## Completion Signals (v3.3.1)
 
-To complete the loop, output one of:
+HA-HA Mode uses the same **two-stage completion flow** with stricter validation:
 
+### Stage 1: Claim Completion
 ```
 <nelson-complete>ALL_FEATURES_COMPLETE</nelson-complete>
 ```
+**This triggers the Verification Challenge** - does NOT exit.
 
-Or if you set a completion promise:
+### Stage 2: Verification Challenge (STRICT)
+You must:
+1. Run tests and paste REAL output (must show pass/fail counts)
+2. Run build and confirm success
+3. List 3+ edge cases handled (bulleted)
+4. Write critical self-review (weaknesses, debt, TODOs)
+5. Create `.claude/nelson-verification.local.md`
 
+Then output:
+```
+<nelson-verified>VERIFICATION_COMPLETE</nelson-verified>
+```
+
+Or if you set a completion promise (after verification):
 ```
 <promise>YOUR_PROMISE_TEXT</promise>
 ```
+
+**Content is validated:** Weak sections get REJECTED with specific failures.
 
 ## Monitoring
 

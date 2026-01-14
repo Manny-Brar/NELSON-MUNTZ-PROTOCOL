@@ -147,7 +147,7 @@ WebSearch: "[your query]"
 ```
 
 ### Step 5: Document Findings
-Add to scratchpad.md:
+Add to nelson-scratchpad.local.md:
 
 ```markdown
 ## Wall-Breaker: [Problem Title]
@@ -233,7 +233,7 @@ After max attempts → Mark feature as BLOCKED with research notes
 [ ] Classified the wall type
 [ ] Created targeted search queries
 [ ] Executed searches (3-5 minimum)
-[ ] Documented findings in scratchpad.md
+[ ] Documented findings in nelson-scratchpad.local.md
 [ ] Applied researched solution
 [ ] Updated approach based on findings
 [ ] Recorded whether solution worked
@@ -243,10 +243,10 @@ After max attempts → Mark feature as BLOCKED with research notes
 
 ## SCRATCHPAD INTEGRATION
 
-Wall-Breaker findings should ALWAYS go in scratchpad.md:
+Wall-Breaker findings should ALWAYS go in nelson-scratchpad.local.md:
 
 ```markdown
-# .claude/ralph-v3/scratchpad.md
+# .claude/nelson-scratchpad.local.md
 
 ## Wall-Breaker Log
 

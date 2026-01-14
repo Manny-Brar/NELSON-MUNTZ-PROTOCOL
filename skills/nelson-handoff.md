@@ -23,7 +23,7 @@ A good handoff answers these questions in <30 seconds of reading:
 ## HANDOFF TEMPLATE
 
 ```markdown
-# Nelson Muntz - Iteration [N] Handoff
+# Nelson Muntz v3.3.1 - Iteration [N] Handoff
 
 ## Status Summary
 - **Iteration:** [N]
@@ -74,7 +74,7 @@ A good handoff answers these questions in <30 seconds of reading:
 
 ### Files to Read First
 1. `path/to/critical/file.ts` - [why]
-2. `.claude/ralph-v3/features.json` - Check feature status
+2. `.claude/nelson-loop.local.md` - Check loop state
 
 ## Critical Context
 
@@ -176,19 +176,13 @@ Before writing handoff, verify:
 
 ---
 
-## PROGRESS.MD UPDATE
+## STATE FILE LOCATIONS (v3.3.1)
 
-In addition to handoff.md, append to progress.md:
-
-```markdown
-### Iteration [N] - [timestamp]
-**Feature:** F[X] - [Name]
-**Result:** [COMPLETED / IN_PROGRESS / BLOCKED]
-**Completed:** [1-2 sentence summary]
-**Files:** [comma-separated list]
-**Commit:** [hash or "none"]
-**Next:** [1 sentence]
-```
+All state files are in `.claude/` directory:
+- `nelson-loop.local.md` - YAML frontmatter + prompt
+- `nelson-handoff.local.md` - THIS handoff document
+- `nelson-scratchpad.local.md` - Planning notes (optional)
+- `nelson-verification.local.md` - Created during verification
 
 ---
 
