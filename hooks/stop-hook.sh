@@ -1,12 +1,13 @@
 #!/bin/bash
 
-# Nelson Muntz Stop Hook (v3.2.0)
-# In-session looping with mandatory planning, validation gates, and handoff
+# Nelson Muntz Stop Hook (v3.3.0) - AGGRESSIVE VALIDATION
+# In-session looping with mandatory verification, self-review, and quality gates
 #
 # Key Features:
 #   - Fresh context each iteration (via stop hook blocking)
 #   - Mandatory planning phase
-#   - Two-stage validation (spec + quality)
+#   - AGGRESSIVE two-stage validation (not just instructions - ENFORCED)
+#   - Self-review requirement before completion
 #   - Handoff verification before exit
 #   - HA-HA mode for peak performance
 
@@ -18,6 +19,7 @@ HOOK_INPUT=$(cat)
 # Check for Nelson loop state file
 NELSON_STATE_FILE=".claude/nelson-loop.local.md"
 NELSON_HANDOFF_FILE=".claude/nelson-handoff.local.md"
+NELSON_VERIFICATION_FILE=".claude/nelson-verification.local.md"
 
 if [[ ! -f "$NELSON_STATE_FILE" ]]; then
   # No active loop - allow exit
@@ -33,11 +35,13 @@ ITERATION=$(echo "$FRONTMATTER" | grep '^iteration:' | sed 's/iteration: *//')
 MAX_ITERATIONS=$(echo "$FRONTMATTER" | grep '^max_iterations:' | sed 's/max_iterations: *//')
 HA_HA_MODE=$(echo "$FRONTMATTER" | grep '^ha_ha_mode:' | sed 's/ha_ha_mode: *//')
 COMPLETION_PROMISE=$(echo "$FRONTMATTER" | grep '^completion_promise:' | sed 's/completion_promise: *//' | sed 's/^"\(.*\)"$/\1/')
+VERIFICATION_PENDING=$(echo "$FRONTMATTER" | grep '^verification_pending:' | sed 's/verification_pending: *//' || echo "false")
 
 # Check if loop is active
 if [[ "$ACTIVE" != "true" ]]; then
   rm "$NELSON_STATE_FILE" 2>/dev/null || true
   rm "$NELSON_HANDOFF_FILE" 2>/dev/null || true
+  rm "$NELSON_VERIFICATION_FILE" 2>/dev/null || true
   exit 0
 fi
 
@@ -61,6 +65,7 @@ if [[ $MAX_ITERATIONS -gt 0 ]] && [[ $ITERATION -ge $MAX_ITERATIONS ]]; then
   echo ""
   rm "$NELSON_STATE_FILE"
   rm "$NELSON_HANDOFF_FILE" 2>/dev/null || true
+  rm "$NELSON_VERIFICATION_FILE" 2>/dev/null || true
   exit 0
 fi
 
@@ -100,32 +105,184 @@ if [[ -z "$LAST_OUTPUT" ]]; then
   exit 0
 fi
 
-# Check for completion promise
-if [[ "$COMPLETION_PROMISE" != "null" ]] && [[ -n "$COMPLETION_PROMISE" ]]; then
-  PROMISE_TEXT=$(echo "$LAST_OUTPUT" | perl -0777 -pe 's/.*?<promise>(.*?)<\/promise>.*/$1/s; s/^\s+|\s+$//g; s/\s+/ /g' 2>/dev/null || echo "")
+# ============================================================
+# AGGRESSIVE VALIDATION SYSTEM (v3.3.0)
+# ============================================================
 
-  if [[ -n "$PROMISE_TEXT" ]] && [[ "$PROMISE_TEXT" = "$COMPLETION_PROMISE" ]]; then
-    echo ""
-    echo "HA-HA! Nelson loop: Detected <promise>$COMPLETION_PROMISE</promise>"
-    echo "Iterations completed: $ITERATION"
-    echo ""
-    rm "$NELSON_STATE_FILE"
-    rm "$NELSON_HANDOFF_FILE" 2>/dev/null || true
-    exit 0
+# Check for VERIFIED completion (after verification challenge passed)
+if echo "$LAST_OUTPUT" | grep -q "<nelson-verified>VERIFICATION_COMPLETE</nelson-verified>"; then
+  # Check that verification file exists and has required sections
+  if [[ -f "$NELSON_VERIFICATION_FILE" ]]; then
+    VERIFICATION_VALID=true
+
+    # Check for required verification sections
+    if ! grep -q "## Tests" "$NELSON_VERIFICATION_FILE"; then
+      VERIFICATION_VALID=false
+    fi
+    if ! grep -q "## Edge Cases" "$NELSON_VERIFICATION_FILE"; then
+      VERIFICATION_VALID=false
+    fi
+    if ! grep -q "## Self-Review" "$NELSON_VERIFICATION_FILE"; then
+      VERIFICATION_VALID=false
+    fi
+
+    if [[ "$VERIFICATION_VALID" == "true" ]]; then
+      echo ""
+      echo "HA-HA! Nelson loop: VERIFIED completion after $ITERATION iterations!"
+      echo "Verification passed all quality gates."
+      echo ""
+      rm "$NELSON_STATE_FILE"
+      rm "$NELSON_HANDOFF_FILE" 2>/dev/null || true
+      rm "$NELSON_VERIFICATION_FILE" 2>/dev/null || true
+      exit 0
+    else
+      echo "Nelson loop: Verification file incomplete - missing required sections" >&2
+    fi
+  else
+    echo "Nelson loop: Verification claimed but no verification file found" >&2
   fi
 fi
 
-# Check for ALL_FEATURES_COMPLETE signal
+# Check for completion claim (first attempt - triggers verification challenge)
+COMPLETION_CLAIMED=false
+
+if [[ "$COMPLETION_PROMISE" != "null" ]] && [[ -n "$COMPLETION_PROMISE" ]]; then
+  PROMISE_TEXT=$(echo "$LAST_OUTPUT" | perl -0777 -pe 's/.*?<promise>(.*?)<\/promise>.*/$1/s; s/^\s+|\s+$//g; s/\s+/ /g' 2>/dev/null || echo "")
+  if [[ -n "$PROMISE_TEXT" ]] && [[ "$PROMISE_TEXT" = "$COMPLETION_PROMISE" ]]; then
+    COMPLETION_CLAIMED=true
+  fi
+fi
+
 if echo "$LAST_OUTPUT" | grep -q "<nelson-complete>ALL_FEATURES_COMPLETE</nelson-complete>"; then
-  echo ""
-  echo "HA-HA! Nelson loop: All features completed after $ITERATION iterations!"
-  echo ""
-  rm "$NELSON_STATE_FILE"
-  rm "$NELSON_HANDOFF_FILE" 2>/dev/null || true
+  COMPLETION_CLAIMED=true
+fi
+
+# If completion claimed, check if this is a verified completion or needs verification
+if [[ "$COMPLETION_CLAIMED" == "true" ]]; then
+  # Check git status for uncommitted changes
+  GIT_STATUS=""
+  if command -v git &> /dev/null && [[ -d ".git" ]]; then
+    UNCOMMITTED=$(git status --porcelain 2>/dev/null | wc -l | tr -d ' ')
+    if [[ "$UNCOMMITTED" -gt 0 ]]; then
+      GIT_STATUS="
+⚠️ WARNING: $UNCOMMITTED uncommitted changes detected!
+   You MUST commit all work before completion can be verified.
+"
+    fi
+  fi
+
+  # Trigger verification challenge (don't exit - force self-review)
+  NEXT_ITERATION=$((ITERATION + 1))
+
+  # Update state to mark verification pending
+  TEMP_FILE="${NELSON_STATE_FILE}.tmp.$$"
+  sed "s/^iteration: .*/iteration: $NEXT_ITERATION/" "$NELSON_STATE_FILE" | \
+    sed "s/^verification_pending: .*/verification_pending: true/" > "$TEMP_FILE"
+
+  # Add verification_pending if not present
+  if ! grep -q "^verification_pending:" "$TEMP_FILE"; then
+    sed -i.bak "s/^ha_ha_mode:.*/&\nverification_pending: true/" "$TEMP_FILE"
+    rm "${TEMP_FILE}.bak" 2>/dev/null || true
+  fi
+
+  mv "$TEMP_FILE" "$NELSON_STATE_FILE"
+
+  VERIFICATION_PROMPT="
+## 🔴 VERIFICATION CHALLENGE - ITERATION $NEXT_ITERATION
+
+You claimed completion, but Nelson doesn't trust easily. HA-HA!
+$GIT_STATUS
+### MANDATORY VERIFICATION STEPS
+
+You MUST complete ALL of these before I'll let you out:
+
+**1. RUN TESTS (Required)**
+\`\`\`bash
+# Run the test suite - paste actual output
+npm test  # or appropriate test command
+\`\`\`
+
+**2. BUILD CHECK (Required)**
+\`\`\`bash
+# Verify build succeeds - paste actual output
+npm run build  # or appropriate build command
+\`\`\`
+
+**3. EDGE CASE AUDIT (Required)**
+List 3+ edge cases you considered:
+- Edge case 1: [what could go wrong?] → [how did you handle it?]
+- Edge case 2: ...
+- Edge case 3: ...
+
+**4. SELF-REVIEW CRITIQUE (Required)**
+Re-read your code changes and answer honestly:
+- What's the weakest part of this implementation?
+- What would a senior engineer criticize?
+- Is there any technical debt introduced?
+- Are there any TODO comments left behind?
+
+**5. WRITE VERIFICATION FILE**
+Create .claude/nelson-verification.local.md with:
+\`\`\`markdown
+# Verification Report - Iteration $ITERATION
+
+## Tests
+- Command run: [actual command]
+- Result: [PASS/FAIL with count]
+- Failures: [list any, or 'None']
+
+## Build
+- Command run: [actual command]
+- Result: [SUCCESS/FAIL]
+
+## Edge Cases
+1. [edge case]: [how handled]
+2. [edge case]: [how handled]
+3. [edge case]: [how handled]
+
+## Self-Review
+- Weakest part: [honest assessment]
+- Potential criticism: [what would be flagged]
+- Tech debt: [any introduced, or 'None']
+- TODOs remaining: [count and list, or 'None']
+
+## Git Status
+- Uncommitted changes: [count, should be 0]
+- Last commit: [hash and message]
+\`\`\`
+
+---
+
+**TO PASS VERIFICATION:**
+1. Complete ALL sections above
+2. All tests must PASS
+3. Build must SUCCEED
+4. No uncommitted changes
+5. Output: <nelson-verified>VERIFICATION_COMPLETE</nelson-verified>
+
+**IF ISSUES FOUND:**
+- Fix them first
+- Re-run verification
+- Do NOT claim completion until ALL checks pass
+
+Nelson is watching. HA-HA!
+"
+
+  jq -n \
+    --arg prompt "$VERIFICATION_PROMPT" \
+    --arg msg "🔴 VERIFICATION CHALLENGE | Tests + Build + Self-Review required | <nelson-verified>VERIFICATION_COMPLETE</nelson-verified>" \
+    '{
+      "decision": "block",
+      "reason": $prompt,
+      "systemMessage": $msg
+    }'
+
   exit 0
 fi
 
-# === VALIDATION GATES ===
+# ============================================================
+# NORMAL ITERATION (no completion claimed)
+# ============================================================
 
 # Check if handoff was updated this iteration
 HANDOFF_UPDATED=false
@@ -189,9 +346,11 @@ $VALIDATION_WARNING
 3. Commit working code: git commit -m \"feat: description\"
 
 **PHASE 3: VERIFY (Before claiming completion)**
-- Stage 1 - Spec Check: Does it match requirements?
-- Stage 2 - Quality Check: Tests pass? Build works?
-- BOTH stages must pass before claiming done!
+⚠️ WARNING: Nelson v3.3.0 has AGGRESSIVE verification!
+- If you claim completion, you will face a VERIFICATION CHALLENGE
+- Tests MUST pass, build MUST succeed
+- Self-review and edge case audit REQUIRED
+- No uncommitted changes allowed
 
 **PHASE 4: HANDOFF (REQUIRED before exit)**
 Update .claude/nelson-handoff.local.md with:
@@ -213,8 +372,11 @@ $PROMPT_TEXT
 
 ---
 
-To complete: <nelson-complete>ALL_FEATURES_COMPLETE</nelson-complete>
-$(if [[ "$COMPLETION_PROMISE" != "null" ]]; then echo "Or: <promise>$COMPLETION_PROMISE</promise> (only if TRUE!)"; fi)
+**COMPLETION SIGNALS:**
+- Normal: <nelson-complete>ALL_FEATURES_COMPLETE</nelson-complete>
+$(if [[ "$COMPLETION_PROMISE" != "null" ]]; then echo "- Promise: <promise>$COMPLETION_PROMISE</promise>"; fi)
+
+⚠️ These trigger VERIFICATION CHALLENGE - be ready!
 
 **START: Read handoff -> Plan -> Select ONE feature -> Work**
 "
@@ -235,8 +397,10 @@ $VALIDATION_WARNING
 3. Commit working code
 
 **PHASE 3: VERIFY**
-- Stage 1 - Spec Check: Does it match requirements?
-- Stage 2 - Quality Check: Tests pass? Build works?
+⚠️ WARNING: Nelson v3.3.0 has AGGRESSIVE verification!
+- If you claim completion, you will face a VERIFICATION CHALLENGE
+- Tests MUST pass, build MUST succeed
+- Self-review and edge case audit REQUIRED
 
 **PHASE 4: HANDOFF (REQUIRED)**
 Update .claude/nelson-handoff.local.md before exit
@@ -249,15 +413,18 @@ $PROMPT_TEXT
 
 ---
 
-To complete: <nelson-complete>ALL_FEATURES_COMPLETE</nelson-complete>
-$(if [[ "$COMPLETION_PROMISE" != "null" ]]; then echo "Or: <promise>$COMPLETION_PROMISE</promise> (only if TRUE!)"; fi)
+**COMPLETION SIGNALS:**
+- <nelson-complete>ALL_FEATURES_COMPLETE</nelson-complete>
+$(if [[ "$COMPLETION_PROMISE" != "null" ]]; then echo "- <promise>$COMPLETION_PROMISE</promise>"; fi)
+
+⚠️ These trigger VERIFICATION CHALLENGE - be ready!
 
 **START: Read handoff -> Plan -> Work**
 "
 fi
 
 # Build system message
-SYSTEM_MSG="$MODE_LABEL iteration $NEXT_ITERATION | Read handoff first! | To complete: <nelson-complete>ALL_FEATURES_COMPLETE</nelson-complete>"
+SYSTEM_MSG="$MODE_LABEL iteration $NEXT_ITERATION | Read handoff first! | Completion triggers VERIFICATION CHALLENGE"
 
 # Output JSON to block the stop and feed prompt back
 jq -n \

@@ -194,7 +194,7 @@ But here's the thing — I only say **"HA-HA!"** when someone else fails. When Y
 
 Ralph's nice and all, but the kid eats paste. Here's why I'm the upgrade:
 
-| Thing | Ralph Wiggum v2 | Me (Nelson v3.2) |
+| Thing | Ralph Wiggum v2 | Me (Nelson v3.3) |
 |-------|-----------------|------------------|
 | Architecture | Same in-session hooks | Same, but with STRUCTURE |
 | Planning | Optional | MANDATORY. Phase 1, every time. |
@@ -203,7 +203,9 @@ Ralph's nice and all, but the kid eats paste. Here's why I'm the upgrade:
 | Protocol | Loose guidelines | 4-phase mandatory protocol |
 | Failure handling | Tries forever (dumb) | 3 strikes (5 in HA-HA), you're blocked |
 | Focus | Gets distracted | ONE feature. Period. |
-| Quality Gates | Trust-based | Enforced at iteration boundaries |
+| Quality Gates | Trust-based | **AGGRESSIVE VERIFICATION CHALLENGE** |
+| Completion | Just say you're done | **Must pass tests, build, self-review, edge cases** |
+| Exit Gate | None | Verification file required with proof |
 
 ---
 
@@ -225,7 +227,7 @@ cat .claude/nelson-handoff.local.md
 
 ---
 
-## How It Works (v3.2 - In-Session Hooks)
+## How It Works (v3.3 - Aggressive Validation)
 
 ### Architecture Change
 
@@ -410,6 +412,61 @@ Cannot exit iteration with:
 - Build failures
 - Missing handoff
 
+### 8. VERIFICATION CHALLENGE (v3.3.0 - THE BIG ONE)
+
+**You think you're done? PROVE IT.**
+
+When you claim completion (`<nelson-complete>ALL_FEATURES_COMPLETE</nelson-complete>`), I don't just let you go. I throw a **VERIFICATION CHALLENGE** at you:
+
+```
+🔴 VERIFICATION CHALLENGE - ITERATION N
+
+You claimed completion, but Nelson doesn't trust easily. HA-HA!
+
+MANDATORY VERIFICATION STEPS:
+
+1. RUN TESTS (Required)
+   - Actually run npm test (or your test command)
+   - Paste the real output
+   - All tests must PASS
+
+2. BUILD CHECK (Required)
+   - Run npm run build
+   - Must succeed without errors
+
+3. EDGE CASE AUDIT (Required)
+   - List 3+ edge cases you considered
+   - How did you handle each one?
+
+4. SELF-REVIEW CRITIQUE (Required)
+   - What's the weakest part?
+   - What would a senior engineer criticize?
+   - Any tech debt introduced?
+   - Any TODO comments left behind?
+
+5. WRITE VERIFICATION FILE
+   - Create .claude/nelson-verification.local.md
+   - Include proof for all sections above
+```
+
+**Only THEN can you output:**
+```
+<nelson-verified>VERIFICATION_COMPLETE</nelson-verified>
+```
+
+**The hook checks the verification file for:**
+- `## Tests` section (with actual output)
+- `## Edge Cases` section (with 3+ cases)
+- `## Self-Review` section (honest assessment)
+
+**No proof = No exit.** HA-HA!
+
+This prevents:
+- Claiming done when tests fail
+- Skipping edge case consideration
+- Avoiding self-review
+- Leaving uncommitted changes
+
 ---
 
 ## Commands
@@ -556,8 +613,8 @@ MIT
    ██║ ╚████║███████╗███████╗███████║╚██████╔╝██║ ╚████║
    ╚═╝  ╚═══╝╚══════╝╚══════╝╚══════╝ ╚═════╝ ╚═╝  ╚═══╝
 
-                    MUNTZ v3.2
-      Structured Iteration Protocol + In-Session Hooks
+                    MUNTZ v3.3
+       AGGRESSIVE VALIDATION + VERIFICATION CHALLENGE
 
       "Others try. We triumph. HA-HA!" 🥊
 ```
