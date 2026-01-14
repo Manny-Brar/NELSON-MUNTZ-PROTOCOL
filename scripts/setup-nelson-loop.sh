@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Nelson Muntz In-Session Loop Setup (v3.2.0)
+# Nelson Muntz In-Session Loop Setup (v3.3.1)
 # Creates state file for stop hook-based looping in VS Code
 #
 # Enhanced with:
@@ -21,7 +21,7 @@ while [[ $# -gt 0 ]]; do
   case $1 in
     -h|--help)
       cat << 'HELP_EOF'
-Nelson Muntz - In-Session Development Loop (v3.2.0)
+Nelson Muntz - In-Session Development Loop (v3.3.1)
 
 USAGE:
   /nelson [PROMPT...] [OPTIONS]
