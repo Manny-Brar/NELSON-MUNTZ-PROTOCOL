@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Nelson Muntz In-Session Loop Setup (v3.3.1)
+# Nelson Muntz In-Session Loop Setup (v3.5.0)
 # Creates state file for stop hook-based looping in VS Code
 #
 # Enhanced with:
@@ -8,12 +8,21 @@
 #   - Two-stage validation gates
 #   - Structured handoff requirements
 #   - Quality enforcement before completion
+#
+# v3.5.0 Changes:
+#   - Default iterations: 16 (was unlimited)
+#   - Maximum cap: 36 iterations
+#   - 0 = unlimited (for advanced users who need extended loops)
 
 set -euo pipefail
 
+# Iteration limit constants (v3.5.0)
+DEFAULT_ITERATIONS=16
+MAX_ITERATIONS_CAP=36
+
 # Parse arguments
 PROMPT_PARTS=()
-MAX_ITERATIONS=0
+MAX_ITERATIONS=$DEFAULT_ITERATIONS
 COMPLETION_PROMISE="null"
 HA_HA_MODE=false
 
@@ -21,7 +30,7 @@ while [[ $# -gt 0 ]]; do
   case $1 in
     -h|--help)
       cat << 'HELP_EOF'
-Nelson Muntz - In-Session Development Loop (v3.3.1)
+Nelson Muntz - In-Session Development Loop (v3.5.0)
 
 USAGE:
   /nelson [PROMPT...] [OPTIONS]
@@ -31,7 +40,8 @@ ARGUMENTS:
   PROMPT...    Task to accomplish (can be multiple words)
 
 OPTIONS:
-  --max-iterations <n>           Maximum iterations (default: unlimited)
+  --max-iterations <n>           Maximum iterations (default: 16, max: 36)
+                                 Use 0 for unlimited (advanced)
   --completion-promise '<text>'  Promise phrase (USE QUOTES for multi-word)
   --ha-ha                        Enable HA-HA Mode (Peak Performance)
   -h, --help                     Show this help
@@ -61,6 +71,11 @@ HELP_EOF
         exit 1
       fi
       MAX_ITERATIONS="$2"
+      # Apply cap (0 = unlimited is allowed for advanced users)
+      if [[ $MAX_ITERATIONS -gt $MAX_ITERATIONS_CAP ]]; then
+        echo "⚠️  Warning: Capping iterations at $MAX_ITERATIONS_CAP (requested: $MAX_ITERATIONS)" >&2
+        MAX_ITERATIONS=$MAX_ITERATIONS_CAP
+      fi
       shift 2
       ;;
     --completion-promise)

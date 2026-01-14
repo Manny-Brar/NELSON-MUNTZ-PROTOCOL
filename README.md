@@ -107,9 +107,24 @@ claude plugin update nelson-muntz@nelson-muntz-marketplace
 
 | Option | Default | Description |
 |--------|---------|-------------|
-| `--max-iterations N` | unlimited | Stop after N full passes through all tasks |
+| `--max-iterations N` | 16 | Stop after N full passes through all tasks (max: 36, 0=unlimited) |
 | `--completion-promise "TEXT"` | none | Stop when this text appears in `<promise>` tags |
 | `--ha-ha` | false | Enable HA-HA peak performance mode |
+
+### Iteration Limits (v3.5.0)
+
+- **Default:** 16 iterations (sufficient for most tasks)
+- **Maximum cap:** 36 iterations (prevents runaway loops)
+- **Unlimited:** Use `--max-iterations 0` for advanced users needing extended loops
+
+**Recommended settings:**
+| Task Type | Iterations |
+|-----------|------------|
+| Quick bug fix | 5-8 |
+| Standard feature | 10-16 (default) |
+| Complex feature | 20-30 |
+| Multi-task audit | 2-3 (per full pass) |
+| Critical system | 30-36 (max) |
 
 ---
 
@@ -668,8 +683,8 @@ MIT
    ██║ ╚████║███████╗███████╗███████║╚██████╔╝██║ ╚████║
    ╚═╝  ╚═══╝╚══════╝╚══════╝╚══════╝ ╚═════╝ ╚═╝  ╚═══╝
 
-                    MUNTZ v3.4.0
-      TASK LISTS + STRICT VALIDATION + REJECTION LOOP
+                    MUNTZ v3.5.0
+      ITERATION LIMITS + STRICT VALIDATION + REJECTION LOOP
 
       "Others try. We triumph. HA-HA!" 🥊
 ```

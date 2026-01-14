@@ -41,7 +41,7 @@ Nelson Muntz is a peak performance AI development loop with:
 
 | Option | Description |
 |--------|-------------|
-| `--max-iterations N` | Stop after N iterations (default: unlimited) |
+| `--max-iterations N` | Stop after N iterations (default: 16, max: 36, 0=unlimited) |
 | `--completion-promise TXT` | Text that signals completion |
 | `--ha-ha` | Enable HA-HA Mode (Peak Performance) |
 

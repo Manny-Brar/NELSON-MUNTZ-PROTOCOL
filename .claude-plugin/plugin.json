@@ -1,7 +1,7 @@
 {
   "name": "nelson-muntz",
-  "version": "3.3.1",
-  "description": "Peak performance AI development loops with AGGRESSIVE validation - mandatory verification challenges, self-review, edge case audits, and quality gates. HA-HA!",
+  "version": "3.5.0",
+  "description": "Peak performance AI development loops with AGGRESSIVE validation - mandatory verification challenges, self-review, edge case audits, and quality gates. v3.5.0: Default 16 iterations, max cap 36. HA-HA!",
   "author": {
     "name": "Project Aurora",
     "email": "dev@projectaurora.ai"
