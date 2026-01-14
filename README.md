@@ -98,8 +98,8 @@ claude plugin update nelson-muntz@nelson-muntz-marketplace
 | `/ha-ha "prompt"` | Start loop in HA-HA (peak performance) mode |
 | `/nelson-status` | Check current loop status |
 | `/nelson-stop` | Stop running loop |
-| `/nelson-resume` | Resume a stopped loop |
-| `/nelson-help` | Show help documentation |
+
+**Natural Language:** Just say "use ha-ha mode" or "activate ha-ha mode" and I'll start up.
 
 ---
 
@@ -108,10 +108,7 @@ claude plugin update nelson-muntz@nelson-muntz-marketplace
 | Option | Default | Description |
 |--------|---------|-------------|
 | `--max-iterations N` | unlimited | Stop after N iterations (safety limit) |
-| `--completion-promise "TEXT"` | none | Stop when this text appears in output |
-| `--model MODEL` | claude-opus-4-5-20250514 | Claude model to use |
-| `--delay N` | 3 | Seconds to wait between iterations |
-| `--background` | false | Run loop in background |
+| `--completion-promise "TEXT"` | none | Stop when this text appears in `<promise>` tags |
 | `--ha-ha` | false | Enable HA-HA peak performance mode |
 
 ---
@@ -144,14 +141,16 @@ claude plugin update nelson-muntz@nelson-muntz-marketplace
   --max-iterations 40
 ```
 
-### Background Mode
+### Monitor Progress
 ```bash
-# Run in background, check progress later
-/nelson "Update all API endpoints" --background --max-iterations 20
-
-# Check progress anytime
+# Check loop status
 /nelson-status
-tail -f .claude/nelson-muntz.log
+
+# View state file
+cat .claude/nelson-loop.local.md
+
+# View handoff
+cat .claude/nelson-handoff.local.md
 ```
 
 ---
@@ -195,16 +194,16 @@ But here's the thing — I only say **"HA-HA!"** when someone else fails. When Y
 
 Ralph's nice and all, but the kid eats paste. Here's why I'm the upgrade:
 
-| Thing | Ralph Wiggum v1 | Me (Nelson v3) |
-|-------|-----------------|----------------|
-| Context | Same session (gets confused) | Fresh 200k every time. I don't forget. |
-| Thinking | Basic prompts | Ultrathink. I actually THINK before punching. |
-| Validation | One check | Two stages. Spec AND quality. I'm thorough. |
-| Failure handling | Tries forever (dumb) | 3 strikes, you're blocked. I move on. |
-| Git | Manual (who has time?) | Auto-commit when I win |
+| Thing | Ralph Wiggum v2 | Me (Nelson v3.2) |
+|-------|-----------------|------------------|
+| Architecture | Same in-session hooks | Same, but with STRUCTURE |
+| Planning | Optional | MANDATORY. Phase 1, every time. |
+| Validation | One check | Two stages. Spec AND quality. Both must pass. |
+| Handoff | Optional notes | REQUIRED. Loop warns if not updated! |
+| Protocol | Loose guidelines | 4-phase mandatory protocol |
+| Failure handling | Tries forever (dumb) | 3 strikes (5 in HA-HA), you're blocked |
 | Focus | Gets distracted | ONE feature. Period. |
-| State | Barely remembers anything | Full tracking. I take notes. |
-| Model | Whatever | Opus 4.5. Only the best for me. |
+| Quality Gates | Trust-based | Enforced at iteration boundaries |
 
 ---
 
@@ -216,9 +215,9 @@ Ralph's nice and all, but the kid eats paste. Here's why I'm the upgrade:
   --max-iterations 30 \
   --completion-promise "ALL TESTS PASS"
 
-# Monitor
+# Monitor progress
 /nelson-status
-tail -f .claude/nelson-muntz.log
+cat .claude/nelson-handoff.local.md
 
 # Stop if needed
 /nelson-stop
@@ -226,55 +225,93 @@ tail -f .claude/nelson-muntz.log
 
 ---
 
-## How It Works
+## How It Works (v3.2 - In-Session Hooks)
 
-### The Loop
+### Architecture Change
+
+**v3.0 used external CLI loops.** That's old news.
+
+**v3.2 uses in-session Stop hooks.** Works in VS Code extension. No external bash loops needed.
+
+```
+Old Way (v3.0):  claude --print spawns → external bash loop → spawns again
+New Way (v3.2):  Stop hook intercepts exit → feeds prompt back → same session
+```
+
+### The Structured Iteration Protocol
+
+Every iteration follows a **mandatory 4-phase protocol**. No shortcuts.
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                    External Bash Loop                        │
+│              ITERATION PROTOCOL (MANDATORY)                  │
 │                                                              │
-│   Iteration 1 (Initializer):                                │
-│   ├─ Read handoff (original prompt)                         │
-│   ├─ Engage ultrathink                                      │
-│   ├─ Set up scaffolding                                     │
-│   ├─ Decompose into features → features.json                │
-│   ├─ Create init.sh                                         │
-│   └─ Write handoff for iteration 2                          │
+│   PHASE 1: PLAN (Start of every iteration)                  │
+│   ├─ Read handoff: cat .claude/nelson-handoff.local.md      │
+│   ├─ Think hard about current state                         │
+│   ├─ Select ONE feature to complete this iteration          │
+│   └─ Write plan to .claude/nelson-scratchpad.local.md       │
 │                                                              │
-│   Iteration 2+ (Executor):                                  │
-│   ├─ Run init.sh                                            │
-│   ├─ Read handoff (context from previous)                   │
-│   ├─ Engage ultrathink                                      │
-│   ├─ Select ONE feature                                     │
-│   ├─ Implement feature                                      │
-│   ├─ Two-stage validation                                   │
-│   │   ├─ Stage 1: Spec compliance                           │
-│   │   └─ Stage 2: Quality (tests/lint/build)                │
-│   ├─ Git checkpoint (if passes)                             │
-│   ├─ Update features.json                                   │
-│   └─ Write handoff for next iteration                       │
+│   PHASE 2: WORK (Single-feature focus)                      │
+│   ├─ Implement the ONE selected feature                     │
+│   ├─ Do NOT touch other features                            │
+│   └─ Commit working code                                    │
 │                                                              │
-│   Loop until:                                               │
-│   ├─ All features complete                                  │
-│   ├─ Completion promise detected                            │
-│   └─ Max iterations reached                                 │
+│   PHASE 3: VERIFY (Before claiming completion)              │
+│   ├─ Stage 1: Spec Check - Does it match requirements?      │
+│   ├─ Stage 2: Quality Check - Tests pass? Build works?      │
+│   └─ BOTH stages must pass!                                 │
+│                                                              │
+│   PHASE 4: HANDOFF (Before every exit)                      │
+│   ├─ Update .claude/nelson-handoff.local.md                 │
+│   ├─ What was completed, what's pending, next steps         │
+│   └─ Loop warns if handoff not updated!                     │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### The Loop Flow
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    In-Session Loop                           │
+│                                                              │
+│   1. /nelson or /ha-ha starts loop                          │
+│      ├─ Creates state file: .claude/nelson-loop.local.md    │
+│      ├─ Creates handoff: .claude/nelson-handoff.local.md    │
+│      ├─ Outputs prompt with protocol instructions           │
+│      └─ Activates stop hook                                  │
+│                                                              │
+│   2. Follow the 4-phase protocol                            │
+│      ├─ PLAN: Read handoff, select ONE task                 │
+│      ├─ WORK: Implement with focus                          │
+│      ├─ VERIFY: Two-stage validation                        │
+│      └─ HANDOFF: Update handoff file                        │
+│                                                              │
+│   3. Try to exit (natural session end)                       │
+│      ├─ Stop hook intercepts                                 │
+│      ├─ Checks if handoff was updated                       │
+│      ├─ Checks completion conditions                         │
+│      └─ If not complete: feeds prompt back with warning     │
+│                                                              │
+│   4. Loop continues until:                                   │
+│      ├─ <nelson-complete>ALL_FEATURES_COMPLETE</nelson-complete>  │
+│      ├─ <promise>YOUR_PROMISE</promise> detected             │
+│      └─ Max iterations reached                               │
+│                                                              │
+│   5. Loop complete                                           │
+│      ├─ Hook allows exit                                     │
+│      ├─ State files removed                                  │
+│      └─ HA-HA!                                               │
 └─────────────────────────────────────────────────────────────┘
 ```
 
 ### State Files
 
 ```
-.claude/ralph-v3/
-├── config.json         # Loop configuration and stats
-├── features.json       # Structured feature list
-├── scratchpad.md       # Debug notes (cumulative)
-├── progress.md         # Iteration log (append-only)
-├── handoff.md          # Context for next iteration
-├── init.sh             # Project init script
-└── validation/
-    ├── spec-check.json     # Requirements tracking
-    └── quality-check.json  # Test/lint/build results
+.claude/
+├── nelson-loop.local.md      # YAML frontmatter + prompt
+├── nelson-handoff.local.md   # REQUIRED - updated every iteration
+└── nelson-scratchpad.local.md # Optional planning notes
 ```
 
 ### Skills
@@ -379,12 +416,10 @@ Cannot exit iteration with:
 
 | Command | Description |
 |---------|-------------|
-| `/nelson "prompt"` | Start new loop (standard mode) |
-| `/ha-ha "prompt"` | Start new loop (HA-HA Peak Performance mode) |
+| `/nelson "prompt"` | Start loop (standard mode) |
+| `/ha-ha "prompt"` | Start loop (HA-HA Peak Performance mode) |
 | `/nelson-status` | Check status |
 | `/nelson-stop` | Stop loop |
-| `/nelson-resume` | Resume stopped loop |
-| `/nelson-help` | Show help |
 
 ---
 
@@ -392,12 +427,9 @@ Cannot exit iteration with:
 
 | Option | Default | Description |
 |--------|---------|-------------|
-| `--max-iterations` | unlimited | Stop after N iterations |
-| `--completion-promise` | none | Text signaling completion |
-| `--model` | claude-opus-4-5-20250514 | Claude model |
-| `--delay` | 3 | Seconds between iterations |
-| `--background` | false | Run in background |
-| `--ha-ha` | false | Enable HA-HA Mode (Peak Performance) |
+| `--max-iterations N` | unlimited | Stop after N iterations |
+| `--completion-promise "TEXT"` | none | Stop when TEXT in `<promise>` tags |
+| `--ha-ha` | false | Enable HA-HA Mode |
 
 ---
 
@@ -524,8 +556,8 @@ MIT
    ██║ ╚████║███████╗███████╗███████║╚██████╔╝██║ ╚████║
    ╚═╝  ╚═══╝╚══════╝╚══════╝╚══════╝ ╚═════╝ ╚═╝  ╚═══╝
 
-                    MUNTZ v3.0
-         Peak Performance Development Loop
+                    MUNTZ v3.2
+      Structured Iteration Protocol + In-Session Hooks
 
       "Others try. We triumph. HA-HA!" 🥊
 ```
