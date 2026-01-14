@@ -2,7 +2,7 @@
 description: "Nelson Muntz plugin help and documentation"
 ---
 
-# Nelson Muntz v3.3.1 - Peak Performance Development Loop
+# Nelson Muntz v3.5.0 - Peak Performance Development Loop
 
 **HA-HA!** Welcome to Nelson Muntz with AGGRESSIVE VALIDATION.
 
@@ -102,7 +102,7 @@ PHASE 4: HANDOFF
 
 ---
 
-## Verification Challenge (v3.3.1)
+## Verification Challenge
 
 When you claim completion with `<nelson-complete>ALL_FEATURES_COMPLETE</nelson-complete>`:
 
@@ -136,9 +136,15 @@ The hook validates **content quality**:
 
 | Option | Default | Description |
 |--------|---------|-------------|
-| `--max-iterations N` | unlimited | Stop after N iterations |
+| `--max-iterations N` | 16 | Stop after N iterations (max: 36, 0=unlimited) |
 | `--completion-promise "TEXT"` | none | Stop when TEXT in `<promise>` tags |
 | `--ha-ha` | false | Enable HA-HA Mode |
+
+### Iteration Limits (v3.5.0)
+
+- **Default:** 16 iterations
+- **Maximum cap:** 36 iterations
+- **Unlimited:** Use `--max-iterations 0` for advanced users
 
 ---
 
@@ -216,8 +222,8 @@ test -f .claude/nelson-loop.local.md && echo "ACTIVE" || echo "NOT ACTIVE"
    ██║ ╚████║███████╗███████╗███████║╚██████╔╝██║ ╚████║
    ╚═╝  ╚═══╝╚══════╝╚══════╝╚══════╝ ╚═════╝ ╚═╝  ╚═══╝
 
-                    MUNTZ v3.3.1
-      STRICT CONTENT VALIDATION + REJECTION LOOP
+                    MUNTZ v3.5.0
+      ITERATION LIMITS + STRICT VALIDATION + REJECTION LOOP
 
       "Others try. We triumph. HA-HA!"
 ```
