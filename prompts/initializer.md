@@ -58,7 +58,8 @@ Before ANY implementation:
 
 Skills are prompt templates that provide structured guidance. **You MUST read and apply them at the specified trigger points.**
 
-**Skill Directory:** `~/.claude/plugins/repos/anthropics-claude-code/plugins/nelson-muntz/skills/`
+### Nelson Protocol Skills
+**Directory:** `~/.claude/plugins/NELSON-MUNTZ-PROTOCOL/skills/`
 
 | Skill | Trigger Point | Action |
 |-------|---------------|--------|
@@ -66,6 +67,43 @@ Skills are prompt templates that provide structured guidance. **You MUST read an
 | `nelson-handoff.md` | When writing handoff.md | Read skill → Follow template → Quality check |
 | `frontend-ui-ux.md` | When planning UI features | Read skill → Note design patterns for executors |
 | `database-supabase.md` | When planning database features | Read skill → Note multi-tenant requirements |
+
+### RAG Skills Suite (For RAG/Search Tasks)
+**Directory:** `.claude/skills/rag/` (in project root)
+
+**CRITICAL:** If the task involves RAG, search, document processing, or retrieval:
+
+1. **Read the RAG Master Index first:** `.claude/skills/rag/00-RAG-MASTER-INDEX.md`
+2. **Identify which RAG skills apply** to the features you're decomposing
+3. **Note in handoff.md** which RAG skills each feature should reference
+
+| RAG Task | Skill File |
+|----------|------------|
+| Document chunking | `02-chunking-strategies.md` |
+| Search implementation | `04-hybrid-search.md` |
+| Reranking | `05-reranking-strategies.md` |
+| Query transformation | `06-query-transformation.md` |
+| Knowledge graphs | `07-graphrag.md` |
+| Agent-based RAG | `08-agentic-rag.md` |
+| Self-correcting RAG | `09-self-corrective-rag.md` |
+| Multimodal (PDF/images) | `10-multimodal-rag.md` |
+| Evaluation metrics | `11-rag-evaluation.md` |
+| Prompt engineering | `13-rag-prompt-engineering.md` |
+| Security | `14-rag-security.md` |
+| Performance | `15-rag-optimization.md` |
+
+**When decomposing RAG features, add skill references:**
+```json
+{
+  "id": "F3",
+  "description": "Implement hybrid search with reranking",
+  "skills_required": [
+    ".claude/skills/rag/04-hybrid-search.md",
+    ".claude/skills/rag/05-reranking-strategies.md"
+  ],
+  ...
+}
+```
 
 ### Skill Invocation Protocol (Initialization)
 

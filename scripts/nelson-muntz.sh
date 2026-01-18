@@ -26,13 +26,38 @@
 # Options:
 #   --max-iterations N       Maximum iterations (default: unlimited)
 #   --completion-promise TXT Promise phrase to signal completion
-#   --model MODEL            Claude model (default: claude-opus-4-5-20250514)
+#   --model MODEL            Claude model (default: opus)
 #   --delay N                Seconds between iterations (default: 3)
 #   --background             Run loop in background
 #
 # =============================================================================
 
 set -euo pipefail
+
+VERSION="3.1.0"
+
+# -----------------------------------------------------------------------------
+# Prerequisites Check
+# -----------------------------------------------------------------------------
+
+check_prerequisites() {
+  # Check for jq
+  if ! command -v jq &> /dev/null; then
+    echo "ERROR: jq is required but not installed."
+    echo "Install with: brew install jq (macOS) or apt install jq (Linux)"
+    exit 1
+  fi
+
+  # Check for claude CLI
+  if ! command -v claude &> /dev/null; then
+    echo "ERROR: claude CLI is required but not installed."
+    echo "Install Claude Code from: https://claude.ai/claude-code"
+    exit 1
+  fi
+}
+
+# Run prerequisite check immediately
+check_prerequisites
 
 # -----------------------------------------------------------------------------
 # Configuration
@@ -45,7 +70,7 @@ PID_FILE=".claude/nelson-muntz.pid"
 LOG_FILE=".claude/nelson-muntz.log"
 
 # Default settings
-MODEL="claude-opus-4-5-20250514"
+MODEL="opus"
 DELAY=3
 MAX_ITERATIONS=0
 COMPLETION_PROMISE=""
@@ -68,25 +93,25 @@ NC='\033[0m'
 log() {
   local msg="[$(date '+%Y-%m-%d %H:%M:%S')] $1"
   echo -e "${BLUE}[Nelson]${NC} $1"
-  echo "$msg" >> "$LOG_FILE"
+  [[ -f "$LOG_FILE" ]] && echo "$msg" >> "$LOG_FILE" || true
 }
 
 success() {
   local msg="[$(date '+%Y-%m-%d %H:%M:%S')] SUCCESS: $1"
   echo -e "${GREEN}[Nelson]${NC} $1"
-  echo "$msg" >> "$LOG_FILE"
+  [[ -f "$LOG_FILE" ]] && echo "$msg" >> "$LOG_FILE" || true
 }
 
 warn() {
   local msg="[$(date '+%Y-%m-%d %H:%M:%S')] WARN: $1"
   echo -e "${YELLOW}[Nelson]${NC} $1"
-  echo "$msg" >> "$LOG_FILE"
+  [[ -f "$LOG_FILE" ]] && echo "$msg" >> "$LOG_FILE" || true
 }
 
 error() {
   local msg="[$(date '+%Y-%m-%d %H:%M:%S')] ERROR: $1"
   echo -e "${RED}[Nelson ERROR]${NC} $1" >&2
-  echo "$msg" >> "$LOG_FILE"
+  [[ -f "$LOG_FILE" ]] && echo "$msg" >> "$LOG_FILE" || true
 }
 
 haha() {
@@ -401,14 +426,25 @@ run_loop() {
     local prompt
     prompt=$(build_iteration_prompt "$iteration" "$mode")
 
+    # Validate prompt was built
+    if [[ -z "$prompt" ]]; then
+      error "Failed to build iteration prompt - prompt is empty"
+      set_config_value "active" "false"
+      break
+    fi
+
+    local prompt_length=${#prompt}
+    log "Built prompt: $prompt_length characters"
+
     # Run Claude with fresh context
-    log "Spawning fresh Claude session (Opus 4.5)..."
+    log "Spawning fresh Claude session (Opus)..."
 
     local start_time
     start_time=$(date +%s)
 
-    # Run claude CLI
-    if ! claude --model "$MODEL" --print "$prompt" 2>&1 | tee -a "$LOG_FILE"; then
+    # Run claude CLI in print mode (non-interactive)
+    # Pass prompt via stdin to avoid command line length limits and escaping issues
+    if ! printf '%s' "$prompt" | claude --model "$MODEL" -p 2>&1 | tee -a "$LOG_FILE"; then
       warn "Claude session exited with error"
     fi
 
@@ -505,11 +541,20 @@ cmd_start() {
 
   # Initialize state
   log "Initializing state..."
-  "$SCRIPT_DIR/init-v3-state.sh" "$prompt" \
+  if ! "$SCRIPT_DIR/init-v3-state.sh" "$prompt" \
     --max-iterations "$MAX_ITERATIONS" \
     --model "$MODEL" \
     ${COMPLETION_PROMISE:+--completion-promise "$COMPLETION_PROMISE"} \
-    ${HA_HA_MODE:+--ha-ha}
+    ${HA_HA_MODE:+--ha-ha}; then
+    error "Failed to initialize state. Check errors above."
+    exit 1
+  fi
+
+  # Verify state was created
+  if [[ ! -f "$STATE_DIR/config.json" ]]; then
+    error "State initialization failed - config.json not created"
+    exit 1
+  fi
 
   echo ""
   echo -e "${MAGENTA}╔════════════════════════════════════════════════════════════╗${NC}"
@@ -671,7 +716,7 @@ COMMANDS:
 OPTIONS (for start):
   --max-iterations N       Maximum iterations (default: unlimited)
   --completion-promise TXT Promise phrase to signal completion
-  --model MODEL            Claude model (default: claude-opus-4-5-20250514)
+  --model MODEL            Claude model (default: opus)
   --delay N                Seconds between iterations (default: 3)
   --background, -b         Run loop in background
   --ha-ha                  Enable HA-HA Mode (Peak Performance)

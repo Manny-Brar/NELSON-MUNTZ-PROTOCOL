@@ -37,7 +37,8 @@ This mode activates every enhancement simultaneously. There is no higher level.
 
 HA-HA Mode **REQUIRES** reading and applying skill files at every trigger point.
 
-**Skill Directory:** `~/.claude/plugins/repos/anthropics-claude-code/plugins/nelson-muntz/skills/`
+### Nelson Protocol Skills
+**Directory:** `~/.claude/plugins/NELSON-MUNTZ-PROTOCOL/skills/`
 
 | Skill | When to Use | HA-HA Requirement |
 |-------|-------------|-------------------|
@@ -47,6 +48,54 @@ HA-HA Mode **REQUIRES** reading and applying skill files at every trigger point.
 | `nelson-decompose.md` | Decomposing complex problems | **MANDATORY** when hitting 🔵 COMPLEXITY WALL |
 | `frontend-ui-ux.md` | ANY UI implementation | **MANDATORY** - Apply anti-slop patterns |
 | `database-supabase.md` | ANY database work | **MANDATORY** - RLS/multi-tenant rules |
+
+### RAG Skills Suite (CRITICAL FOR RAG/SEARCH TASKS)
+**Directory:** `.claude/skills/rag/` (in project root)
+
+**⚠️ MANDATORY FOR RAG WORK:** Before implementing ANY RAG-related feature, you MUST read the relevant skill file.
+
+| Task | Skill File | Description |
+|------|------------|-------------|
+| Document chunking/splitting | `02-chunking-strategies.md` | Semantic, recursive, and agentic chunking patterns |
+| Search implementation | `04-hybrid-search.md` | Vector + keyword fusion, alpha tuning |
+| Improving search quality | `05-reranking-strategies.md` | Cross-encoder, LLM, and reciprocal rank fusion |
+| Query processing | `06-query-transformation.md` | HyDE, multi-query, step-back prompting |
+| Knowledge graphs | `07-graphrag.md` | Entity extraction, graph traversal, hybrid approaches |
+| Agent-based RAG | `08-agentic-rag.md` | Router agents, tool-using retrievers |
+| Self-correcting pipelines | `09-self-corrective-rag.md` | CRAG, hallucination detection, retry logic |
+| PDF/image retrieval | `10-multimodal-rag.md` | Vision models, table extraction, layout analysis |
+| Quality measurement | `11-rag-evaluation.md` | Faithfulness, relevancy, answer correctness metrics |
+| Prompt design | `13-rag-prompt-engineering.md` | Context formatting, citation injection |
+| Security | `14-rag-security.md` | Prompt injection prevention, access control |
+| Performance | `15-rag-optimization.md` | Caching, streaming, batch processing |
+
+**Master Index:** `.claude/skills/rag/00-RAG-MASTER-INDEX.md` - Full list with research sources
+
+### RAG Skill Invocation Protocol
+
+```
+BEFORE implementing any RAG feature:
+1. Identify the RAG task type (chunking, search, reranking, etc.)
+2. Read the corresponding skill file COMPLETELY
+3. Note the implementation patterns and code examples
+4. Apply the best practices from the skill
+5. Document which skill patterns you used in scratchpad.md
+```
+
+**Example Workflow:**
+```markdown
+## RAG Skill Application Log
+
+**Feature:** Implement hybrid search
+**Skill Read:** .claude/skills/rag/04-hybrid-search.md
+
+**Patterns Applied:**
+- RRF (Reciprocal Rank Fusion) with alpha=0.6
+- Separate vector and keyword retrievers
+- Score normalization before fusion
+
+**Code Location:** apps/api/src/lib/search.ts
+```
 
 **HA-HA Rule:** Read the full skill file, not just summaries. The skills contain detailed checklists, patterns, and anti-patterns that HA-HA Mode must follow.
 

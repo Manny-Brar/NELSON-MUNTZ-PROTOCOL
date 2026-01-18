@@ -1,17 +1,18 @@
 ---
 description: "Activate HA-HA Mode - Peak Performance Development Loop"
 argument-hint: "PROMPT [--max-iterations N] [--completion-promise TEXT]"
-allowed-tools: ["Bash(${CLAUDE_PLUGIN_ROOT}/scripts/setup-nelson-loop.sh:*)"]
-hide-from-slash-command-tool: "true"
+allowed-tools: ["Bash(${CLAUDE_PLUGIN_ROOT}/scripts/nelson-muntz.sh:*)"]
 ---
 
 # Nelson Muntz - HA-HA Mode
 
-Execute the Nelson Muntz loop in HA-HA (Peak Performance) mode:
+Execute the Nelson Muntz loop with HA-HA Mode (Peak Performance):
 
 ```!
-"${CLAUDE_PLUGIN_ROOT}/scripts/setup-nelson-loop.sh" --ha-ha $ARGUMENTS
+"${CLAUDE_PLUGIN_ROOT}/scripts/nelson-muntz.sh" start --ha-ha $ARGUMENTS
 ```
+
+**The ultimate peak performance configuration. All enhancements activated.**
 
 ## What is HA-HA Mode?
 
@@ -35,18 +36,20 @@ HA-HA Mode is Nelson Muntz with EVERY enhancement enabled:
 # With options
 /ha-ha "Complex task" --max-iterations 50
 
-# With completion promise
-/ha-ha "Add OAuth flow" --completion-promise "ALL TESTS PASS"
+# Monitor
+/nelson-status
+tail -f .claude/nelson-muntz.log
 ```
 
 ## HA-HA Mode Protocol Stack
 
-When HA-HA Mode is active, these protocols execute:
+When HA-HA Mode is active, these protocols execute in sequence:
 
 ### Phase 0: Pre-Flight Research
 - Search best practices before writing any code
 - Review official documentation
 - Analyze existing patterns in codebase
+- Document research findings
 
 ### Phase 1: Multi-Dimensional Thinking
 - Level 1: Standard ultrathink
@@ -54,75 +57,112 @@ When HA-HA Mode is active, these protocols execute:
 - Level 3: Adversarial ultrathink (what could go wrong?)
 - Level 4: Meta ultrathink (is this the best approach?)
 
-### Phase 2: Wall-Breaker Protocol
+### Phase 2: Parallel Exploration
+- Evaluate multiple approaches before committing
+- Spawn exploration agents for complex decisions
+- Document all considered alternatives
+
+### Phase 3: Wall-Breaker Protocol
 - Classify any obstacle by type
 - Execute wall-specific research protocol
+- 5-10 targeted web searches
 - Document breakthrough and prevention
 
-### Phase 3: Aggressive Validation
+### Phase 4: Aggressive Validation
 - Pre-implementation checks
 - Incremental validation (after every change)
 - Two-stage post-implementation
 - Self-review against best practices
 
-### Phase 4: No-Surrender Persistence
+### Phase 5: Self-Reflection Checkpoints
+- After research: "Do I have enough information?"
+- After design: "Is this the simplest solution?"
+- After implementation: "Does this code make me proud?"
+- Before commit: "Would I bet on this in production?"
+
+### Phase 6: Pattern Recognition
+- Learn from previous iterations
+- Build pattern library
+- Document anti-patterns discovered
+
+### Phase 7: No-Surrender Persistence
 - 5-attempt escalation ladder
 - Mandatory research between attempts
 - Never retry without new information
 
 ## Wall-Breaker Auto-Research
 
-HA-HA Mode automatically searches when hitting walls:
+HA-HA Mode automatically searches for solutions when hitting walls:
 
 ```
-ERROR WALL      Search error message + solutions
-KNOWLEDGE WALL  Search tutorials + documentation
-DESIGN WALL     Search approach comparisons
-DEPENDENCY WALL Search alternatives
-COMPLEXITY WALL Decompose + research sub-problems
+🔴 ERROR WALL → Search error message + solutions
+🟠 KNOWLEDGE WALL → Search tutorials + documentation
+🟡 DESIGN WALL → Search approach comparisons
+🟢 DEPENDENCY WALL → Search alternatives
+🔵 COMPLEXITY WALL → Decompose + research sub-problems
 ```
 
-## Completion Signals (v3.3.1)
+All research is documented in `scratchpad.md` for future iterations.
 
-HA-HA Mode uses the same **two-stage completion flow** with stricter validation:
+## Output Format
 
-### Stage 1: Claim Completion
+Each HA-HA Mode iteration produces a comprehensive report:
+
+```markdown
+# HA-HA Mode Iteration [N] Report
+
+## Pre-Flight Research Completed
+- [x] Best practices searched
+- [x] Documentation reviewed
+
+## Thinking Phases Executed
+- [x] All 4 levels of ultrathink
+
+## Walls Encountered & Broken
+| Wall Type | Description | Solution |
+|-----------|-------------|----------|
+
+## Validation Results
+- Tests: PASS
+- Lint: PASS
+- Self-Review: PASS
+
+## Patterns Discovered
+- [New patterns learned]
+
+## HA-HA Status: TRIUMPHANT
 ```
-<nelson-complete>ALL_FEATURES_COMPLETE</nelson-complete>
-```
-**This triggers the Verification Challenge** - does NOT exit.
 
-### Stage 2: Verification Challenge (STRICT)
-You must:
-1. Run tests and paste REAL output (must show pass/fail counts)
-2. Run build and confirm success
-3. List 3+ edge cases handled (bulleted)
-4. Write critical self-review (weaknesses, debt, TODOs)
-5. Create `.claude/nelson-verification.local.md`
+## When to Use HA-HA Mode
 
-Then output:
-```
-<nelson-verified>VERIFICATION_COMPLETE</nelson-verified>
-```
+**Use HA-HA Mode for:**
+- Complex, multi-component features
+- Unfamiliar technologies
+- Critical system components
+- High-stakes implementations
+- When standard Nelson keeps failing
 
-Or if you set a completion promise (after verification):
-```
-<promise>YOUR_PROMISE_TEXT</promise>
-```
+**Standard Nelson is fine for:**
+- Simple bug fixes
+- Well-understood patterns
+- Routine implementations
+- Tasks with clear solutions
 
-**Content is validated:** Weak sections get REJECTED with specific failures.
+## Configuration
 
-## Monitoring
+HA-HA Mode uses enhanced settings:
 
-```bash
-# Check state
-head -10 .claude/nelson-loop.local.md
-
-# Check status
-/nelson-status
-
-# Stop loop (if needed)
-/nelson-stop
+```json
+{
+  "mode": "ha-ha",
+  "model": "opus",
+  "thinking_depth": "maximum",
+  "research_mandatory": true,
+  "max_attempts_per_feature": 5,
+  "auto_research_on_failure": true,
+  "parallel_exploration": true,
+  "checkpoint_frequency": "every_significant_change"
+}
 ```
 
 ## The HA-HA Oath

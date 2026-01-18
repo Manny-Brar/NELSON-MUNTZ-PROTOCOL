@@ -28,41 +28,31 @@ Me? I show up with a **fresh 200k tokens every single iteration**. While your ag
 
 ---
 
-## Installation (2 Commands)
+## Installation (3 Steps)
 
-**Using Claude's official plugin system** *(recommended)*:
+### Step 1: Clone to Claude Plugins Directory
 
 ```bash
-# Step 1: Add my marketplace
-claude plugin marketplace add https://github.com/Manny-Brar/NELSON-MUNTZ-PROTOCOL
+# Create plugins directory if it doesn't exist
+mkdir -p ~/.claude/plugins
 
-# Step 2: Install me
-claude plugin install nelson-muntz@nelson-muntz-marketplace
+# Clone the repo
+cd ~/.claude/plugins
+git clone https://github.com/Manny-Brar/NELSON-MUNTZ-PROTOCOL.git
 ```
 
-Then restart Claude Code. That's it. Don't make it complicated.
+### Step 2: Restart Claude Code
 
-### Verify I'm Here
+Close and reopen Claude Code (or VS Code with Claude extension) to load the plugin.
+
+### Step 3: Verify Installation
 
 In Claude Code, type:
 ```
-/nelson-muntz:help
+/nelson-help
 ```
 
-If you see the help menu, I'm ready to beat up your bugs. 🥊
-
-### Uninstall (If You're A Quitter)
-
-```bash
-claude plugin uninstall nelson-muntz@nelson-muntz-marketplace
-claude plugin marketplace remove nelson-muntz-marketplace
-```
-
-### Update Me
-
-```bash
-claude plugin update nelson-muntz@nelson-muntz-marketplace
-```
+If you see the help menu, you're ready! 🎉
 
 ---
 
@@ -98,8 +88,8 @@ claude plugin update nelson-muntz@nelson-muntz-marketplace
 | `/ha-ha "prompt"` | Start loop in HA-HA (peak performance) mode |
 | `/nelson-status` | Check current loop status |
 | `/nelson-stop` | Stop running loop |
-
-**Natural Language:** Just say "use ha-ha mode" or "activate ha-ha mode" and I'll start up.
+| `/nelson-resume` | Resume a stopped loop |
+| `/nelson-help` | Show help documentation |
 
 ---
 
@@ -107,54 +97,12 @@ claude plugin update nelson-muntz@nelson-muntz-marketplace
 
 | Option | Default | Description |
 |--------|---------|-------------|
-| `--max-iterations N` | 16 | Stop after N full passes through all tasks (max: 36, 0=unlimited) |
-| `--completion-promise "TEXT"` | none | Stop when this text appears in `<promise>` tags |
+| `--max-iterations N` | unlimited | Stop after N iterations (safety limit) |
+| `--completion-promise "TEXT"` | none | Stop when this text appears in output |
+| `--model MODEL` | opus | Claude model to use |
+| `--delay N` | 3 | Seconds to wait between iterations |
+| `--background` | false | Run loop in background |
 | `--ha-ha` | false | Enable HA-HA peak performance mode |
-
-### Iteration Limits (v3.5.0)
-
-- **Default:** 16 iterations (sufficient for most tasks)
-- **Maximum cap:** 36 iterations (prevents runaway loops)
-- **Unlimited:** Use `--max-iterations 0` for advanced users needing extended loops
-
-**Recommended settings:**
-| Task Type | Iterations |
-|-----------|------------|
-| Quick bug fix | 5-8 |
-| Standard feature | 10-16 (default) |
-| Complex feature | 20-30 |
-| Multi-task audit | 2-3 (per full pass) |
-| Critical system | 30-36 (max) |
-
----
-
-## Task Lists (v3.4.0 - NEW!)
-
-**Got multiple things to do? Give me a numbered list:**
-
-```bash
-/nelson "
-1. Audit business portal security
-2. Fix tenant isolation issues
-3. Add rate limiting to APIs
-4. Run verification tests
-" --max-iterations 3
-```
-
-**What happens:**
-- I detect the 4 numbered tasks
-- I work through them in order: Task 1 → Task 2 → Task 3 → Task 4
-- When ALL 4 are done = **1 iteration complete**
-- Then I start over for iteration 2
-- With `--max-iterations 3`, I do all 4 tasks **three times** (12 total task completions)
-
-**Why this matters:**
-- Before: `--max-iterations 5` meant 5 responses total (lame)
-- Now: `--max-iterations 5` means 5 FULL PASSES through your entire task list (powerful)
-
-**Task detection:**
-- Uses numbered format: `1.`, `2.`, `3.`, etc.
-- No numbered list? Treats whole prompt as 1 task (behaves like before)
 
 ---
 
@@ -172,17 +120,6 @@ claude plugin update nelson-muntz@nelson-muntz-marketplace
 /nelson "Fix the authentication bug" --completion-promise "ALL TESTS PASS"
 ```
 
-### With Task List (v3.4.0)
-```bash
-# Multiple tasks - 3 full passes through all of them
-/nelson "
-1. Review authentication flow
-2. Add input validation
-3. Write unit tests
-4. Update documentation
-" --max-iterations 3
-```
-
 ### Complex Tasks (HA-HA Mode)
 ```bash
 # Full HA-HA mode for complex features
@@ -197,16 +134,14 @@ claude plugin update nelson-muntz@nelson-muntz-marketplace
   --max-iterations 40
 ```
 
-### Monitor Progress
+### Background Mode
 ```bash
-# Check loop status
+# Run in background, check progress later
+/nelson "Update all API endpoints" --background --max-iterations 20
+
+# Check progress anytime
 /nelson-status
-
-# View state file
-cat .claude/nelson-loop.local.md
-
-# View handoff
-cat .claude/nelson-handoff.local.md
+tail -f .claude/nelson-muntz.log
 ```
 
 ---
@@ -250,18 +185,16 @@ But here's the thing — I only say **"HA-HA!"** when someone else fails. When Y
 
 Ralph's nice and all, but the kid eats paste. Here's why I'm the upgrade:
 
-| Thing | Ralph Wiggum v2 | Me (Nelson v3.3) |
-|-------|-----------------|------------------|
-| Architecture | Same in-session hooks | Same, but with STRUCTURE |
-| Planning | Optional | MANDATORY. Phase 1, every time. |
-| Validation | One check | Two stages. Spec AND quality. Both must pass. |
-| Handoff | Optional notes | REQUIRED. Loop warns if not updated! |
-| Protocol | Loose guidelines | 4-phase mandatory protocol |
-| Failure handling | Tries forever (dumb) | 3 strikes (5 in HA-HA), you're blocked |
+| Thing | Ralph Wiggum v1 | Me (Nelson v3) |
+|-------|-----------------|----------------|
+| Context | Same session (gets confused) | Fresh 200k every time. I don't forget. |
+| Thinking | Basic prompts | Ultrathink. I actually THINK before punching. |
+| Validation | One check | Two stages. Spec AND quality. I'm thorough. |
+| Failure handling | Tries forever (dumb) | 3 strikes, you're blocked. I move on. |
+| Git | Manual (who has time?) | Auto-commit when I win |
 | Focus | Gets distracted | ONE feature. Period. |
-| Quality Gates | Trust-based | **AGGRESSIVE VERIFICATION CHALLENGE** |
-| Completion | Just say you're done | **Must pass tests, build, self-review, edge cases** |
-| Exit Gate | None | Verification file required with proof |
+| State | Barely remembers anything | Full tracking. I take notes. |
+| Model | Whatever | Opus 4.5. Only the best for me. |
 
 ---
 
@@ -273,9 +206,9 @@ Ralph's nice and all, but the kid eats paste. Here's why I'm the upgrade:
   --max-iterations 30 \
   --completion-promise "ALL TESTS PASS"
 
-# Monitor progress
+# Monitor
 /nelson-status
-cat .claude/nelson-handoff.local.md
+tail -f .claude/nelson-muntz.log
 
 # Stop if needed
 /nelson-stop
@@ -283,93 +216,55 @@ cat .claude/nelson-handoff.local.md
 
 ---
 
-## How It Works (v3.3 - Aggressive Validation)
+## How It Works
 
-### Architecture Change
-
-**v3.0 used external CLI loops.** That's old news.
-
-**v3.2 uses in-session Stop hooks.** Works in VS Code extension. No external bash loops needed.
-
-```
-Old Way (v3.0):  claude --print spawns → external bash loop → spawns again
-New Way (v3.2):  Stop hook intercepts exit → feeds prompt back → same session
-```
-
-### The Structured Iteration Protocol
-
-Every iteration follows a **mandatory 4-phase protocol**. No shortcuts.
+### The Loop
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│              ITERATION PROTOCOL (MANDATORY)                  │
+│                    External Bash Loop                        │
 │                                                              │
-│   PHASE 1: PLAN (Start of every iteration)                  │
-│   ├─ Read handoff: cat .claude/nelson-handoff.local.md      │
-│   ├─ Think hard about current state                         │
-│   ├─ Select ONE feature to complete this iteration          │
-│   └─ Write plan to .claude/nelson-scratchpad.local.md       │
+│   Iteration 1 (Initializer):                                │
+│   ├─ Read handoff (original prompt)                         │
+│   ├─ Engage ultrathink                                      │
+│   ├─ Set up scaffolding                                     │
+│   ├─ Decompose into features → features.json                │
+│   ├─ Create init.sh                                         │
+│   └─ Write handoff for iteration 2                          │
 │                                                              │
-│   PHASE 2: WORK (Single-feature focus)                      │
-│   ├─ Implement the ONE selected feature                     │
-│   ├─ Do NOT touch other features                            │
-│   └─ Commit working code                                    │
+│   Iteration 2+ (Executor):                                  │
+│   ├─ Run init.sh                                            │
+│   ├─ Read handoff (context from previous)                   │
+│   ├─ Engage ultrathink                                      │
+│   ├─ Select ONE feature                                     │
+│   ├─ Implement feature                                      │
+│   ├─ Two-stage validation                                   │
+│   │   ├─ Stage 1: Spec compliance                           │
+│   │   └─ Stage 2: Quality (tests/lint/build)                │
+│   ├─ Git checkpoint (if passes)                             │
+│   ├─ Update features.json                                   │
+│   └─ Write handoff for next iteration                       │
 │                                                              │
-│   PHASE 3: VERIFY (Before claiming completion)              │
-│   ├─ Stage 1: Spec Check - Does it match requirements?      │
-│   ├─ Stage 2: Quality Check - Tests pass? Build works?      │
-│   └─ BOTH stages must pass!                                 │
-│                                                              │
-│   PHASE 4: HANDOFF (Before every exit)                      │
-│   ├─ Update .claude/nelson-handoff.local.md                 │
-│   ├─ What was completed, what's pending, next steps         │
-│   └─ Loop warns if handoff not updated!                     │
-└─────────────────────────────────────────────────────────────┘
-```
-
-### The Loop Flow
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                    In-Session Loop                           │
-│                                                              │
-│   1. /nelson or /ha-ha starts loop                          │
-│      ├─ Creates state file: .claude/nelson-loop.local.md    │
-│      ├─ Creates handoff: .claude/nelson-handoff.local.md    │
-│      ├─ Outputs prompt with protocol instructions           │
-│      └─ Activates stop hook                                  │
-│                                                              │
-│   2. Follow the 4-phase protocol                            │
-│      ├─ PLAN: Read handoff, select ONE task                 │
-│      ├─ WORK: Implement with focus                          │
-│      ├─ VERIFY: Two-stage validation                        │
-│      └─ HANDOFF: Update handoff file                        │
-│                                                              │
-│   3. Try to exit (natural session end)                       │
-│      ├─ Stop hook intercepts                                 │
-│      ├─ Checks if handoff was updated                       │
-│      ├─ Checks completion conditions                         │
-│      └─ If not complete: feeds prompt back with warning     │
-│                                                              │
-│   4. Loop continues until:                                   │
-│      ├─ <nelson-complete>ALL_FEATURES_COMPLETE</nelson-complete>  │
-│      ├─ <promise>YOUR_PROMISE</promise> detected             │
-│      └─ Max iterations reached                               │
-│                                                              │
-│   5. Loop complete                                           │
-│      ├─ Hook allows exit                                     │
-│      ├─ State files removed                                  │
-│      └─ HA-HA!                                               │
+│   Loop until:                                               │
+│   ├─ All features complete                                  │
+│   ├─ Completion promise detected                            │
+│   └─ Max iterations reached                                 │
 └─────────────────────────────────────────────────────────────┘
 ```
 
 ### State Files
 
 ```
-.claude/
-├── nelson-loop.local.md      # YAML frontmatter + prompt
-├── nelson-handoff.local.md   # REQUIRED - updated every iteration
-└── nelson-scratchpad.local.md # Optional planning notes
+.claude/ralph-v3/
+├── config.json         # Loop configuration and stats
+├── features.json       # Structured feature list
+├── scratchpad.md       # Debug notes (cumulative)
+├── progress.md         # Iteration log (append-only)
+├── handoff.md          # Context for next iteration
+├── init.sh             # Project init script
+└── validation/
+    ├── spec-check.json     # Requirements tracking
+    └── quality-check.json  # Test/lint/build results
 ```
 
 ### Skills
@@ -468,85 +363,18 @@ Cannot exit iteration with:
 - Build failures
 - Missing handoff
 
-### 8. VERIFICATION CHALLENGE (v3.3.1 - THE BIG ONE)
-
-**You think you're done? PROVE IT.**
-
-When you claim completion (`<nelson-complete>ALL_FEATURES_COMPLETE</nelson-complete>`), I don't just let you go. I throw a **VERIFICATION CHALLENGE** at you:
-
-```
-🔴 VERIFICATION CHALLENGE - ITERATION N
-
-You claimed completion, but Nelson doesn't trust easily. HA-HA!
-
-MANDATORY VERIFICATION STEPS:
-
-1. RUN TESTS (Required)
-   - Actually run npm test (or your test command)
-   - Paste the real output
-   - All tests must PASS
-
-2. BUILD CHECK (Required)
-   - Run npm run build
-   - Must succeed without errors
-
-3. EDGE CASE AUDIT (Required)
-   - List 3+ edge cases you considered
-   - How did you handle each one?
-
-4. SELF-REVIEW CRITIQUE (Required)
-   - What's the weakest part?
-   - What would a senior engineer criticize?
-   - Any tech debt introduced?
-   - Any TODO comments left behind?
-
-5. WRITE VERIFICATION FILE
-   - Create .claude/nelson-verification.local.md
-   - Include proof for all sections above
-```
-
-**Only THEN can you output:**
-```
-<nelson-verified>VERIFICATION_COMPLETE</nelson-verified>
-```
-
-**The hook validates CONTENT QUALITY (v3.3.1):**
-- `## Tests` - Must contain pass/fail keywords or test counts (regex validated)
-- `## Build` - Must contain "success/pass/complete" confirmation
-- `## Edge Cases` - Must have 3+ numbered/bulleted items (counted!)
-- `## Self-Review` - Must mention weakness/criticism/debt/todos
-- `## Git Status` - Must exist with commit info
-
-**Weak verification? REJECTED with specific failures:**
-```
-🔴 VERIFICATION REJECTED - ITERATION 6
-
-FAILURES DETECTED:
-- Tests section lacks actual test output (need pass/fail counts)
-- Edge Cases needs 3+ items (found: 1)
-- Self-Review lacks required analysis
-
-FIX YOUR VERIFICATION FILE and resubmit!
-```
-
-**No cheating Nelson.** HA-HA!
-
-This prevents:
-- Claiming done when tests fail
-- Skipping edge case consideration
-- Avoiding self-review
-- Leaving uncommitted changes
-
 ---
 
 ## Commands
 
 | Command | Description |
 |---------|-------------|
-| `/nelson "prompt"` | Start loop (standard mode) |
-| `/ha-ha "prompt"` | Start loop (HA-HA Peak Performance mode) |
+| `/nelson "prompt"` | Start new loop (standard mode) |
+| `/ha-ha "prompt"` | Start new loop (HA-HA Peak Performance mode) |
 | `/nelson-status` | Check status |
 | `/nelson-stop` | Stop loop |
+| `/nelson-resume` | Resume stopped loop |
+| `/nelson-help` | Show help |
 
 ---
 
@@ -554,9 +382,12 @@ This prevents:
 
 | Option | Default | Description |
 |--------|---------|-------------|
-| `--max-iterations N` | unlimited | Stop after N iterations |
-| `--completion-promise "TEXT"` | none | Stop when TEXT in `<promise>` tags |
-| `--ha-ha` | false | Enable HA-HA Mode |
+| `--max-iterations` | unlimited | Stop after N iterations |
+| `--completion-promise` | none | Text signaling completion |
+| `--model` | opus | Claude model |
+| `--delay` | 3 | Seconds between iterations |
+| `--background` | false | Run in background |
+| `--ha-ha` | false | Enable HA-HA Mode (Peak Performance) |
 
 ---
 
@@ -683,8 +514,8 @@ MIT
    ██║ ╚████║███████╗███████╗███████║╚██████╔╝██║ ╚████║
    ╚═╝  ╚═══╝╚══════╝╚══════╝╚══════╝ ╚═════╝ ╚═╝  ╚═══╝
 
-                    MUNTZ v3.5.0
-      ITERATION LIMITS + STRICT VALIDATION + REJECTION LOOP
+                    MUNTZ v3.0
+         Peak Performance Development Loop
 
       "Others try. We triumph. HA-HA!" 🥊
 ```

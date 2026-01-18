@@ -8,6 +8,46 @@ When Nelson encounters obstacles, errors, or knowledge gaps, this protocol autom
 
 ---
 
+## STEP ZERO: CHECK LOCAL SKILLS FIRST
+
+**Before ANY web search, check if we have a skill file for this topic:**
+
+### RAG Skills Suite (Priority Source for RAG Tasks)
+**Location:** `.claude/skills/rag/`
+
+If your obstacle relates to ANY of these, **READ THE SKILL FILE FIRST**:
+
+| Topic | Skill File |
+|-------|------------|
+| Document chunking, text splitting | `02-chunking-strategies.md` |
+| Vector search, keyword search, hybrid search | `04-hybrid-search.md` |
+| Reranking, result ordering | `05-reranking-strategies.md` |
+| Query rewriting, HyDE, step-back | `06-query-transformation.md` |
+| Knowledge graphs, entity extraction | `07-graphrag.md` |
+| Agent routers, tool-using retrieval | `08-agentic-rag.md` |
+| CRAG, hallucination detection | `09-self-corrective-rag.md` |
+| PDF parsing, image retrieval | `10-multimodal-rag.md` |
+| Evaluation metrics, faithfulness | `11-rag-evaluation.md` |
+| Context formatting, prompts | `13-rag-prompt-engineering.md` |
+| Prompt injection, access control | `14-rag-security.md` |
+| Caching, streaming, batching | `15-rag-optimization.md` |
+
+**Master Index:** `.claude/skills/rag/00-RAG-MASTER-INDEX.md`
+
+```
+RAG-Related Problem Detected?
+    ↓
+Read skill file FIRST (contains 30+ research papers synthesized)
+    ↓
+Apply patterns from skill
+    ↓
+ONLY if skill doesn't cover it → Proceed to web research
+```
+
+**Why:** The RAG skills contain extensively researched patterns from 2025-2026 papers. Using them first saves research time and ensures best practices.
+
+---
+
 ## TRIGGER CONDITIONS
 
 Auto-research activates when ANY of these occur:

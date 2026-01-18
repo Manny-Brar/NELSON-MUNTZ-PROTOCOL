@@ -52,7 +52,8 @@ Before ANY implementation:
 
 Skills are prompt templates that provide structured guidance. **You MUST read and apply them at the specified trigger points.**
 
-**Skill Directory:** `~/.claude/plugins/repos/anthropics-claude-code/plugins/nelson-muntz/skills/`
+### Nelson Protocol Skills
+**Directory:** `~/.claude/plugins/NELSON-MUNTZ-PROTOCOL/skills/`
 
 | Skill | Trigger Point | Action |
 |-------|---------------|--------|
@@ -61,6 +62,28 @@ Skills are prompt templates that provide structured guidance. **You MUST read an
 | `nelson-handoff.md` | When writing handoff.md | Read skill → Follow template → Quality check |
 | `frontend-ui-ux.md` | When implementing UI components | Read skill → Apply design patterns |
 | `database-supabase.md` | When working with database/migrations | Read skill → Follow RLS/multi-tenant rules |
+
+### RAG Skills Suite (For RAG/Search Tasks)
+**Directory:** `.claude/skills/rag/` (in project root)
+
+**IMPORTANT:** Before implementing ANY RAG-related feature, read the relevant skill file first:
+
+| Task | Skill to Read |
+|------|---------------|
+| Document chunking | `02-chunking-strategies.md` |
+| Search/retrieval | `04-hybrid-search.md` |
+| Result reranking | `05-reranking-strategies.md` |
+| Query processing | `06-query-transformation.md` |
+| Knowledge graphs | `07-graphrag.md` |
+| Agent-based RAG | `08-agentic-rag.md` |
+| Self-correcting RAG | `09-self-corrective-rag.md` |
+| PDF/image RAG | `10-multimodal-rag.md` |
+| Quality metrics | `11-rag-evaluation.md` |
+| Prompt design | `13-rag-prompt-engineering.md` |
+| Security | `14-rag-security.md` |
+| Performance | `15-rag-optimization.md` |
+
+**Full Index:** `.claude/skills/rag/00-RAG-MASTER-INDEX.md`
 
 ### Skill Invocation Protocol
 

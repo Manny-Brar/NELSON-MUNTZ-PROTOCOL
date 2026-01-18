@@ -40,7 +40,7 @@ STATE_DIR=".claude/ralph-v3"
 PROMPT=""
 MAX_ITERATIONS=0
 COMPLETION_PROMISE=""
-MODEL="claude-opus-4-5-20250514"
+MODEL="opus"
 HA_HA_MODE=false
 
 # Colors for output
@@ -105,7 +105,7 @@ OPTIONS:
   --max-iterations N       Maximum iterations before stopping (default: unlimited)
   --completion-promise TXT Promise phrase that signals completion
   --state-dir DIR          Custom state directory (default: .claude/ralph-v3)
-  --model MODEL            Claude model to use (default: claude-opus-4-5-20250514)
+  --model MODEL            Claude model to use (default: opus)
   -h, --help               Show this help message
 
 STATE FILES CREATED:
