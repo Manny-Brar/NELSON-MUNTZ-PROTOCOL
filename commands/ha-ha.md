@@ -1,7 +1,7 @@
 ---
 description: "Activate HA-HA Mode - Peak Performance Development Loop"
 argument-hint: "PROMPT [--max-iterations N] [--completion-promise TEXT]"
-allowed-tools: ["Bash(${CLAUDE_PLUGIN_ROOT}/scripts/nelson-muntz.sh:*)"]
+allowed-tools: ["Bash(${CLAUDE_PLUGIN_ROOT}/scripts/setup-nelson-loop.sh:*)"]
 ---
 
 # Nelson Muntz - HA-HA Mode
@@ -9,7 +9,7 @@ allowed-tools: ["Bash(${CLAUDE_PLUGIN_ROOT}/scripts/nelson-muntz.sh:*)"]
 Execute the Nelson Muntz loop with HA-HA Mode (Peak Performance):
 
 ```!
-"${CLAUDE_PLUGIN_ROOT}/scripts/nelson-muntz.sh" start --ha-ha $ARGUMENTS
+"${CLAUDE_PLUGIN_ROOT}/scripts/setup-nelson-loop.sh" --ha-ha $ARGUMENTS
 ```
 
 **The ultimate peak performance configuration. All enhancements activated.**

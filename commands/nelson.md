@@ -1,8 +1,7 @@
 ---
 description: "Start Nelson Muntz peak performance development loop"
 argument-hint: "PROMPT [--max-iterations N] [--completion-promise TEXT]"
-allowed-tools: ["Bash(${CLAUDE_PLUGIN_ROOT}/scripts/nelson-muntz.sh:*)"]
-hide-from-slash-command-tool: "true"
+allowed-tools: ["Bash(${CLAUDE_PLUGIN_ROOT}/scripts/setup-nelson-loop.sh:*)"]
 ---
 
 # Nelson Muntz - Peak Performance Development Loop
@@ -10,7 +9,7 @@ hide-from-slash-command-tool: "true"
 Execute the Nelson Muntz loop:
 
 ```!
-"${CLAUDE_PLUGIN_ROOT}/scripts/nelson-muntz.sh" start $ARGUMENTS
+"${CLAUDE_PLUGIN_ROOT}/scripts/setup-nelson-loop.sh" $ARGUMENTS
 ```
 
 ## What is Nelson Muntz?

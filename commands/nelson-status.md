@@ -1,7 +1,6 @@
 ---
 description: "Check Nelson Muntz loop status"
 allowed-tools: ["Bash(head *)", "Read(.claude/nelson-loop.local.md)"]
-hide-from-slash-command-tool: "true"
 ---
 
 # Nelson Status

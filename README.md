@@ -60,12 +60,22 @@ If you see the help menu, you're ready! 🎉
 
 **Want me to build something? Say the magic words:**
 ```bash
-/nelson "Build a REST API with user authentication"
+/nelson "Build a REST API with user authentication" --max-iterations 20
 ```
 
 **Got something hard? Bring out the big guns — HA-HA Mode:**
 ```bash
-/ha-ha "Build OAuth + JWT + MFA authentication system"
+/ha-ha "Build OAuth + JWT + MFA authentication system" --max-iterations 16
+```
+
+**Both formats work — shorthand or fully qualified:**
+```bash
+# Shorthand
+/ha-ha "Complex task" --max-iterations 16
+
+# Fully qualified (plugin-name:command-name)
+/nelson-muntz:ha-ha "Complex task" --max-iterations 16
+/nelson-muntz:nelson "Build REST API" --max-iterations 20
 ```
 
 **Wanna see me work?**
@@ -88,8 +98,9 @@ If you see the help menu, you're ready! 🎉
 | `/ha-ha "prompt"` | Start loop in HA-HA (peak performance) mode |
 | `/nelson-status` | Check current loop status |
 | `/nelson-stop` | Stop running loop |
-| `/nelson-resume` | Resume a stopped loop |
-| `/nelson-help` | Show help documentation |
+| `/help` | Show help documentation |
+
+**Fully qualified format:** `/nelson-muntz:command-name "prompt" --options`
 
 ---
 
@@ -514,7 +525,7 @@ MIT
    ██║ ╚████║███████╗███████╗███████║╚██████╔╝██║ ╚████║
    ╚═╝  ╚═══╝╚══════╝╚══════╝╚══════╝ ╚═════╝ ╚═╝  ╚═══╝
 
-                    MUNTZ v3.0
+                    MUNTZ v3.6.0
          Peak Performance Development Loop
 
       "Others try. We triumph. HA-HA!" 🥊

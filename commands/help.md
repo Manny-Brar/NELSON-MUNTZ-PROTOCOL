@@ -27,26 +27,44 @@ Named after the bully from The Simpsons who says "HA-HA!" when things fail. Here
 
 | Command | Description |
 |---------|-------------|
-| `/nelson` | Start a new development loop (standard mode) |
-| `/ha-ha` | Start in HA-HA Mode (Peak Performance) |
+| `/nelson "prompt"` | Start a new development loop (standard mode) |
+| `/ha-ha "prompt"` | Start in HA-HA Mode (Peak Performance) |
 | `/nelson-status` | Check loop status |
 | `/nelson-stop` | Stop running loop |
-| `/nelson-resume` | Resume stopped loop |
-| `/nelson-help` | Show this help |
+| `/help` | Show this help |
+
+### Invocation Formats
+
+Both of these formats work:
+
+```bash
+# Shorthand (when command name is unique)
+/ha-ha "Build OAuth authentication" --max-iterations 16
+
+# Fully qualified (plugin-name:command-name)
+/nelson-muntz:ha-ha "Build OAuth authentication" --max-iterations 16
+/nelson-muntz:nelson "Build REST API" --max-iterations 20
+```
 
 ---
 
 ## Quick Start
 
 ```bash
-# Start a development loop
-/nelson "Build a REST API with user authentication" \
-  --max-iterations 30 \
-  --completion-promise "ALL TESTS PASS"
+# Start a development loop (use quotes around prompt)
+/nelson "Build a REST API with user authentication" --max-iterations 30
+
+# Or with completion promise
+/nelson "Build a REST API" --max-iterations 30 --completion-promise "ALL TESTS PASS"
+
+# HA-HA Mode for complex tasks
+/ha-ha "Build OAuth + JWT authentication" --max-iterations 20
+
+# Fully qualified format also works
+/nelson-muntz:ha-ha "Complex task" --max-iterations 16
 
 # Monitor progress
 /nelson-status
-tail -f .claude/nelson-muntz.log
 
 # Stop if needed
 /nelson-stop

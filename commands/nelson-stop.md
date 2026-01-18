@@ -1,7 +1,6 @@
 ---
 description: "Stop Nelson Muntz loop"
 allowed-tools: ["Bash(rm .claude/nelson-loop.local.md)"]
-hide-from-slash-command-tool: "true"
 ---
 
 # Nelson Stop
