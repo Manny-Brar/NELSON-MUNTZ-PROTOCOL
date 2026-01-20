@@ -10,8 +10,8 @@
   "plugins": [
     {
       "name": "nelson-muntz",
-      "description": "Peak performance AI development loops with AGGRESSIVE validation - mandatory verification challenges, self-review, edge case audits, and quality gates. v3.7.0: CRITICAL FIX - Resilient error handling. HA-HA!",
-      "version": "3.7.0",
+      "description": "Peak performance AI development loops with AGGRESSIVE validation. v3.8.0: Bracket-delimited task lists + resilient error handling. HA-HA!",
+      "version": "3.8.0",
       "author": {
         "name": "Manny Brar",
         "email": "dev@projectaurora.ai"
