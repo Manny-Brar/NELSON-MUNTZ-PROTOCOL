@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Nelson Muntz In-Session Loop Setup (v3.8.0)
+# Nelson Muntz In-Session Loop Setup (v3.9.0)
 # Creates state file for stop hook-based looping in VS Code
 #
 # Enhanced with:
@@ -8,6 +8,11 @@
 #   - Two-stage validation gates
 #   - Structured handoff requirements
 #   - Quality enforcement before completion
+#
+# v3.9.0 Changes:
+#   - FIX: Disable glob expansion to handle ? and * in prompts
+#   - FIX: Proper handling of special characters (!, ?, ", etc.)
+#   - FIX: Escape sequences handled correctly
 #
 # v3.8.0 Changes:
 #   - NEW: Bracket-delimited task lists for flexible formatting
@@ -20,6 +25,8 @@
 #   - Maximum cap: 36 iterations
 #   - 0 = unlimited (for advanced users who need extended loops)
 
+# Disable glob expansion to prevent ? and * from being interpreted
+set -f
 set -euo pipefail
 
 # Iteration limit constants (v3.5.0)
@@ -36,7 +43,7 @@ while [[ $# -gt 0 ]]; do
   case $1 in
     -h|--help)
       cat << 'HELP_EOF'
-Nelson Muntz - In-Session Development Loop (v3.8.0)
+Nelson Muntz - In-Session Development Loop (v3.9.0)
 
 USAGE:
   /nelson [PROMPT...] [OPTIONS]
