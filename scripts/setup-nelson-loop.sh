@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Nelson Muntz In-Session Loop Setup (v3.9.0)
+# Nelson Muntz In-Session Loop Setup (v3.10.0)
 # Creates state file for stop hook-based looping in VS Code
 #
 # Enhanced with:
@@ -8,6 +8,9 @@
 #   - Two-stage validation gates
 #   - Structured handoff requirements
 #   - Quality enforcement before completion
+#
+# v3.10.0 Changes:
+#   - FIX: Handle empty PROMPT_PARTS array with set -u
 #
 # v3.9.0 Changes:
 #   - FIX: Disable glob expansion to handle ? and * in prompts
@@ -43,7 +46,7 @@ while [[ $# -gt 0 ]]; do
   case $1 in
     -h|--help)
       cat << 'HELP_EOF'
-Nelson Muntz - In-Session Development Loop (v3.9.0)
+Nelson Muntz - In-Session Development Loop (v3.10.0)
 
 USAGE:
   /nelson [PROMPT...] [OPTIONS]
@@ -132,7 +135,8 @@ HELP_EOF
   esac
 done
 
-PROMPT="${PROMPT_PARTS[*]}"
+# Handle empty array safely with set -u
+PROMPT="${PROMPT_PARTS[*]:-}"
 
 if [[ -z "$PROMPT" ]]; then
   echo "Error: No prompt provided" >&2
