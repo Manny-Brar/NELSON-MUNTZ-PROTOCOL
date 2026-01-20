@@ -1,7 +1,7 @@
 {
   "name": "nelson-muntz",
-  "version": "3.6.0",
-  "description": "Peak performance AI development loops with AGGRESSIVE validation - mandatory verification challenges, self-review, edge case audits, and quality gates. v3.6.0: Fixed command invocation, removed hide flags. HA-HA!",
+  "version": "3.7.0",
+  "description": "Peak performance AI development loops with AGGRESSIVE validation - mandatory verification challenges, self-review, edge case audits, and quality gates. v3.7.0: CRITICAL FIX - No longer deletes state on transient errors, resilient transcript parsing, debug logging. HA-HA!",
   "author": {
     "name": "Project Aurora",
     "email": "dev@projectaurora.ai"

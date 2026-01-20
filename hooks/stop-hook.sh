@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Nelson Muntz Stop Hook (v3.3.1) - AGGRESSIVE VALIDATION + STRICT CONTENT CHECKING
+# Nelson Muntz Stop Hook (v3.7.0) - ROBUST VALIDATION + RESILIENT ERROR HANDLING
 # In-session looping with mandatory verification, self-review, and quality gates
 #
 # Key Features:
@@ -10,8 +10,22 @@
 #   - Self-review requirement before completion
 #   - Handoff verification before exit
 #   - HA-HA mode for peak performance
+#
+# v3.7.0 CRITICAL FIX:
+#   - NO LONGER deletes state file on transient errors
+#   - State preserved across parsing failures
+#   - Graceful degradation when transcript unavailable
+#   - Better error logging
 
 set -euo pipefail
+
+# Log file for debugging
+NELSON_LOG=".claude/nelson-debug.log"
+mkdir -p .claude
+
+log_debug() {
+  echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" >> "$NELSON_LOG" 2>/dev/null || true
+}
 
 # Read hook input from stdin (advanced stop hook API)
 HOOK_INPUT=$(cat)
@@ -26,17 +40,25 @@ if [[ ! -f "$NELSON_STATE_FILE" ]]; then
   exit 0
 fi
 
-# Parse markdown frontmatter (YAML between ---) and extract values
-FRONTMATTER=$(sed -n '/^---$/,/^---$/{ /^---$/d; p; }' "$NELSON_STATE_FILE")
+log_debug "Stop hook triggered - state file exists"
 
-# Extract fields
-ACTIVE=$(echo "$FRONTMATTER" | grep '^active:' | sed 's/active: *//')
-ITERATION=$(echo "$FRONTMATTER" | grep '^iteration:' | sed 's/iteration: *//')
+# Parse markdown frontmatter (YAML between ---) and extract values
+FRONTMATTER=$(sed -n '/^---$/,/^---$/{ /^---$/d; p; }' "$NELSON_STATE_FILE" 2>/dev/null || echo "")
+
+if [[ -z "$FRONTMATTER" ]]; then
+  log_debug "WARNING: Could not parse frontmatter, but keeping state file"
+  # Don't delete state - just allow exit this time
+  exit 0
+fi
+
+# Extract fields with safe defaults
+ACTIVE=$(echo "$FRONTMATTER" | grep '^active:' | sed 's/active: *//' || echo "true")
+ITERATION=$(echo "$FRONTMATTER" | grep '^iteration:' | sed 's/iteration: *//' || echo "1")
 CURRENT_TASK=$(echo "$FRONTMATTER" | grep '^current_task:' | sed 's/current_task: *//' || echo "1")
 TASK_COUNT=$(echo "$FRONTMATTER" | grep '^task_count:' | sed 's/task_count: *//' || echo "1")
-MAX_ITERATIONS=$(echo "$FRONTMATTER" | grep '^max_iterations:' | sed 's/max_iterations: *//')
-HA_HA_MODE=$(echo "$FRONTMATTER" | grep '^ha_ha_mode:' | sed 's/ha_ha_mode: *//')
-COMPLETION_PROMISE=$(echo "$FRONTMATTER" | grep '^completion_promise:' | sed 's/completion_promise: *//' | sed 's/^"\(.*\)"$/\1/')
+MAX_ITERATIONS=$(echo "$FRONTMATTER" | grep '^max_iterations:' | sed 's/max_iterations: *//' || echo "16")
+HA_HA_MODE=$(echo "$FRONTMATTER" | grep '^ha_ha_mode:' | sed 's/ha_ha_mode: *//' || echo "false")
+COMPLETION_PROMISE=$(echo "$FRONTMATTER" | grep '^completion_promise:' | sed 's/completion_promise: *//' | sed 's/^"\(.*\)"$/\1/' || echo "null")
 VERIFICATION_PENDING=$(echo "$FRONTMATTER" | grep '^verification_pending:' | sed 's/verification_pending: *//' || echo "false")
 
 # Default task values if not set
@@ -47,64 +69,57 @@ if [[ -z "$TASK_COUNT" ]] || [[ "$TASK_COUNT" == "" ]]; then
   TASK_COUNT=1
 fi
 
-# Check if loop is active
-if [[ "$ACTIVE" != "true" ]]; then
+# Check if loop is explicitly inactive
+if [[ "$ACTIVE" == "false" ]]; then
+  log_debug "Loop marked inactive - cleaning up"
   rm "$NELSON_STATE_FILE" 2>/dev/null || true
   rm "$NELSON_HANDOFF_FILE" 2>/dev/null || true
   rm "$NELSON_VERIFICATION_FILE" 2>/dev/null || true
   exit 0
 fi
 
-# Validate numeric fields
+# Validate numeric fields with defaults (DON'T DELETE STATE ON PARSE ERRORS)
 if [[ ! "$ITERATION" =~ ^[0-9]+$ ]]; then
-  echo "Nelson loop: State file corrupted (invalid iteration: $ITERATION)" >&2
-  rm "$NELSON_STATE_FILE"
-  exit 0
+  log_debug "WARNING: Invalid iteration '$ITERATION', defaulting to 1"
+  ITERATION=1
 fi
 
 if [[ ! "$MAX_ITERATIONS" =~ ^[0-9]+$ ]]; then
-  echo "Nelson loop: State file corrupted (invalid max_iterations: $MAX_ITERATIONS)" >&2
-  rm "$NELSON_STATE_FILE"
-  exit 0
+  log_debug "WARNING: Invalid max_iterations '$MAX_ITERATIONS', defaulting to 16"
+  MAX_ITERATIONS=16
 fi
 
 # NOTE: Max iterations check moved to after task cycling logic (line ~458)
 # This ensures "iteration" means "full pass through all tasks"
 
-# Get transcript path from hook input
-TRANSCRIPT_PATH=$(echo "$HOOK_INPUT" | jq -r '.transcript_path')
-
-if [[ ! -f "$TRANSCRIPT_PATH" ]]; then
-  echo "Nelson loop: Transcript not found at $TRANSCRIPT_PATH" >&2
-  rm "$NELSON_STATE_FILE"
-  exit 0
+# Get transcript path from hook input (with fallback)
+TRANSCRIPT_PATH=""
+if command -v jq &> /dev/null; then
+  TRANSCRIPT_PATH=$(echo "$HOOK_INPUT" | jq -r '.transcript_path' 2>/dev/null || echo "")
 fi
 
-# Read last assistant message from transcript
-if ! grep -q '"role":"assistant"' "$TRANSCRIPT_PATH"; then
-  echo "Nelson loop: No assistant messages found" >&2
-  rm "$NELSON_STATE_FILE"
-  exit 0
+# v3.7.0: Don't fail if transcript unavailable - just continue the loop
+LAST_OUTPUT=""
+if [[ -n "$TRANSCRIPT_PATH" ]] && [[ -f "$TRANSCRIPT_PATH" ]]; then
+  # Try to read last assistant message from transcript
+  if grep -q '"role":"assistant"' "$TRANSCRIPT_PATH" 2>/dev/null; then
+    LAST_LINE=$(grep '"role":"assistant"' "$TRANSCRIPT_PATH" 2>/dev/null | tail -1 || echo "")
+    if [[ -n "$LAST_LINE" ]]; then
+      LAST_OUTPUT=$(echo "$LAST_LINE" | jq -r '
+        .message.content |
+        map(select(.type == "text")) |
+        map(.text) |
+        join("\n")
+      ' 2>/dev/null || echo "")
+    fi
+  fi
 fi
 
-LAST_LINE=$(grep '"role":"assistant"' "$TRANSCRIPT_PATH" | tail -1)
-if [[ -z "$LAST_LINE" ]]; then
-  echo "Nelson loop: Failed to extract assistant message" >&2
-  rm "$NELSON_STATE_FILE"
-  exit 0
-fi
-
-LAST_OUTPUT=$(echo "$LAST_LINE" | jq -r '
-  .message.content |
-  map(select(.type == "text")) |
-  map(.text) |
-  join("\n")
-' 2>&1)
-
+# v3.7.0: If we couldn't get the last output, continue the loop anyway
+# This is better than destroying the loop state
 if [[ -z "$LAST_OUTPUT" ]]; then
-  echo "Nelson loop: Assistant message empty" >&2
-  rm "$NELSON_STATE_FILE"
-  exit 0
+  log_debug "WARNING: Could not extract last output, continuing loop anyway"
+  LAST_OUTPUT="[transcript unavailable - continuing loop]"
 fi
 
 # ============================================================
@@ -460,12 +475,12 @@ if [[ $MAX_ITERATIONS -gt 0 ]] && [[ $NEXT_ITERATION -gt $MAX_ITERATIONS ]]; the
 fi
 
 # Extract prompt (everything after the closing ---)
-PROMPT_TEXT=$(awk '/^---$/{i++; next} i>=2' "$NELSON_STATE_FILE")
+PROMPT_TEXT=$(awk '/^---$/{i++; next} i>=2' "$NELSON_STATE_FILE" 2>/dev/null || echo "")
 
+# v3.7.0: Don't delete state if prompt missing - use a fallback
 if [[ -z "$PROMPT_TEXT" ]]; then
-  echo "Nelson loop: No prompt text found in state file" >&2
-  rm "$NELSON_STATE_FILE"
-  exit 0
+  log_debug "WARNING: No prompt text found, using fallback"
+  PROMPT_TEXT="[Continue working on the task from the handoff file]"
 fi
 
 # Update iteration and current_task in state file
