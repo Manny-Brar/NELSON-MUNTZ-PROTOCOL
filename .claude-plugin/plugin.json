@@ -1,9 +1,9 @@
 {
   "name": "nelson-muntz",
-  "version": "3.8.0",
-  "description": "Peak performance AI development loops with AGGRESSIVE validation. v3.8.0: Bracket-delimited task lists for flexible formatting (commas, newlines, numbered lists). Includes v3.7.0 resilient error handling. HA-HA!",
+  "version": "3.10.0",
+  "description": "Peak performance AI development loops with AGGRESSIVE validation. v3.10.0: Fixed argument handling. HA-HA!",
   "author": {
-    "name": "Project Aurora",
+    "name": "Manny Brar",
     "email": "dev@projectaurora.ai"
   },
   "keywords": [

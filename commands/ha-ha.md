@@ -31,13 +31,16 @@ HA-HA Mode is Nelson Muntz with EVERY enhancement enabled:
 
 ```bash
 # Start HA-HA Mode loop
-/ha-ha "Build a complete authentication system with OAuth, JWT, and MFA"
+/nelson-muntz:ha-ha "Build a complete authentication system with OAuth, JWT, and MFA"
 
 # With options
-/ha-ha "Complex task" --max-iterations 50
+/nelson-muntz:ha-ha "Complex task" --max-iterations 50
+
+# With bracket-delimited task list
+/nelson-muntz:ha-ha "( task1, task2, task3 )" --max-iterations 10
 
 # Monitor
-/nelson-status
+/nelson-muntz:nelson-status
 tail -f .claude/nelson-muntz.log
 ```
 

@@ -27,23 +27,25 @@ Named after the bully from The Simpsons who says "HA-HA!" when things fail. Here
 
 | Command | Description |
 |---------|-------------|
-| `/nelson "prompt"` | Start a new development loop (standard mode) |
-| `/ha-ha "prompt"` | Start in HA-HA Mode (Peak Performance) |
-| `/nelson-status` | Check loop status |
-| `/nelson-stop` | Stop running loop |
-| `/help` | Show this help |
+| `/nelson-muntz:nelson "prompt"` | Start a new development loop (standard mode) |
+| `/nelson-muntz:ha-ha "prompt"` | Start in HA-HA Mode (Peak Performance) |
+| `/nelson-muntz:nelson-status` | Check loop status |
+| `/nelson-muntz:nelson-stop` | Stop running loop |
+| `/nelson-muntz:help` | Show this help |
 
-### Invocation Formats
+### Invocation Format
 
-Both of these formats work:
+Use the fully qualified `plugin-name:command-name` format:
 
 ```bash
-# Shorthand (when command name is unique)
-/ha-ha "Build OAuth authentication" --max-iterations 16
-
-# Fully qualified (plugin-name:command-name)
+# HA-HA Mode (Peak Performance)
 /nelson-muntz:ha-ha "Build OAuth authentication" --max-iterations 16
+
+# Standard Nelson loop
 /nelson-muntz:nelson "Build REST API" --max-iterations 20
+
+# With bracket-delimited task list
+/nelson-muntz:ha-ha "( task1, task2, task3 )" --max-iterations 10
 ```
 
 ---
@@ -52,22 +54,22 @@ Both of these formats work:
 
 ```bash
 # Start a development loop (use quotes around prompt)
-/nelson "Build a REST API with user authentication" --max-iterations 30
+/nelson-muntz:nelson "Build a REST API with user authentication" --max-iterations 30
 
 # Or with completion promise
-/nelson "Build a REST API" --max-iterations 30 --completion-promise "ALL TESTS PASS"
+/nelson-muntz:nelson "Build a REST API" --max-iterations 30 --completion-promise "ALL TESTS PASS"
 
 # HA-HA Mode for complex tasks
-/ha-ha "Build OAuth + JWT authentication" --max-iterations 20
+/nelson-muntz:ha-ha "Build OAuth + JWT authentication" --max-iterations 20
 
-# Fully qualified format also works
-/nelson-muntz:ha-ha "Complex task" --max-iterations 16
+# With bracket-delimited task list (flexible formatting)
+/nelson-muntz:ha-ha "( fix login bug, add tests, update docs )" --max-iterations 10
 
 # Monitor progress
-/nelson-status
+/nelson-muntz:nelson-status
 
 # Stop if needed
-/nelson-stop
+/nelson-muntz:nelson-stop
 ```
 
 ---
@@ -224,10 +226,10 @@ Skills are in: `~/.claude/plugins/repos/anthropics-claude-code/plugins/nelson-mu
 
 ```bash
 # Use the dedicated command
-/ha-ha "Build OAuth + JWT + MFA auth system"
+/nelson-muntz:ha-ha "Build OAuth + JWT + MFA auth system"
 
 # Or use the flag
-/nelson "Complex task" --ha-ha --max-iterations 50
+/nelson-muntz:nelson "Complex task" --ha-ha --max-iterations 50
 ```
 
 ### What HA-HA Mode Adds
@@ -330,14 +332,14 @@ Make an API
 
 Always set `--max-iterations` as a safety net:
 ```bash
-/nelson "Complex task" --max-iterations 50
+/nelson-muntz:nelson "Complex task" --max-iterations 50
 ```
 
 ### Using Completion Promises
 
 For clear end conditions:
 ```bash
-/nelson "Fix the auth bug" --completion-promise "ALL TESTS PASS"
+/nelson-muntz:nelson "Fix the auth bug" --completion-promise "ALL TESTS PASS"
 ```
 
 ---
