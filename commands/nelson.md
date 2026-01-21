@@ -9,7 +9,7 @@ allowed-tools: ["Bash(${CLAUDE_PLUGIN_ROOT}/scripts/setup-nelson-loop.sh:*)"]
 Execute the Nelson Muntz loop:
 
 ```!
-"${CLAUDE_PLUGIN_ROOT}/scripts/setup-nelson-loop.sh" $ARGUMENTS
+"${CLAUDE_PLUGIN_ROOT}/scripts/setup-nelson-loop.sh" "$ARGUMENTS"
 ```
 
 ## What is Nelson Muntz?
@@ -28,15 +28,15 @@ Nelson Muntz is the evolved successor to Ralph Wiggum - a peak performance AI de
 
 ```bash
 # Start new loop
-/nelson "Build a REST API with auth" --max-iterations 30
+/nelson-muntz:nelson "Build a REST API with auth" --max-iterations 30
 
 # With completion promise
-/nelson "Add user authentication" \
+/nelson-muntz:nelson "Add user authentication" \
   --completion-promise "ALL TESTS PASS" \
   --max-iterations 50
 
-# Run in background
-/nelson "Refactor the module" --background
+# With bracket-delimited task list
+/nelson-muntz:nelson "( task1, task2, task3 )" --max-iterations 10
 ```
 
 ## Options
@@ -70,10 +70,10 @@ Nelson Muntz is the evolved successor to Ralph Wiggum - a peak performance AI de
 tail -f .claude/nelson-muntz.log
 
 # Check status
-/nelson-status
+/nelson-muntz:nelson-status
 
 # Stop loop
-/nelson-stop
+/nelson-muntz:nelson-stop
 
 # Check features
 cat .claude/ralph-v3/features.json | jq '.summary'
