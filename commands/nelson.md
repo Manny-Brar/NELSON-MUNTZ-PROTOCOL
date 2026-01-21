@@ -9,7 +9,7 @@ allowed-tools: ["Bash(${CLAUDE_PLUGIN_ROOT}/scripts/setup-nelson-loop.sh:*)"]
 Execute the Nelson Muntz loop:
 
 ```!
-"${CLAUDE_PLUGIN_ROOT}/scripts/setup-nelson-loop.sh" "$ARGUMENTS"
+"${CLAUDE_PLUGIN_ROOT}/scripts/setup-nelson-loop.sh" ${ARGUMENTS}
 ```
 
 ## What is Nelson Muntz?

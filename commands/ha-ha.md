@@ -9,7 +9,7 @@ allowed-tools: ["Bash(${CLAUDE_PLUGIN_ROOT}/scripts/setup-nelson-loop.sh:*)"]
 Execute the Nelson Muntz loop with HA-HA Mode (Peak Performance):
 
 ```!
-"${CLAUDE_PLUGIN_ROOT}/scripts/setup-nelson-loop.sh" --ha-ha "$ARGUMENTS"
+"${CLAUDE_PLUGIN_ROOT}/scripts/setup-nelson-loop.sh" --ha-ha ${ARGUMENTS}
 ```
 
 **The ultimate peak performance configuration. All enhancements activated.**
