@@ -1,0 +1,32 @@
+# Nelson Protocol v4.0 - Git Ignore
+
+# Generated database (regenerate with: bash .nelson/setup.sh)
+.nelson/memory.db
+.nelson/memory.db-wal
+.nelson/memory.db-shm
+memory.db
+memory.db-wal
+memory.db-shm
+
+# Node dependencies (regenerate with: npm install)
+node_modules/
+package-lock.json
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor files
+*.swp
+*.swo
+*~
+.idea/
+.vscode/
+
+# Local scratchpads (personal notes)
+**/scratchpad.local.md
+**/*.local.md
+
+# Test outputs
+coverage/
+.nyc_output/
