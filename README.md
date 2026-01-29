@@ -687,4 +687,20 @@ Context is perishable. Memory is forever.
 
 ---
 
+## 📖 Comprehensive Usage Guide
+
+Want the full details? Check out **[NELSON_PROTOCOL_GUIDE.md](NELSON_PROTOCOL_GUIDE.md)** — covers:
+
+- **Session Lifecycle** — Startup, ULTRATHINK cycle, session end
+- **Memory System** — What goes where, search commands, indexing
+- **Token Optimization** — On-demand retrieval, compressed CLAUDE.md
+- **Tool Discovery** — MCP/skill indexing and recommendations
+- **Best Practices** — 5 key practices for maximum effectiveness
+- **Command Reference** — Every command in one place
+- **Troubleshooting** — Common issues and fixes
+
+*That document is the nerd version. This README is for people who like to punch first.*
+
+---
+
 *Now go beat up some bugs. Smell you later!*
