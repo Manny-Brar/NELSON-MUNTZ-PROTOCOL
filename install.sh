@@ -64,7 +64,7 @@ echo -e "${BLUE}╚════════════════════�
 echo ""
 
 # Step 1: Check prerequisites
-echo -e "${BLUE}[1/7]${NC} Checking prerequisites..."
+echo -e "${BLUE}[1/8]${NC} Checking prerequisites..."
 
 # Check Node.js
 if ! command -v node &> /dev/null; then
@@ -92,7 +92,7 @@ fi
 
 # Step 2: Create directory structure
 echo ""
-echo -e "${BLUE}[2/7]${NC} Creating directory structure..."
+echo -e "${BLUE}[2/8]${NC} Creating directory structure..."
 
 mkdir -p "$NELSON_DIR"
 mkdir -p "$MEMORY_DIR"
@@ -104,7 +104,7 @@ echo -e "   ${GREEN}✓${NC} Created $PATTERNS_DIR/"
 
 # Step 3: Download core files from GitHub (or copy if local)
 echo ""
-echo -e "${BLUE}[3/7]${NC} Installing core files..."
+echo -e "${BLUE}[3/8]${NC} Installing core files..."
 
 # Function to download or create file
 install_file() {
@@ -130,10 +130,12 @@ install_file() {
 install_file "$NELSON_DIR/init-db.cjs" "$GITHUB_RAW/memory-system/init-db.cjs" "init-db.cjs (database initialization)"
 install_file "$NELSON_DIR/search.cjs" "$GITHUB_RAW/memory-system/search.cjs" "search.cjs (smart search v3.0)"
 install_file "$NELSON_DIR/capture.cjs" "$GITHUB_RAW/memory-system/capture.cjs" "capture.cjs (session capture)"
+install_file "$NELSON_DIR/tools-indexer.cjs" "$GITHUB_RAW/memory-system/tools-indexer.cjs" "tools-indexer.cjs (MCP/skill indexing)"
+install_file "$NELSON_DIR/mcp-skill-docs-extractor.cjs" "$GITHUB_RAW/memory-system/mcp-skill-docs-extractor.cjs" "mcp-skill-docs-extractor.cjs (token optimizer)"
 
 # Step 4: Create template files if they don't exist
 echo ""
-echo -e "${BLUE}[4/7]${NC} Creating template files..."
+echo -e "${BLUE}[4/8]${NC} Creating template files..."
 
 # NELSON_SOUL.md - Agent identity
 if [ ! -f "$NELSON_DIR/NELSON_SOUL.md" ]; then
@@ -393,7 +395,7 @@ fi
 
 # Step 5: Install dependencies
 echo ""
-echo -e "${BLUE}[5/7]${NC} Installing dependencies..."
+echo -e "${BLUE}[5/8]${NC} Installing dependencies..."
 
 if [ -f "node_modules/better-sqlite3/package.json" ]; then
     echo -e "   ${GREEN}✓${NC} better-sqlite3 already installed"
@@ -410,7 +412,7 @@ fi
 
 # Step 6: Initialize database
 echo ""
-echo -e "${BLUE}[6/7]${NC} Initializing vector database..."
+echo -e "${BLUE}[6/8]${NC} Initializing vector database..."
 
 INIT_FLAGS=""
 if [ "$FORCE_REINDEX" = true ]; then
@@ -426,9 +428,25 @@ else
     exit 1
 fi
 
-# Step 7: Install git hooks
+# Step 7: Sync MCP and Skill documentation
 echo ""
-echo -e "${BLUE}[7/7]${NC} Setting up git hooks..."
+echo -e "${BLUE}[7/8]${NC} Syncing MCP/Skill documentation (token optimizer)..."
+
+if node "$NELSON_DIR/tools-indexer.cjs" sync 2>&1 | grep -E "(✓|Found|indexed)" | head -8; then
+    echo -e "   ${GREEN}✓${NC} Tools indexed"
+else
+    echo -e "   ${YELLOW}⚠${NC} Tool sync skipped (no MCPs/skills found)"
+fi
+
+if node "$NELSON_DIR/mcp-skill-docs-extractor.cjs" extract 2>&1 | grep -E "(✓|indexed|tokens)" | head -5; then
+    echo -e "   ${GREEN}✓${NC} Tool docs extracted for on-demand retrieval"
+else
+    echo -e "   ${YELLOW}⚠${NC} Docs extraction skipped"
+fi
+
+# Step 8: Install git hooks
+echo ""
+echo -e "${BLUE}[8/8]${NC} Setting up git hooks..."
 
 if [ "$SKIP_HOOKS" = true ]; then
     echo -e "   ${YELLOW}⊘${NC} Skipped (--skip-hooks or not a git repo)"
@@ -475,25 +493,30 @@ echo -e "${GREEN}╚════════════════════
 echo ""
 echo "Directory structure:"
 echo "  $NELSON_DIR/"
-echo "  ├── NELSON_SOUL.md       # Agent identity"
-echo "  ├── MEMORY.md            # Long-term knowledge (customize this!)"
-echo "  ├── context-loader.md    # Auto-retrieval instructions"
-echo "  ├── memory.db            # Vector database"
-echo "  ├── init-db.cjs          # Database initialization"
-echo "  ├── search.cjs           # Smart search v3.0"
-echo "  ├── capture.cjs          # Session capture"
+echo "  ├── NELSON_SOUL.md                 # Agent identity"
+echo "  ├── MEMORY.md                      # Long-term knowledge (customize!)"
+echo "  ├── context-loader.md              # Auto-retrieval instructions"
+echo "  ├── memory.db                      # Vector database"
+echo "  ├── init-db.cjs                    # Database initialization"
+echo "  ├── search.cjs                     # Smart search v3.0"
+echo "  ├── capture.cjs                    # Session capture"
+echo "  ├── tools-indexer.cjs              # MCP/skill discovery"
+echo "  ├── mcp-skill-docs-extractor.cjs   # Token optimizer (~5k savings!)"
 echo "  ├── memory/"
-echo "  │   └── $TODAY.md        # Today's log"
+echo "  │   └── $TODAY.md                  # Today's log"
 echo "  └── patterns/"
-echo "      ├── successes.md     # What works"
-echo "      └── failures.md      # What to avoid"
+echo "      ├── successes.md               # What works"
+echo "      └── failures.md                # What to avoid"
 echo ""
 echo "Quick commands:"
 echo -e "  ${GREEN}Search memory:${NC}    node .nelson/search.cjs \"keyword\""
 echo -e "  ${GREEN}Search section:${NC}   node .nelson/search.cjs --header \"Security\""
 echo -e "  ${GREEN}Task context:${NC}     node .nelson/search.cjs --context \"fix the bug\""
+echo -e "  ${GREEN}Tool recommend:${NC}   node .nelson/tools-indexer.cjs recommend \"task\""
+echo -e "  ${GREEN}Get tool docs:${NC}    node .nelson/mcp-skill-docs-extractor.cjs retrieve \"stripe\""
 echo -e "  ${GREEN}List sessions:${NC}    node .nelson/search.cjs --list-sessions"
 echo -e "  ${GREEN}Re-index:${NC}         node .nelson/init-db.cjs"
+echo -e "  ${GREEN}Sync tools:${NC}       node .nelson/tools-indexer.cjs sync"
 echo ""
 echo "Next steps:"
 echo "  1. Edit .nelson/MEMORY.md with your project knowledge"
