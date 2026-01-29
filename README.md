@@ -514,18 +514,6 @@ Everything I find goes in `scratchpad.md` so future me ain't starting from zero.
 
 ---
 
-## Where I Learned This Stuff
-
-Yeah I can read. Stole the best ideas from these nerds:
-
-- **[GSD (Get Shit Done)](https://github.com/kogumauk/get-shit-done-plus)** - Fresh context, task management
-- **[Multi-Agent Ralph](https://github.com/alfredolopez80/multi-agent-ralph-loop)** - Ultrathink, two-stage review
-- **[Ralph Orchestrator](https://github.com/mikeyobrien/ralph-orchestrator)** - Git checkpoints, scratchpad
-- **[Anthropic Harness](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents)** - The smart people at Anthropic figured out the pattern
-- **[Original Ralph](https://ghuntley.com/ralph/)** - Geoffrey Huntley started it. I finished it.
-
----
-
 ## My Rules (Don't Break 'Em)
 
 Yeah, I'm *"a riddle wrapped in an enigma wrapped in a vest."* But my rules ain't complicated:
