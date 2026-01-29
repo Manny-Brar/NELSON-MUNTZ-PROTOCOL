@@ -45,6 +45,7 @@ That's it. Done. Memory system installed. **HA-HA!**
 - Indexes ALL your `.md` files (CLAUDE.md, docs/, README.md)
 - Sets up git hooks for auto re-indexing
 - Creates template files for MEMORY.md and patterns
+- **Auto-adds Nelson section to CLAUDE.md** (or creates one if missing)
 
 ### Options:
 ```bash

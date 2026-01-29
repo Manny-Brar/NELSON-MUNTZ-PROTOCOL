@@ -64,7 +64,7 @@ echo -e "${BLUE}╚════════════════════�
 echo ""
 
 # Step 1: Check prerequisites
-echo -e "${BLUE}[1/8]${NC} Checking prerequisites..."
+echo -e "${BLUE}[1/9]${NC} Checking prerequisites..."
 
 # Check Node.js
 if ! command -v node &> /dev/null; then
@@ -92,7 +92,7 @@ fi
 
 # Step 2: Create directory structure
 echo ""
-echo -e "${BLUE}[2/8]${NC} Creating directory structure..."
+echo -e "${BLUE}[2/9]${NC} Creating directory structure..."
 
 mkdir -p "$NELSON_DIR"
 mkdir -p "$MEMORY_DIR"
@@ -104,7 +104,7 @@ echo -e "   ${GREEN}✓${NC} Created $PATTERNS_DIR/"
 
 # Step 3: Download core files from GitHub (or copy if local)
 echo ""
-echo -e "${BLUE}[3/8]${NC} Installing core files..."
+echo -e "${BLUE}[3/9]${NC} Installing core files..."
 
 # Function to download or create file
 install_file() {
@@ -135,7 +135,7 @@ install_file "$NELSON_DIR/mcp-skill-docs-extractor.cjs" "$GITHUB_RAW/memory-syst
 
 # Step 4: Create template files if they don't exist
 echo ""
-echo -e "${BLUE}[4/8]${NC} Creating template files..."
+echo -e "${BLUE}[4/9]${NC} Creating template files..."
 
 # NELSON_SOUL.md - Agent identity
 if [ ! -f "$NELSON_DIR/NELSON_SOUL.md" ]; then
@@ -395,7 +395,7 @@ fi
 
 # Step 5: Install dependencies
 echo ""
-echo -e "${BLUE}[5/8]${NC} Installing dependencies..."
+echo -e "${BLUE}[5/9]${NC} Installing dependencies..."
 
 if [ -f "node_modules/better-sqlite3/package.json" ]; then
     echo -e "   ${GREEN}✓${NC} better-sqlite3 already installed"
@@ -412,7 +412,7 @@ fi
 
 # Step 6: Initialize database
 echo ""
-echo -e "${BLUE}[6/8]${NC} Initializing vector database..."
+echo -e "${BLUE}[6/9]${NC} Initializing vector database..."
 
 INIT_FLAGS=""
 if [ "$FORCE_REINDEX" = true ]; then
@@ -430,7 +430,7 @@ fi
 
 # Step 7: Sync MCP and Skill documentation
 echo ""
-echo -e "${BLUE}[7/8]${NC} Syncing MCP/Skill documentation (token optimizer)..."
+echo -e "${BLUE}[7/9]${NC} Syncing MCP/Skill documentation (token optimizer)..."
 
 if node "$NELSON_DIR/tools-indexer.cjs" sync 2>&1 | grep -E "(✓|Found|indexed)" | head -8; then
     echo -e "   ${GREEN}✓${NC} Tools indexed"
@@ -446,7 +446,7 @@ fi
 
 # Step 8: Install git hooks
 echo ""
-echo -e "${BLUE}[8/8]${NC} Setting up git hooks..."
+echo -e "${BLUE}[8/9]${NC} Setting up git hooks..."
 
 if [ "$SKIP_HOOKS" = true ]; then
     echo -e "   ${YELLOW}⊘${NC} Skipped (--skip-hooks or not a git repo)"
@@ -483,6 +483,143 @@ exit 0
 HOOK_EOF
     chmod +x "$GIT_HOOKS_DIR/pre-push"
     echo -e "   ${GREEN}✓${NC} pre-push hook (verify index)"
+fi
+
+# Step 9: Add Nelson section to CLAUDE.md
+echo ""
+echo -e "${BLUE}[9/9]${NC} Configuring CLAUDE.md..."
+
+CLAUDE_MD="CLAUDE.md"
+NELSON_MARKER="## 🧠 NELSON MEMORY SYSTEM"
+
+# Check if CLAUDE.md exists and if Nelson section already present
+if [ -f "$CLAUDE_MD" ]; then
+    if grep -q "$NELSON_MARKER" "$CLAUDE_MD"; then
+        echo -e "   ${YELLOW}⊘${NC} Nelson section already in CLAUDE.md"
+    else
+        # Append Nelson section to existing CLAUDE.md
+        cat >> "$CLAUDE_MD" << 'CLAUDE_NELSON_EOF'
+
+---
+
+## 🧠 NELSON MEMORY SYSTEM (MANDATORY)
+
+**Before ANY task:**
+1. Read `.nelson/MEMORY.md` (long-term knowledge)
+2. Check today's log `.nelson/memory/YYYY-MM-DD.md`
+3. Search: `node .nelson/search.cjs "keywords"`
+4. Only THEN begin work
+
+**Update memory:** Session end → daily log. Major discovery → MEMORY.md.
+
+---
+
+## 🔧 MCP & SKILL PROTOCOL (TOKEN-OPTIMIZED)
+
+### Don't Reinvent the Wheel
+
+**Check before custom code:**
+1. ✅ **MCPs** - Stripe, Vapi, Vercel, n8n, Supabase, Playwright (check your configured MCPs)
+2. ✅ **Skills** - `/help skills` to list
+3. ❌ **Custom code** - Only for one-off tasks
+
+### Tool Discovery (On-Demand from DB)
+
+```bash
+node .nelson/tools-indexer.cjs recommend "your task"
+node .nelson/mcp-skill-docs-extractor.cjs retrieve "stripe payment"
+```
+
+**Full MCP/skill documentation stored in database. Retrieve as needed.**
+
+---
+
+## 🔄 AGENT HARNESS PATTERN
+
+### Session Skills (MANDATORY)
+
+1. **`session-startup`** - START: Load memory, check progress, select task
+2. **`single-feature-focus`** - DURING: One task at a time, complete → verify → commit
+3. **`session-completion`** - END: Document progress, update memory, push
+
+### ULTRATHINK Cycle
+
+1. Receive task → 2. Retrieve context → 3. ULTRATHINK plan → 4. Execute → 5. Self-assess → 6. Update memory → 7. Next task
+
+### Self-Assessment (Before claiming done)
+- [ ] Implementation matches goal?
+- [ ] Actually ran tests/build?
+- [ ] Would I bet money on this in production?
+- [ ] What could still go wrong?
+
+---
+
+*Nelson Protocol v4.0 - Memory system installed. See `.nelson/` for full documentation.*
+CLAUDE_NELSON_EOF
+        echo -e "   ${GREEN}✓${NC} Nelson section added to CLAUDE.md"
+    fi
+else
+    # Create new CLAUDE.md with Nelson section
+    cat > "$CLAUDE_MD" << 'CLAUDE_NEW_EOF'
+# Project Instructions for Claude Code
+
+---
+
+## 🧠 NELSON MEMORY SYSTEM (MANDATORY)
+
+**Before ANY task:**
+1. Read `.nelson/MEMORY.md` (long-term knowledge)
+2. Check today's log `.nelson/memory/YYYY-MM-DD.md`
+3. Search: `node .nelson/search.cjs "keywords"`
+4. Only THEN begin work
+
+**Update memory:** Session end → daily log. Major discovery → MEMORY.md.
+
+---
+
+## 🔧 MCP & SKILL PROTOCOL (TOKEN-OPTIMIZED)
+
+### Don't Reinvent the Wheel
+
+**Check before custom code:**
+1. ✅ **MCPs** - Stripe, Vapi, Vercel, n8n, Supabase, Playwright (check your configured MCPs)
+2. ✅ **Skills** - `/help skills` to list
+3. ❌ **Custom code** - Only for one-off tasks
+
+### Tool Discovery (On-Demand from DB)
+
+```bash
+node .nelson/tools-indexer.cjs recommend "your task"
+node .nelson/mcp-skill-docs-extractor.cjs retrieve "stripe payment"
+```
+
+**Full MCP/skill documentation stored in database. Retrieve as needed.**
+
+---
+
+## 🔄 AGENT HARNESS PATTERN
+
+### Session Skills (MANDATORY)
+
+1. **`session-startup`** - START: Load memory, check progress, select task
+2. **`single-feature-focus`** - DURING: One task at a time, complete → verify → commit
+3. **`session-completion`** - END: Document progress, update memory, push
+
+### ULTRATHINK Cycle
+
+1. Receive task → 2. Retrieve context → 3. ULTRATHINK plan → 4. Execute → 5. Self-assess → 6. Update memory → 7. Next task
+
+### Self-Assessment (Before claiming done)
+- [ ] Implementation matches goal?
+- [ ] Actually ran tests/build?
+- [ ] Would I bet money on this in production?
+- [ ] What could still go wrong?
+
+---
+
+*Nelson Protocol v4.0 - Memory system installed. See `.nelson/` for full documentation.*
+CLAUDE_NEW_EOF
+    echo -e "   ${GREEN}✓${NC} CLAUDE.md created with Nelson section"
 fi
 
 # Final summary
