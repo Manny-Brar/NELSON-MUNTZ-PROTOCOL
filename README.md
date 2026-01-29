@@ -28,15 +28,43 @@ Me? I show up with a **fresh 200k tokens every single iteration**. While your ag
 
 ---
 
-## Installation (3 Steps)
+## 🚀 Quick Install (ONE COMMAND!)
+
+**Add Nelson's memory system to ANY project:**
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/Manny-Brar/NELSON-MUNTZ-PROTOCOL/main/install.sh | bash
+```
+
+That's it. Done. Memory system installed. **HA-HA!**
+
+### What This Does:
+- Creates `.nelson/` directory with all files
+- Installs `better-sqlite3` for vector search
+- Initializes the memory database
+- Indexes ALL your `.md` files (CLAUDE.md, docs/, README.md)
+- Sets up git hooks for auto re-indexing
+- Creates template files for MEMORY.md and patterns
+
+### Options:
+```bash
+# Skip git hooks
+curl -fsSL .../install.sh | bash -s -- --skip-hooks
+
+# Force re-index everything
+curl -fsSL .../install.sh | bash -s -- --force
+```
+
+---
+
+## Installation (Claude Plugin)
+
+For the development loop commands (`/nelson`, `/ha-ha`), also install as a Claude plugin:
 
 ### Step 1: Clone to Claude Plugins Directory
 
 ```bash
-# Create plugins directory if it doesn't exist
 mkdir -p ~/.claude/plugins
-
-# Clone the repo
 cd ~/.claude/plugins
 git clone https://github.com/Manny-Brar/NELSON-MUNTZ-PROTOCOL.git
 ```
