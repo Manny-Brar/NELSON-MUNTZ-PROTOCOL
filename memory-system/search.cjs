@@ -1,16 +1,27 @@
 /**
- * Nelson Memory Search Module v2.0
+ * Nelson Memory Search Module v3.0
  *
- * Enhanced with session-level retrieval for daily logs.
- * When a match is found in a daily log, returns the FULL session summary.
- * Falls back to chunk-level retrieval for MEMORY.md and patterns.
+ * INTELLIGENT CONTEXT RETRIEVAL:
+ * - Daily logs → Full session retrieval
+ * - Documentation → Section-level retrieval (header to header)
+ * - Any file → Context expansion (adjacent chunks)
+ *
+ * THE CHUNK PROBLEM SOLVED:
+ * When a chunk matches but doesn't contain full context, we automatically:
+ * 1. Expand to include the parent section (## Header → next ## Header)
+ * 2. Include adjacent chunks for continuity
+ * 3. Merge overlapping results to avoid duplicates
  *
  * Usage:
- *   node .nelson/search.cjs "your query"
- *   node .nelson/search.cjs "your query" --limit 10
- *   node .nelson/search.cjs "your query" --file MEMORY.md
- *   node .nelson/search.cjs --context "task description"
- *   node .nelson/search.cjs --session "keyword"  # Session-level search
+ *   node .nelson/search.cjs "your query"              # Smart retrieval (auto-expands)
+ *   node .nelson/search.cjs "query" --expand          # Force context expansion
+ *   node .nelson/search.cjs "query" --section         # Return full sections
+ *   node .nelson/search.cjs "query" --chunk           # Raw chunks only (no expansion)
+ *   node .nelson/search.cjs "query" --limit 10        # Limit results
+ *   node .nelson/search.cjs "query" --file MEMORY.md  # Filter by file
+ *   node .nelson/search.cjs --context "task"          # Auto-retrieve for task
+ *   node .nelson/search.cjs --list-sessions           # List all sessions
+ *   node .nelson/search.cjs --header "Webhook"        # Find section by header
  */
 
 const fs = require('fs');
@@ -25,6 +36,197 @@ const MEMORY_DIR = path.join(NELSON_DIR, 'memory');
  */
 function isDailyLog(filePath) {
     return filePath.includes('memory/') && filePath.endsWith('.md');
+}
+
+/**
+ * Check if a file is structured documentation (CLAUDE.md, docs/, etc.)
+ */
+function isStructuredDoc(filePath) {
+    return filePath.endsWith('CLAUDE.md') ||
+           filePath.includes('docs/') ||
+           filePath.endsWith('MEMORY.md') ||
+           filePath.endsWith('NELSON_SOUL.md');
+}
+
+/**
+ * Extract the full section containing a specific line from a markdown file
+ * Sections are delimited by ## or ### headers
+ */
+function extractSectionFromFile(filePath, lineNumber) {
+    const fullPath = path.join(process.cwd(), filePath);
+
+    if (!fs.existsSync(fullPath)) {
+        return null;
+    }
+
+    const content = fs.readFileSync(fullPath, 'utf-8');
+    const lines = content.split('\n');
+
+    // Find all section boundaries (## and ### headers)
+    const sectionStarts = [];
+    for (let i = 0; i < lines.length; i++) {
+        if (lines[i].match(/^#{1,3}\s+/)) {  // Match #, ##, or ### headers
+            sectionStarts.push({
+                line: i,
+                level: (lines[i].match(/^#+/) || [''])[0].length,
+                header: lines[i]
+            });
+        }
+    }
+
+    // If no sections found, return context around the match
+    if (sectionStarts.length === 0) {
+        const contextStart = Math.max(0, lineNumber - 10);
+        const contextEnd = Math.min(lines.length - 1, lineNumber + 20);
+        return {
+            sectionName: 'Context',
+            header: null,
+            content: lines.slice(contextStart, contextEnd + 1).join('\n'),
+            lineStart: contextStart + 1,
+            lineEnd: contextEnd + 1
+        };
+    }
+
+    // Find which section contains the target line
+    let sectionIndex = 0;
+    for (let i = sectionStarts.length - 1; i >= 0; i--) {
+        if (lineNumber >= sectionStarts[i].line) {
+            sectionIndex = i;
+            break;
+        }
+    }
+
+    // Find section end (next header of same or higher level)
+    const currentSection = sectionStarts[sectionIndex];
+    let endLine = lines.length - 1;
+
+    for (let i = sectionIndex + 1; i < sectionStarts.length; i++) {
+        if (sectionStarts[i].level <= currentSection.level) {
+            endLine = sectionStarts[i].line - 1;
+            break;
+        }
+    }
+
+    // Get section name from header
+    const sectionName = currentSection.header.replace(/^#+\s*/, '').trim();
+
+    const sectionContent = lines.slice(currentSection.line, endLine + 1).join('\n');
+
+    return {
+        sectionName,
+        header: currentSection.header,
+        content: sectionContent,
+        lineStart: currentSection.line + 1,  // 1-indexed
+        lineEnd: endLine + 1
+    };
+}
+
+/**
+ * Get adjacent chunks for context expansion
+ */
+function getAdjacentChunks(db, chunkId, file, lineStart, lineEnd, expandBy = 1) {
+    // Get chunks from the same file that are adjacent
+    const sql = `
+        SELECT id, file, line_start, line_end, content
+        FROM chunks
+        WHERE file = ?
+        AND (
+            (line_end >= ? - 5 AND line_end < ?)  -- Chunk ends just before our chunk
+            OR (line_start > ? AND line_start <= ? + 5)  -- Chunk starts just after our chunk
+        )
+        ORDER BY line_start
+        LIMIT ?
+    `;
+
+    try {
+        return db.prepare(sql).all(file, lineStart, lineStart, lineEnd, lineEnd, expandBy * 2);
+    } catch (e) {
+        return [];
+    }
+}
+
+/**
+ * Merge chunk content with adjacent chunks
+ */
+function mergeChunksContent(mainChunk, adjacentChunks, originalFile) {
+    if (adjacentChunks.length === 0) {
+        return mainChunk.content;
+    }
+
+    // Combine all chunks including main
+    const allChunks = [...adjacentChunks, mainChunk].sort((a, b) => a.line_start - b.line_start);
+
+    // Dedupe by line ranges (chunks might overlap)
+    const merged = [];
+    let currentEnd = -1;
+
+    for (const chunk of allChunks) {
+        if (chunk.line_start > currentEnd) {
+            merged.push(chunk);
+            currentEnd = chunk.line_end;
+        } else if (chunk.line_end > currentEnd) {
+            // Partial overlap - extend the last chunk
+            const lastChunk = merged[merged.length - 1];
+            // Read from file to get the extended content
+            const fullPath = path.join(process.cwd(), originalFile);
+            if (fs.existsSync(fullPath)) {
+                const lines = fs.readFileSync(fullPath, 'utf-8').split('\n');
+                lastChunk.content = lines.slice(lastChunk.line_start - 1, chunk.line_end).join('\n');
+                lastChunk.line_end = chunk.line_end;
+            }
+            currentEnd = chunk.line_end;
+        }
+    }
+
+    return merged.map(c => c.content).join('\n\n');
+}
+
+/**
+ * Search for a section by header name
+ */
+function searchByHeader(db, headerQuery, options = {}) {
+    const limit = options.limit || 5;
+
+    // Search for chunks that contain headers matching the query
+    const sql = `
+        SELECT DISTINCT file, line_start, line_end, content
+        FROM chunks
+        WHERE content LIKE ?
+        ORDER BY
+            CASE
+                WHEN file LIKE '%CLAUDE.md' THEN 1
+                WHEN file LIKE '%.nelson/%' THEN 2
+                WHEN file LIKE '%docs/%' THEN 3
+                ELSE 4
+            END,
+            line_start
+        LIMIT ?
+    `;
+
+    const results = db.prepare(sql).all(`%# %${headerQuery}%`, limit * 2);
+
+    // Extract full sections for each match
+    const sections = [];
+    const seenSections = new Set();
+
+    for (const result of results) {
+        const section = extractSectionFromFile(result.file, result.line_start);
+        if (section) {
+            const sectionKey = `${result.file}:${section.sectionName}`;
+            if (!seenSections.has(sectionKey)) {
+                seenSections.add(sectionKey);
+                sections.push({
+                    file: result.file,
+                    ...section,
+                    type: 'section'
+                });
+            }
+        }
+
+        if (sections.length >= limit) break;
+    }
+
+    return sections;
 }
 
 /**
@@ -262,19 +464,23 @@ function hybridSearch(db, query, options = {}) {
 }
 
 /**
- * Session-level search - returns full sessions when matches found in daily logs
- * Falls back to chunk-level for MEMORY.md and patterns
+ * Smart search - automatically expands context based on file type
+ * - Daily logs → Full session
+ * - Structured docs → Full section (header to header)
+ * - Other files → Context expansion (adjacent chunks)
  */
-function sessionSearch(db, query, options = {}) {
+function smartSearch(db, query, options = {}) {
     const limit = options.limit || 5;
     const summaryOnly = options.summaryOnly || false;
+    const expandContext = options.expand !== false;  // Default: expand
+    const sectionMode = options.section || false;
 
     // Get initial search results
     const rawResults = hybridSearch(db, query, { limit: limit * 2 });
 
-    // Process results - expand daily log matches to full sessions
+    // Process results - expand based on file type
     const processedResults = [];
-    const seenSessions = new Set();  // Dedupe sessions
+    const seenContexts = new Set();  // Dedupe expanded results
 
     for (const result of rawResults) {
         if (isDailyLog(result.file)) {
@@ -282,13 +488,10 @@ function sessionSearch(db, query, options = {}) {
             const session = extractSessionFromDailyLog(result.file, result.line_start);
 
             if (session) {
-                const sessionKey = `${result.file}:${session.sessionName}`;
+                const contextKey = `${result.file}:session:${session.sessionName}`;
 
-                // Skip if we've already seen this session
-                if (seenSessions.has(sessionKey)) {
-                    continue;
-                }
-                seenSessions.add(sessionKey);
+                if (seenContexts.has(contextKey)) continue;
+                seenContexts.add(contextKey);
 
                 processedResults.push({
                     ...result,
@@ -299,20 +502,73 @@ function sessionSearch(db, query, options = {}) {
                         : session.content,
                     line_start: session.lineStart,
                     line_end: session.lineEnd,
-                    matchContext: result.content.substring(0, 200) + '...'  // Original match for reference
+                    matchContext: result.content.substring(0, 200) + '...',
+                    expansionType: 'session'
                 });
             }
+        } else if (isStructuredDoc(result.file) && (expandContext || sectionMode)) {
+            // Structured doc - extract full section
+            const section = extractSectionFromFile(result.file, result.line_start);
+
+            if (section) {
+                const contextKey = `${result.file}:section:${section.sectionName}`;
+
+                if (seenContexts.has(contextKey)) continue;
+                seenContexts.add(contextKey);
+
+                processedResults.push({
+                    ...result,
+                    type: 'section',
+                    sectionName: section.sectionName,
+                    sectionHeader: section.header,
+                    content: section.content,
+                    line_start: section.lineStart,
+                    line_end: section.lineEnd,
+                    matchContext: result.content.substring(0, 200) + '...',
+                    expansionType: 'section'
+                });
+            }
+        } else if (expandContext && !sectionMode) {
+            // Other files - expand with adjacent chunks
+            const contextKey = `${result.file}:chunk:${result.line_start}-${result.line_end}`;
+
+            if (seenContexts.has(contextKey)) continue;
+            seenContexts.add(contextKey);
+
+            const adjacentChunks = getAdjacentChunks(
+                db, result.id, result.file, result.line_start, result.line_end, 1
+            );
+
+            const expandedContent = adjacentChunks.length > 0
+                ? mergeChunksContent(result, adjacentChunks, result.file)
+                : result.content;
+
+            processedResults.push({
+                ...result,
+                type: 'expanded_chunk',
+                content: expandedContent,
+                matchContext: result.content.substring(0, 200) + '...',
+                expansionType: 'adjacent',
+                adjacentCount: adjacentChunks.length
+            });
         } else {
-            // Not a daily log - use chunk-level (MEMORY.md, patterns, etc.)
+            // Raw chunk mode - no expansion
             processedResults.push({
                 ...result,
                 type: 'chunk',
-                sessionName: null
+                expansionType: 'none'
             });
         }
     }
 
     return processedResults.slice(0, limit);
+}
+
+/**
+ * Session-level search (legacy alias for smartSearch)
+ */
+function sessionSearch(db, query, options = {}) {
+    return smartSearch(db, query, options);
 }
 
 /**
@@ -329,16 +585,31 @@ function formatResults(results, options = {}) {
     for (const result of results) {
         output += `\n${'═'.repeat(70)}\n`;
 
+        // Type-specific headers
         if (result.type === 'session') {
             output += `📅 SESSION: ${result.sessionName}\n`;
             output += `   File: ${result.file}:${result.line_start}-${result.line_end}\n`;
-            output += `   Score: ${result.combinedScore?.toFixed(3) || 'N/A'} (${result.source || 'unknown'})\n`;
-            if (verbose && result.matchContext) {
-                output += `   Match: "${result.matchContext.trim()}"\n`;
-            }
+            output += `   Expansion: Full session retrieval\n`;
+        } else if (result.type === 'section') {
+            output += `📑 SECTION: ${result.sectionName}\n`;
+            output += `   File: ${result.file}:${result.line_start}-${result.line_end}\n`;
+            output += `   Header: ${result.sectionHeader || 'N/A'}\n`;
+            output += `   Expansion: Full section (header→header)\n`;
+        } else if (result.type === 'expanded_chunk') {
+            output += `📄 CHUNK (expanded): ${result.file}:${result.line_start}-${result.line_end}\n`;
+            output += `   Expansion: +${result.adjacentCount || 0} adjacent chunks\n`;
         } else {
             output += `📄 CHUNK: ${result.file}:${result.line_start}-${result.line_end}\n`;
-            output += `   Score: ${result.combinedScore?.toFixed(3) || 'N/A'} (${result.source || 'unknown'})\n`;
+            output += `   Expansion: None (raw chunk)\n`;
+        }
+
+        // Common fields
+        if (result.combinedScore !== undefined) {
+            output += `   Score: ${result.combinedScore.toFixed(3)} (${result.source || 'unknown'})\n`;
+        }
+
+        if (verbose && result.matchContext) {
+            output += `   Match: "${result.matchContext.trim()}"\n`;
         }
 
         output += `${'─'.repeat(70)}\n`;
@@ -434,17 +705,24 @@ async function main() {
     const args = process.argv.slice(2);
 
     if (args.length === 0 || args.includes('--help')) {
-        console.log('Nelson Memory Search v2.0');
+        console.log('Nelson Memory Search v3.0 - Intelligent Context Retrieval');
         console.log('');
         console.log('Usage:');
-        console.log('  node .nelson/search.cjs "query"             Hybrid search (chunk + session)');
-        console.log('  node .nelson/search.cjs "query" --session   Force session-level retrieval');
-        console.log('  node .nelson/search.cjs "query" --chunk     Force chunk-level retrieval');
+        console.log('  node .nelson/search.cjs "query"             Smart search (auto-expands context)');
+        console.log('  node .nelson/search.cjs "query" --section   Return full sections (header→header)');
+        console.log('  node .nelson/search.cjs "query" --expand    Force context expansion');
+        console.log('  node .nelson/search.cjs "query" --chunk     Raw chunks only (no expansion)');
         console.log('  node .nelson/search.cjs "query" --limit N   Limit results (default: 5)');
         console.log('  node .nelson/search.cjs "query" --file X    Filter by filename');
-        console.log('  node .nelson/search.cjs --context "task"    Get context for a task');
+        console.log('  node .nelson/search.cjs --header "Name"     Find section by header name');
+        console.log('  node .nelson/search.cjs --context "task"    Auto-retrieve context for task');
         console.log('  node .nelson/search.cjs --list-sessions     List all sessions');
-        console.log('  node .nelson/search.cjs --verbose           Show match context');
+        console.log('  node .nelson/search.cjs --verbose           Show match snippets');
+        console.log('');
+        console.log('Context Expansion:');
+        console.log('  • Daily logs → Returns full session (## Session: boundary)');
+        console.log('  • CLAUDE.md, docs/ → Returns full section (## Header boundary)');
+        console.log('  • Other files → Returns chunk + adjacent chunks');
         console.log('');
         process.exit(0);
     }
@@ -483,8 +761,10 @@ async function main() {
     let limit = 5;
     let fileFilter = null;
     let contextMode = false;
-    let sessionMode = false;
+    let sectionMode = false;
+    let expandMode = false;
     let chunkMode = false;
+    let headerMode = false;
     let verbose = false;
 
     for (let i = 0; i < args.length; i++) {
@@ -496,10 +776,14 @@ async function main() {
             i++;
         } else if (args[i] === '--context') {
             contextMode = true;
-        } else if (args[i] === '--session') {
-            sessionMode = true;
+        } else if (args[i] === '--section') {
+            sectionMode = true;
+        } else if (args[i] === '--expand') {
+            expandMode = true;
         } else if (args[i] === '--chunk') {
             chunkMode = true;
+        } else if (args[i] === '--header') {
+            headerMode = true;
         } else if (args[i] === '--verbose') {
             verbose = true;
         } else if (!args[i].startsWith('--')) {
@@ -512,23 +796,36 @@ async function main() {
         process.exit(1);
     }
 
+    // Determine mode for display
+    let mode = 'smart';
+    if (contextMode) mode = 'context';
+    else if (headerMode) mode = 'header';
+    else if (sectionMode) mode = 'section';
+    else if (expandMode) mode = 'expand';
+    else if (chunkMode) mode = 'chunk';
+
     console.log(`🔍 Searching for: "${query}"`);
     if (fileFilter) console.log(`   File filter: ${fileFilter}`);
     console.log(`   Limit: ${limit}`);
-    console.log(`   Mode: ${contextMode ? 'context' : sessionMode ? 'session' : chunkMode ? 'chunk' : 'hybrid'}`);
+    console.log(`   Mode: ${mode}`);
     console.log('');
 
     // Perform search
     let results;
     if (contextMode) {
         results = getContextForTask(db, query, { limit, file: fileFilter });
-    } else if (sessionMode) {
-        results = sessionSearch(db, query, { limit, file: fileFilter });
+    } else if (headerMode) {
+        results = searchByHeader(db, query, { limit, file: fileFilter });
     } else if (chunkMode) {
         results = hybridSearch(db, query, { limit, file: fileFilter });
     } else {
-        // Default: session search (smarter)
-        results = sessionSearch(db, query, { limit, file: fileFilter });
+        // Smart search - auto-expands based on file type
+        results = smartSearch(db, query, {
+            limit,
+            file: fileFilter,
+            section: sectionMode,
+            expand: !chunkMode
+        });
     }
 
     // Display results
@@ -540,16 +837,27 @@ async function main() {
 
 // Export for use as module
 module.exports = {
+    // Core search functions
     searchFTS,
     searchLike,
     hybridSearch,
-    sessionSearch,
+    smartSearch,
+    sessionSearch,  // Legacy alias for smartSearch
+    searchByHeader,
+
+    // Context retrieval
     getContextForTask,
-    formatResults,
     extractSessionFromDailyLog,
     extractSessionSummary,
+    extractSectionFromFile,
+    getAdjacentChunks,
+    mergeChunksContent,
+
+    // Utilities
+    formatResults,
     listSessions,
-    isDailyLog
+    isDailyLog,
+    isStructuredDoc
 };
 
 // Run if called directly
