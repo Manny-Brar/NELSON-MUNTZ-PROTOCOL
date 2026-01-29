@@ -1,18 +1,21 @@
 {
   "name": "nelson-muntz",
-  "version": "3.10.0",
-  "description": "Peak performance AI development loops with AGGRESSIVE validation. v3.10.0: Fixed argument handling. HA-HA!",
+  "version": "4.0.0",
+  "description": "Memory-augmented AI development protocol with persistent memory system, ULTRATHINK planning, session-level retrieval, and critical self-assessment. The evolved successor to Ralph Wiggum with long-term memory. HA-HA!",
   "author": {
     "name": "Manny Brar",
     "email": "dev@projectaurora.ai"
   },
   "keywords": [
     "agent-loop",
-    "fresh-context",
+    "memory-system",
     "ultrathink",
     "peak-performance",
     "development",
-    "automation"
+    "automation",
+    "vector-database",
+    "session-management",
+    "long-running-agents"
   ],
   "license": "MIT",
   "repository": "https://github.com/Manny-Brar/NELSON-MUNTZ-PROTOCOL"

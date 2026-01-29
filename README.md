@@ -196,15 +196,16 @@ But here's the thing — I only say **"HA-HA!"** when someone else fails. When Y
 
 Ralph's nice and all, but the kid eats paste. Here's why I'm the upgrade:
 
-| Thing | Ralph Wiggum v1 | Me (Nelson v3) |
+| Thing | Ralph Wiggum v1 | Me (Nelson v4) |
 |-------|-----------------|----------------|
-| Context | Same session (gets confused) | Fresh 200k every time. I don't forget. |
-| Thinking | Basic prompts | Ultrathink. I actually THINK before punching. |
+| Context | Same session (gets confused) | Fresh 200k every time + **persistent memory** |
+| Thinking | Basic prompts | Ultrathink (4 levels!) + self-assessment |
 | Validation | One check | Two stages. Spec AND quality. I'm thorough. |
 | Failure handling | Tries forever (dumb) | 3 strikes, you're blocked. I move on. |
 | Git | Manual (who has time?) | Auto-commit when I win |
 | Focus | Gets distracted | ONE feature. Period. |
-| State | Barely remembers anything | Full tracking. I take notes. |
+| Memory | Forgets everything | **Persistent across sessions!** Vector DB search! |
+| Learning | None | **Tracks patterns (success AND failure)** |
 | Model | Whatever | Opus 4.5. Only the best for me. |
 
 ---
@@ -525,10 +526,135 @@ MIT
    ██║ ╚████║███████╗███████╗███████║╚██████╔╝██║ ╚████║
    ╚═╝  ╚═══╝╚══════╝╚══════╝╚══════╝ ╚═════╝ ╚═╝  ╚═══╝
 
-                    MUNTZ v3.6.0
-         Peak Performance Development Loop
+                    MUNTZ v4.0
+         Memory-Augmented Development
+         Peak Performance + Persistent Memory
+
 
       "Others try. We triumph. HA-HA!" 🥊
+```
+
+---
+
+## 🧠 NEW IN v4.0: Memory System
+
+**What's the big deal?** I remember stuff now. Across sessions. Like a REAL developer.
+
+> *"The thing about you, Simpson, is you got no memory."* — Me, actually showing some self-awareness for once
+
+### What's New
+
+| v3.x | v4.0 |
+|------|------|
+| Forget everything between sessions | **Persistent memory across sessions** |
+| Manual context loading | **Automatic memory retrieval** |
+| Hope I learn from mistakes | **Pattern recognition + failure tracking** |
+| Start fresh every time (sometimes dumb) | **Start fresh with ALL MY KNOWLEDGE** |
+
+### Memory System Components
+
+```
+.nelson/
+├── NELSON_SOUL.md       # Who I am (identity never changes)
+├── MEMORY.md            # What I know (project knowledge)
+├── context-loader.md    # How I retrieve (automatic!)
+├── memory.db            # SQLite + FTS5 (fast search!)
+├── memory/
+│   └── YYYY-MM-DD.md    # Daily session logs
+└── patterns/
+    ├── successes.md     # What works (I remember!)
+    └── failures.md      # What doesn't (I don't repeat!)
+```
+
+### How Memory Works
+
+1. **Session Start:** I load MEMORY.md, NELSON_SOUL.md, and recent logs
+2. **Before Tasks:** I search memory for relevant context (automatic!)
+3. **During Work:** I apply learned patterns, avoid known failures
+4. **Session End:** I write what I learned to daily log
+5. **Durable Insights:** Go into MEMORY.md forever
+
+### Install Memory System
+
+```bash
+# Copy memory-system folder to your project
+cp -r memory-system/* .nelson/
+
+# Run setup
+bash .nelson/setup.sh
+
+# Or manually install dependencies and initialize
+npm install better-sqlite3
+node .nelson/init-db.cjs
+```
+
+### Memory Commands
+
+```bash
+# Search memory
+node .nelson/search.cjs "webhook authentication"
+
+# Get context for a task
+node .nelson/search.cjs --context "fix the payment webhook"
+
+# List recent sessions
+node .nelson/search.cjs --list-sessions
+
+# Capture session summary
+node .nelson/capture.cjs "Session Name" "COMPLETE" --tasks "task1, task2"
+```
+
+### ULTRATHINK Protocol (Mandatory in v4.0)
+
+Before I throw a punch, I THINK. Four levels deep:
+
+```
+Level 1 - Standard:    "What needs to happen?"
+Level 2 - Deep:        "What are the edge cases?"
+Level 3 - Adversarial: "What could go wrong?"
+Level 4 - Meta:        "Is this even the right approach?"
+```
+
+Then I execute. THEN I self-assess. THEN I write to memory.
+
+### Self-Assessment (New in v4.0)
+
+I don't claim victory until I can answer YES to ALL of these:
+
+```
+□ Does implementation match the goal?
+□ Did I actually test it? (RUN THE COMMAND, NERD!)
+□ Would I bet money on this in production?
+□ What could still go wrong?
+□ Is there a simpler solution?
+```
+
+If ANY answer is NO → Back to planning. No shortcuts.
+
+### Why Memory Matters
+
+**Without memory:**
+- Same bugs. Again and again. *HA-HA... at myself?* No thanks.
+- Rediscover the same solutions
+- Forget architectural decisions
+- Context rot across sessions
+
+**With memory:**
+- I remember what worked → Do it again
+- I remember what failed → Don't do it again
+- Architecture decisions persist → Consistent code
+- Previous sessions inform current work → Smarter from the start
+
+### The v4.0 Oath
+
+```
+I will LOAD memory before starting work.
+I will THINK before executing.
+I will ASSESS before claiming completion.
+I will WRITE insights before they're lost.
+I will LEARN from both successes and failures.
+
+Context is perishable. Memory is forever.
 ```
 
 ---
