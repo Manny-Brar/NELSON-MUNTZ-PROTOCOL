@@ -2,8 +2,15 @@
 # Nelson Protocol v4.0 - Auto-Install Script
 # This script sets up the memory system with MANDATORY vector database
 #
-# The vector database is REQUIRED for efficient memory retrieval.
-# Without it, Nelson must load full files which wastes context window.
+# Features:
+# - Full documentation indexing (CLAUDE.md, docs/, README.md, etc.)
+# - Git hooks for auto re-indexing on commit/push
+# - Priority-weighted search across all indexed content
+#
+# Usage:
+#   bash .nelson/setup.sh              # Full install with git hooks
+#   bash .nelson/setup.sh --skip-hooks # Skip git hook installation
+#   bash .nelson/setup.sh --force      # Force re-index all files
 
 set -e  # Exit on error
 
@@ -11,6 +18,20 @@ NELSON_DIR=".nelson"
 MEMORY_DIR="$NELSON_DIR/memory"
 PATTERNS_DIR="$NELSON_DIR/patterns"
 DB_FILE="$NELSON_DIR/memory.db"
+SKIP_HOOKS=false
+FORCE_REINDEX=false
+
+# Parse arguments
+for arg in "$@"; do
+    case $arg in
+        --skip-hooks)
+            SKIP_HOOKS=true
+            ;;
+        --force)
+            FORCE_REINDEX=true
+            ;;
+    esac
+done
 
 echo "╔══════════════════════════════════════════════════════════════════╗"
 echo "║           NELSON PROTOCOL v4.0 - AUTO-INSTALL                    ║"
@@ -214,7 +235,12 @@ fi
 
 # Run database initialization (REQUIRED)
 echo "   → Initializing database..."
-if node "$NELSON_DIR/init-db.cjs" 2>&1; then
+INIT_FLAGS=""
+if [ "$FORCE_REINDEX" = true ]; then
+    INIT_FLAGS="--force"
+    echo "   (Force re-index enabled)"
+fi
+if node "$NELSON_DIR/init-db.cjs" $INIT_FLAGS 2>&1; then
     echo "   ✓ Vector database initialized"
 else
     echo "❌ FATAL: Database initialization failed"
@@ -276,7 +302,77 @@ chmod +x "$NELSON_DIR/search.sh"
 echo "   ✓ Created search.sh (shell fallback)"
 echo "   ✓ Primary search: node .nelson/search.cjs"
 
-# Step 10: Verify installation
+# Step 10: Install git hooks (unless --skip-hooks)
+if [ "$SKIP_HOOKS" = false ]; then
+    echo ""
+    echo "🔗 Installing git hooks for auto re-indexing..."
+
+    GIT_HOOKS_DIR=".git/hooks"
+
+    if [ -d "$GIT_HOOKS_DIR" ]; then
+        # Create post-commit hook for auto re-indexing
+        cat > "$GIT_HOOKS_DIR/post-commit" << 'HOOK_EOF'
+#!/bin/bash
+# Nelson Auto Re-Index Hook (post-commit)
+# Re-indexes memory database when markdown files change
+
+# Check if any .md files were changed in this commit
+CHANGED_MD=$(git diff-tree --no-commit-id --name-only -r HEAD 2>/dev/null | grep '\.md$' || true)
+
+if [ -n "$CHANGED_MD" ]; then
+    # Count changed files
+    MD_COUNT=$(echo "$CHANGED_MD" | wc -l | tr -d ' ')
+
+    echo ""
+    echo "📚 Nelson: $MD_COUNT markdown file(s) changed, re-indexing memory..."
+
+    # Run incremental re-index (only changed files)
+    if [ -f ".nelson/init-db.cjs" ]; then
+        node .nelson/init-db.cjs 2>/dev/null | grep -E "(✓|Indexed:|Total:)" || true
+        echo "   ✓ Memory database updated"
+    fi
+fi
+HOOK_EOF
+        chmod +x "$GIT_HOOKS_DIR/post-commit"
+        echo "   ✓ Installed post-commit hook (auto re-index on commit)"
+
+        # Create pre-push hook for verification
+        cat > "$GIT_HOOKS_DIR/pre-push" << 'HOOK_EOF'
+#!/bin/bash
+# Nelson Pre-Push Hook
+# Ensures memory is fully indexed before push
+
+echo ""
+echo "📚 Nelson: Verifying memory index before push..."
+
+if [ -f ".nelson/init-db.cjs" ]; then
+    # Run full index to catch any missed files
+    RESULT=$(node .nelson/init-db.cjs 2>/dev/null | grep -E "(Indexed:|unchanged)" || true)
+
+    if echo "$RESULT" | grep -q "Indexed:"; then
+        echo "   ✓ Memory index updated"
+        echo "$RESULT" | grep "Indexed:" | head -5
+    else
+        echo "   ✓ Memory index already up to date"
+    fi
+fi
+
+# Always allow push (this is informational only)
+exit 0
+HOOK_EOF
+        chmod +x "$GIT_HOOKS_DIR/pre-push"
+        echo "   ✓ Installed pre-push hook (verify index before push)"
+
+    else
+        echo "   ⚠️  Not a git repository. Skipping hook installation."
+        echo "   Run 'git init' first if you want auto re-indexing."
+    fi
+else
+    echo ""
+    echo "⏭️  Skipping git hooks (--skip-hooks flag)"
+fi
+
+# Step 11: Verify installation
 echo ""
 echo "🧪 Verifying installation..."
 
@@ -325,10 +421,29 @@ echo "      └── failures.md      # What doesn't"
 echo ""
 echo "Commands:"
 echo "  • Search memory:     node .nelson/search.cjs \"keyword\""
+echo "  • Search by type:    node .nelson/search.cjs \"query\" --type instructions"
+echo "  • Search headers:    node .nelson/search.cjs --header \"MCP\""
+echo "  • Index stats:       node .nelson/search.cjs --stats"
 echo "  • List sessions:     node .nelson/search.cjs --list-sessions"
 echo "  • Capture session:   node .nelson/capture.cjs \"Name\" \"STATUS\""
 echo "  • Re-index files:    node .nelson/init-db.cjs"
+echo "  • Force re-index:    node .nelson/init-db.cjs --force"
+echo ""
+
+if [ "$SKIP_HOOKS" = false ] && [ -d ".git/hooks" ]; then
+    echo "Git hooks installed:"
+    echo "  • post-commit: Auto re-index when .md files change"
+    echo "  • pre-push: Verify index is current before pushing"
+    echo ""
+fi
+
+echo "File types indexed (by priority):"
+echo "  1. CLAUDE.md         (instructions) - priority 1.0"
+echo "  2. .nelson/*.md      (memory/soul)  - priority 0.8-0.95"
+echo "  3. docs/**/*.md      (documentation)- priority 0.6-0.7"
+echo "  4. README.md         (overview)     - priority 0.75"
+echo "  5. **/*.md           (other)        - priority 0.5"
 echo ""
 echo "Nelson Protocol v4.0 is ready! 🎯"
 echo ""
-echo "The vector database is ACTIVE - memory searches will be efficient."
+echo "The vector database indexes ALL documentation for smart search."
