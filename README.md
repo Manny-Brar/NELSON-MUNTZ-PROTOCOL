@@ -23,7 +23,7 @@
       "Others try. We triumph. HA-HA!" 🥊
 ```
 
-> **This is THE ORIGINAL Nelson Muntz Protocol** by [Manny Brar](https://github.com/Manny-Brar). If you see [copycats](https://github.com/zkarimi22/nelson-muntz) floating around — yeah, they peeked at our homework. Imitation is flattery, but **there's only one Nelson.** HA-HA!
+> **This is THE ORIGINAL Nelson Muntz Protocol** by [Manny Brar](https://github.com/Manny-Brar). Copycats have popped up — imitation is flattery, but **there's only one Nelson.** HA-HA!
 
 ---
 
@@ -378,4 +378,4 @@ The harness is the hard part. The agent follows.
 
 ---
 
-> **This is the ORIGINAL Nelson Muntz Protocol.** Created by [Manny Brar](https://github.com/Manny-Brar). Accept no substitutes. **HA-HA!**
+> **This is the ORIGINAL Nelson Muntz Protocol.** Created by [Manny Brar](https://github.com/Manny-Brar). Accept no substitutes. Copycats get the HA-HA treatment. **HA-HA!** 🥊
