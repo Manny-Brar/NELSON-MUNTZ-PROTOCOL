@@ -55,7 +55,7 @@ Nelson Protocol upgraded from v4.0 (memory-augmented development) to v5.0 (harne
 |------|-------|-------------|
 | `hooks/stop-hook.sh` | 795 | Drift scoring, circuit breaker, 3-stage validation, compound learning |
 | `hooks/hooks.json` | 38 | Added PostToolUse hook, v5 documentation |
-| `commands/ha-ha.md` | 213 | 10-phase protocol, `/nelson:ha-ha` format |
+| `commands/ha-ha.md` | 213 | 10-phase protocol, `/nelson-muntz:ha-ha` format |
 | `commands/nelson.md` | 111 | v5 features, --parallel, harness architecture |
 | `commands/nelson-status.md` | 83 | Drift score display, edit tracker metrics |
 | `commands/nelson-stop.md` | 47 | Cleanup all v5 state files |

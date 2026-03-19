@@ -703,7 +703,7 @@ node .nelson/mcp-skill-docs-extractor.cjs retrieve "stripe"
 
 | Command | Description |
 |---------|-------------|
-| `/nelson:ha-ha "task"` | v5 HA-HA mode (primary format) |
+| `/nelson-muntz:ha-ha "task"` | v5 HA-HA mode (primary format) |
 | `/nelson-muntz:nelson "task"` | Standard dev loop |
 | `/nelson-muntz:ha-ha "task"` | Peak performance mode |
 | `/nelson-muntz:nelson-status` | Check status + drift score |

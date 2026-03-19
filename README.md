@@ -78,7 +78,7 @@ Standard mode: fresh context each iteration, single-feature focus, two-stage val
 ### HA-HA Mode — Peak Performance
 
 ```bash
-/nelson:ha-ha "Build OAuth + JWT + MFA authentication" --max-iterations 30
+/nelson-muntz:ha-ha "Build OAuth + JWT + MFA authentication" --max-iterations 30
 ```
 
 HA-HA mode activates **everything**: Phase-Gate Engine, 5-level ULTRATHINK, three-stage validation with red-team review, compound learning, drift detection, auto-research, and the full 5-attempt escalation ladder.
@@ -88,7 +88,7 @@ HA-HA mode activates **everything**: Phase-Gate Engine, 5-level ULTRATHINK, thre
 ### Overnight Autonomous Loop
 
 ```bash
-/nelson:ha-ha "Build complete payment processing system" --max-iterations 30
+/nelson-muntz:ha-ha "Build complete payment processing system" --max-iterations 30
 ```
 
 Set it and walk away. Nelson will decompose, research, build, validate, document, and loop until done or iteration limit hit. Keep your terminal open.
@@ -97,19 +97,19 @@ Set it and walk away. Nelson will decompose, research, build, validate, document
 
 ```bash
 # HA-HA Mode (recommended)
-/nelson:ha-ha "task" --max-iterations 30
+/nelson-muntz:ha-ha "task" --max-iterations 30
 
 # Standard Mode
 /nelson-muntz:nelson "task" --max-iterations 20
 
 # With task list
-/nelson:ha-ha "( task1, task2, task3 )" --max-iterations 20
+/nelson-muntz:ha-ha "( task1, task2, task3 )" --max-iterations 20
 
 # With completion promise
 /nelson-muntz:nelson "Fix auth" --completion-promise "ALL TESTS PASS"
 
 # With parallel agents (worktree isolation)
-/nelson:ha-ha "Complex multi-file feature" --max-iterations 20 --parallel
+/nelson-muntz:ha-ha "Complex multi-file feature" --max-iterations 20 --parallel
 ```
 
 ### Monitor & Control
@@ -125,7 +125,7 @@ Set it and walk away. Nelson will decompose, research, build, validate, document
 
 | Command | What It Does |
 |---------|-------------|
-| `/nelson:ha-ha "task"` | Start HA-HA Mode (peak performance, all v5.1 features) |
+| `/nelson-muntz:ha-ha "task"` | Start HA-HA Mode (peak performance, all v5.1 features) |
 | `/nelson-muntz:nelson "task"` | Start Standard Mode |
 | `/nelson-muntz:nelson-status` | Check loop status + drift score |
 | `/nelson-muntz:nelson-stop` | Stop the loop and clean up |
@@ -147,11 +147,11 @@ Set it and walk away. Nelson will decompose, research, build, validate, document
 |-----------|-----|-----|
 | Simple bug fix | `/nelson-muntz:nelson` `--max-iterations 10` | Quick, focused, no overhead |
 | Routine feature | `/nelson-muntz:nelson` `--max-iterations 20` | Standard validation is enough |
-| Complex feature | `/nelson:ha-ha` `--max-iterations 30` | Phase-gate + research + red-team |
-| Critical system | `/nelson:ha-ha` `--max-iterations 30 --completion-promise "..."` | Maximum safety |
-| Unfamiliar tech | `/nelson:ha-ha` | Mandatory pre-research before coding |
-| Overnight build | `/nelson:ha-ha` `--max-iterations 30` | Set it and sleep |
-| Standard mode keeps failing | `/nelson:ha-ha` | 5-attempt escalation vs 3-fix |
+| Complex feature | `/nelson-muntz:ha-ha` `--max-iterations 30` | Phase-gate + research + red-team |
+| Critical system | `/nelson-muntz:ha-ha` `--max-iterations 30 --completion-promise "..."` | Maximum safety |
+| Unfamiliar tech | `/nelson-muntz:ha-ha` | Mandatory pre-research before coding |
+| Overnight build | `/nelson-muntz:ha-ha` `--max-iterations 30` | Set it and sleep |
+| Standard mode keeps failing | `/nelson-muntz:ha-ha` | 5-attempt escalation vs 3-fix |
 
 ---
 

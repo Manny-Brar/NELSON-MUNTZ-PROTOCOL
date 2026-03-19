@@ -7,7 +7,7 @@
 ## Command Format
 
 ```bash
-/nelson:ha-ha "task" --max-iterations 30          # Primary v5 HA-HA format
+/nelson-muntz:ha-ha "task" --max-iterations 30          # Primary v5 HA-HA format
 /nelson-muntz:nelson "task" --max-iterations 20    # Standard mode
 /nelson-muntz:ha-ha "task" --parallel              # With worktree isolation
 ```

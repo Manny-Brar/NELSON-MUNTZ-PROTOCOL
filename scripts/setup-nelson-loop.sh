@@ -62,7 +62,7 @@ Nelson Muntz - Harness-Engineered Development Loop (v5.0.0)
 USAGE:
   /nelson [PROMPT...] [OPTIONS]
   /ha-ha [PROMPT...] [OPTIONS]
-  /nelson:ha-ha [PROMPT...] [OPTIONS]
+  /nelson-muntz:ha-ha [PROMPT...] [OPTIONS]
 
 ARGUMENTS:
   PROMPT...    Task to accomplish (can be multiple words)
@@ -71,7 +71,7 @@ TASK LIST FORMAT (use brackets for multiple tasks):
   Use ( ) to wrap your task list with flexible formatting:
 
   Examples:
-    /nelson:ha-ha ( task1, task2, task3 ) --max-iterations 20
+    /nelson-muntz:ha-ha ( task1, task2, task3 ) --max-iterations 20
     /ha-ha ( task1, task2, task3 )
     /nelson ( task one, task two, task three )
 
@@ -111,7 +111,7 @@ COMPLETION SIGNALS:
 
 EXAMPLES:
   /nelson Build a REST API --max-iterations 20
-  /nelson:ha-ha Build OAuth authentication system --max-iterations 30
+  /nelson-muntz:ha-ha Build OAuth authentication system --max-iterations 30
   /ha-ha ( fix the login bug, add logout button, update tests )
   /nelson --parallel "Complex multi-file feature" --max-iterations 20
 

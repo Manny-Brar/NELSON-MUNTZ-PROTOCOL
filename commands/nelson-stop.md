@@ -17,7 +17,7 @@ if [ -f .claude/nelson-loop.local.md ]; then
   echo "HA-HA! Nelson loop stopped."
   echo ""
   echo "Cleaned up: state, handoff, verification, and edit tracker files."
-  echo "Start a new one with /nelson-muntz:nelson or /nelson:ha-ha"
+  echo "Start a new one with /nelson-muntz:nelson or /nelson-muntz:ha-ha"
 else
   echo ""
   echo "No active Nelson loop to stop."
@@ -39,7 +39,7 @@ fi
 /nelson-muntz:nelson "Build a REST API" --max-iterations 20
 
 # HA-HA mode (Peak Performance)
-/nelson:ha-ha "Build OAuth authentication" --max-iterations 30
+/nelson-muntz:ha-ha "Build OAuth authentication" --max-iterations 30
 ```
 
 ## Note

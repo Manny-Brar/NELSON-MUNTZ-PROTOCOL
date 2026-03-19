@@ -48,7 +48,7 @@ else
   echo ""
   echo "No active Nelson loop. Start one with:"
   echo "  /nelson-muntz:nelson \"Your task here\""
-  echo "  /nelson:ha-ha \"Complex task here\""
+  echo "  /nelson-muntz:ha-ha \"Complex task here\""
 fi
 ```
 

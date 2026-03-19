@@ -21,7 +21,7 @@ version: 5.0.0
 | Memory | Files + vector DB | **Graph-relational + episodic + procedural** |
 | Drift prevention | Fresh context | **Active drift detection + circuit breakers** |
 | Learning | Pattern recognition | **Compound engineering (each unit → easier next)** |
-| Command format | `/nelson` / `/ha-ha` | **`/nelson:ha-ha 'task' --max-iterations N`** |
+| Command format | `/nelson` / `/ha-ha` | **`/nelson-muntz:ha-ha 'task' --max-iterations N`** |
 | Validation | Two-stage | **Three-stage + adversarial red-team review** |
 | Research | On failure | **GEPA-inspired reflective prompt evolution** |
 | Parallelism | Sequential | **Worktree-isolated parallel execution** |
@@ -545,7 +545,7 @@ FILES: [changed files list]
 
 ### HA-HA Mode (Peak Performance)
 ```bash
-/nelson:ha-ha "task description" --max-iterations N
+/nelson-muntz:ha-ha "task description" --max-iterations N
 ```
 
 ### Options

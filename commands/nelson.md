@@ -42,7 +42,7 @@ Nelson Muntz is a harness-engineered AI development loop — the agent isn't the
 /nelson-muntz:nelson "( task1, task2, task3 )" --max-iterations 10
 
 # For peak performance, use HA-HA mode instead:
-/nelson:ha-ha "Complex task" --max-iterations 30
+/nelson-muntz:ha-ha "Complex task" --max-iterations 30
 ```
 
 ## Options

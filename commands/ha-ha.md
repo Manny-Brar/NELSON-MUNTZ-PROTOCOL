@@ -36,16 +36,16 @@ HA-HA Mode is Nelson Muntz with EVERY enhancement enabled — now with v5.1 Phas
 
 ```bash
 # Primary invocation format (v5.0)
-/nelson:ha-ha "Build a complete authentication system with OAuth, JWT, and MFA" --max-iterations 30
+/nelson-muntz:ha-ha "Build a complete authentication system with OAuth, JWT, and MFA" --max-iterations 30
 
 # Also supported (plugin-qualified format)
 /nelson-muntz:ha-ha "Complex task" --max-iterations 50
 
 # With bracket-delimited task list
-/nelson:ha-ha "( task1, task2, task3 )" --max-iterations 10
+/nelson-muntz:ha-ha "( task1, task2, task3 )" --max-iterations 10
 
 # With worktree-isolated parallel agents (v5.0)
-/nelson:ha-ha "Complex task" --max-iterations 30 --parallel
+/nelson-muntz:ha-ha "Complex task" --max-iterations 30 --parallel
 
 # Monitor
 /nelson-muntz:nelson-status

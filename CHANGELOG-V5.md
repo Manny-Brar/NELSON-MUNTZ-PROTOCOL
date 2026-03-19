@@ -60,7 +60,7 @@ _Entries below are added automatically by the continuous improvement loop._
 **Files Modified:**
 - `commands/ha-ha.md` — Full v5.0 rewrite:
   - Updated comparison table (v5 features: 5-level ULTRATHINK, 3-stage validation, compound learning, drift detection, tiered loading, multi-agent)
-  - Added `/nelson:ha-ha` primary invocation format
+  - Added `/nelson-muntz:ha-ha` primary invocation format
   - Added `--parallel` flag documentation
   - Expanded protocol stack to 10 phases (added Boot Sequence, Compound Learning, Drift Detection)
   - Updated configuration JSON with v5.0 harness settings
@@ -125,7 +125,7 @@ _Entries below are added automatically by the continuous improvement loop._
 - `scripts/setup-nelson-loop.sh` — Upgraded from v3.10.0 to v5.0.0:
   - Updated header with v5.0 version and all enhancement descriptions
   - Added `--parallel` flag to argument parser for worktree-isolated parallel agents
-  - Updated help text with v5 features: 6-phase iteration protocol (BOOT→PLAN→WORK→VERIFY→COMPOUND→HANDOFF), --parallel flag, v5 features list, updated examples with `/nelson:ha-ha` format
+  - Updated help text with v5 features: 6-phase iteration protocol (BOOT→PLAN→WORK→VERIFY→COMPOUND→HANDOFF), --parallel flag, v5 features list, updated examples with `/nelson-muntz:ha-ha` format
   - Added tool auto-detection section: checks Obsidian MCP (port 22360 via netcat), GWS CLI (command check), jq (for drift scoring)
   - Added edit tracker initialization: creates `.claude/nelson-edit-tracker.local.json` at setup time
   - Added v5 fields to state file YAML: `parallel_mode`, `protocol_version: "5.0.0"`, `tools_detected`
@@ -395,7 +395,7 @@ _Entries below are added automatically by the continuous improvement loop._
   - Updated final summary: added v5 files to directory tree (obsidian-bridge.cjs, consolidate.cjs)
   - Updated quick commands: added consolidate --stats, obsidian-bridge status
   - Added v5 features section in summary: tiered loading, drift detection, compound learning, 3-stage validation, multi-agent
-  - Updated next steps: added plugin install and /nelson:ha-ha usage
+  - Updated next steps: added plugin install and /nelson-muntz:ha-ha usage
   - Updated tagline: "Others try. We triumph." → "The agent isn't the hard part. The harness is."
   - Updated CLAUDE.md template references: v4 → v5
   - Bash syntax validated
@@ -484,7 +484,7 @@ _Entries below are added automatically by the continuous improvement loop._
 **Research:** None needed (synthesis of all prior work)
 **Files Created:**
 - `V5-QUICK-REFERENCE.md` — NEW: Concise one-page cheat-sheet covering:
-  - Command format (primary `/nelson:ha-ha` + alternatives)
+  - Command format (primary `/nelson-muntz:ha-ha` + alternatives)
   - 6-phase iteration protocol comparison table (v4 vs v5)
   - Tiered L0/L1/L2 context loading summary with token budgets
   - 5-level ULTRATHINK one-liner per level

@@ -222,7 +222,7 @@ Nelson Muntz includes specialized skills for common operations:
 
 ```bash
 # Primary v5 format
-/nelson:ha-ha "Build OAuth + JWT + MFA auth system" --max-iterations 30
+/nelson-muntz:ha-ha "Build OAuth + JWT + MFA auth system" --max-iterations 30
 
 # Also works: plugin-qualified format
 /nelson-muntz:ha-ha "Complex task" --max-iterations 50
