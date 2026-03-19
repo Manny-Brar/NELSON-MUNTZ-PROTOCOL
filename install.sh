@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# NELSON PROTOCOL v4.0 - ONE-COMMAND INSTALLER
+# NELSON PROTOCOL v5.0 - ONE-COMMAND INSTALLER
 #
 # This script installs the complete Nelson memory system into ANY project.
 # Run from your project root directory.
@@ -57,8 +57,8 @@ echo -e "${BLUE}║${NC}   ${YELLOW}██║╚██╗██║██╔═�
 echo -e "${BLUE}║${NC}   ${YELLOW}██║ ╚████║███████╗███████╗███████║╚██████╔╝██║ ╚████║${NC}           ${BLUE}║${NC}"
 echo -e "${BLUE}║${NC}   ${YELLOW}╚═╝  ╚═══╝╚══════╝╚══════╝╚══════╝ ╚═════╝ ╚═╝  ╚═══╝${NC}           ${BLUE}║${NC}"
 echo -e "${BLUE}║${NC}                                                                      ${BLUE}║${NC}"
-echo -e "${BLUE}║${NC}              ${GREEN}MUNTZ PROTOCOL v4.0 - ONE-COMMAND INSTALL${NC}              ${BLUE}║${NC}"
-echo -e "${BLUE}║${NC}              Memory-Augmented Development System                     ${BLUE}║${NC}"
+echo -e "${BLUE}║${NC}              ${GREEN}MUNTZ PROTOCOL v5.0 - ONE-COMMAND INSTALL${NC}              ${BLUE}║${NC}"
+echo -e "${BLUE}║${NC}           Harness-Engineered Development System                      ${BLUE}║${NC}"
 echo -e "${BLUE}║${NC}                                                                      ${BLUE}║${NC}"
 echo -e "${BLUE}╚══════════════════════════════════════════════════════════════════════╝${NC}"
 echo ""
@@ -133,6 +133,11 @@ install_file "$NELSON_DIR/capture.cjs" "$GITHUB_RAW/memory-system/capture.cjs" "
 install_file "$NELSON_DIR/tools-indexer.cjs" "$GITHUB_RAW/memory-system/tools-indexer.cjs" "tools-indexer.cjs (MCP/skill indexing)"
 install_file "$NELSON_DIR/mcp-skill-docs-extractor.cjs" "$GITHUB_RAW/memory-system/mcp-skill-docs-extractor.cjs" "mcp-skill-docs-extractor.cjs (token optimizer)"
 
+# v5.0: Download new memory system scripts
+install_file "$NELSON_DIR/obsidian-bridge.cjs" "$GITHUB_RAW/memory-system/obsidian-bridge.cjs" "obsidian-bridge.cjs (v5: Obsidian vault bridge)"
+install_file "$NELSON_DIR/consolidate.cjs" "$GITHUB_RAW/memory-system/consolidate.cjs" "consolidate.cjs (v5: GEPA-inspired memory consolidation)"
+install_file "$NELSON_DIR/context-optimizer.cjs" "$GITHUB_RAW/memory-system/context-optimizer.cjs" "context-optimizer.cjs (context window optimizer)"
+
 # Step 4: Create template files if they don't exist
 echo ""
 echo -e "${BLUE}[4/9]${NC} Creating template files..."
@@ -149,10 +154,11 @@ I am Nelson Muntz - a memory-augmented AI development assistant. I remember what
 ## My Core Principles
 
 1. **Memory First** - I load context before starting work
-2. **Think Before Acting** - ULTRATHINK: Standard → Deep → Adversarial → Meta
+2. **Think Before Acting** - 5-Level ULTRATHINK: Standard → Deep → Adversarial → Meta → Compound
 3. **Single Task Focus** - One thing at a time, done right
-4. **Self-Assessment** - I verify before claiming completion
-5. **Learn & Remember** - Successes and failures get documented
+4. **Three-Stage Validation** - Spec + quality + adversarial red-team review
+5. **Compound Learning** - Each iteration makes the next easier
+6. **Drift Awareness** - Detect degradation, circuit break before failure
 
 ## My Personality
 
@@ -160,17 +166,19 @@ I am Nelson Muntz - a memory-augmented AI development assistant. I remember what
 - Results-oriented
 - Celebrates victories with "HA-HA!"
 - Learns from mistakes (doesn't repeat them)
+- Compounds knowledge across iterations
 
-## The v4.0 Oath
+## The v5.0 Oath
 
 ```
-I will LOAD memory before starting work.
-I will THINK before executing.
-I will ASSESS before claiming completion.
-I will WRITE insights before they're lost.
-I will LEARN from both successes and failures.
+I will SCAFFOLD before executing.
+I will LOAD context progressively, not greedily.
+I will THINK five levels deep before every action.
+I will VALIDATE three ways before claiming completion.
+I will COMPOUND — each iteration makes the next easier.
+I will DETECT drift before it causes failure.
 
-Context is perishable. Memory is forever.
+The harness is the hard part. The agent follows.
 ```
 SOUL_EOF
     echo -e "   ${GREEN}✓${NC} NELSON_SOUL.md created"
@@ -367,14 +375,14 @@ if [ ! -f "$TODAY_LOG" ]; then
 
 ## Tasks Completed
 
-- [x] Nelson Protocol v4.0 installed
+- [x] Nelson Protocol v5.0 installed
 - [x] Memory system initialized
 
 ---
 
 ## Key Decisions Made
 
-1. **Installed Nelson v4.0** - Memory-augmented development enabled
+1. **Installed Nelson v5.0** - Harness-engineered development enabled
 
 ---
 
@@ -554,7 +562,7 @@ node .nelson/mcp-skill-docs-extractor.cjs retrieve "stripe payment"
 
 ---
 
-*Nelson Protocol v4.0 - Memory system installed. See `.nelson/` for full documentation.*
+*Nelson Protocol v5.0 - Harness-engineered development. See `.nelson/` for full documentation.*
 CLAUDE_NELSON_EOF
         echo -e "   ${GREEN}✓${NC} Nelson section added to CLAUDE.md"
     fi
@@ -617,7 +625,7 @@ node .nelson/mcp-skill-docs-extractor.cjs retrieve "stripe payment"
 
 ---
 
-*Nelson Protocol v4.0 - Memory system installed. See `.nelson/` for full documentation.*
+*Nelson Protocol v5.0 - Harness-engineered development. See `.nelson/` for full documentation.*
 CLAUDE_NEW_EOF
     echo -e "   ${GREEN}✓${NC} CLAUDE.md created with Nelson section"
 fi
@@ -630,7 +638,7 @@ echo -e "${GREEN}╚════════════════════
 echo ""
 echo "Directory structure:"
 echo "  $NELSON_DIR/"
-echo "  ├── NELSON_SOUL.md                 # Agent identity"
+echo "  ├── NELSON_SOUL.md                 # Agent identity (v5 oath)"
 echo "  ├── MEMORY.md                      # Long-term knowledge (customize!)"
 echo "  ├── context-loader.md              # Auto-retrieval instructions"
 echo "  ├── memory.db                      # Vector database"
@@ -638,7 +646,9 @@ echo "  ├── init-db.cjs                    # Database initialization"
 echo "  ├── search.cjs                     # Smart search v3.0"
 echo "  ├── capture.cjs                    # Session capture"
 echo "  ├── tools-indexer.cjs              # MCP/skill discovery"
-echo "  ├── mcp-skill-docs-extractor.cjs   # Token optimizer (~5k savings!)"
+echo "  ├── mcp-skill-docs-extractor.cjs   # Token optimizer"
+echo "  ├── obsidian-bridge.cjs            # v5: Obsidian vault bridge"
+echo "  ├── consolidate.cjs               # v5: Memory consolidation"
 echo "  ├── memory/"
 echo "  │   └── $TODAY.md                  # Today's log"
 echo "  └── patterns/"
@@ -647,18 +657,24 @@ echo "      └── failures.md                # What to avoid"
 echo ""
 echo "Quick commands:"
 echo -e "  ${GREEN}Search memory:${NC}    node .nelson/search.cjs \"keyword\""
-echo -e "  ${GREEN}Search section:${NC}   node .nelson/search.cjs --header \"Security\""
 echo -e "  ${GREEN}Task context:${NC}     node .nelson/search.cjs --context \"fix the bug\""
 echo -e "  ${GREEN}Tool recommend:${NC}   node .nelson/tools-indexer.cjs recommend \"task\""
-echo -e "  ${GREEN}Get tool docs:${NC}    node .nelson/mcp-skill-docs-extractor.cjs retrieve \"stripe\""
-echo -e "  ${GREEN}List sessions:${NC}    node .nelson/search.cjs --list-sessions"
+echo -e "  ${GREEN}Consolidate:${NC}      node .nelson/consolidate.cjs --stats"
+echo -e "  ${GREEN}Obsidian status:${NC}  node .nelson/obsidian-bridge.cjs status"
 echo -e "  ${GREEN}Re-index:${NC}         node .nelson/init-db.cjs"
-echo -e "  ${GREEN}Sync tools:${NC}       node .nelson/tools-indexer.cjs sync"
+echo ""
+echo "v5.0 features (activate via plugin):"
+echo -e "  ${GREEN}Tiered loading:${NC}   L0/L1/L2 progressive context (~87% token savings)"
+echo -e "  ${GREEN}Drift detection:${NC}  Score 0-10, circuit breaker at 7+"
+echo -e "  ${GREEN}Compound learn:${NC}   Each iteration makes the next easier"
+echo -e "  ${GREEN}3-stage validate:${NC} Spec + quality + adversarial red-team"
+echo -e "  ${GREEN}Multi-agent:${NC}      Planner-Worker-Judge-Scout pattern"
 echo ""
 echo "Next steps:"
 echo "  1. Edit .nelson/MEMORY.md with your project knowledge"
 echo "  2. Test search: node .nelson/search.cjs \"test\""
-echo "  3. Start working - memory loads automatically!"
+echo "  3. Install plugin: git clone to ~/.claude/plugins/"
+echo "  4. Start working: /nelson:ha-ha \"your task\" --max-iterations 20"
 echo ""
-echo -e "${YELLOW}\"Others try. We triumph. HA-HA!\"${NC} 🥊"
+echo -e "${YELLOW}\"The agent isn't the hard part. The harness is. HA-HA!\"${NC} 🥊"
 echo ""

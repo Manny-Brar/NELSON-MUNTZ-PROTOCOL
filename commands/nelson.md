@@ -1,10 +1,10 @@
 ---
-description: "Start Nelson Muntz peak performance development loop"
-argument-hint: "PROMPT [--max-iterations N] [--completion-promise TEXT]"
+description: "Start Nelson Muntz harness-engineered development loop (v5.0)"
+argument-hint: "PROMPT [--max-iterations N] [--completion-promise TEXT] [--parallel]"
 allowed-tools: ["Bash(${CLAUDE_PLUGIN_ROOT}/scripts/setup-nelson-loop.sh:*)"]
 ---
 
-# Nelson Muntz - Peak Performance Development Loop
+# Nelson Muntz - Harness-Engineered Development Loop (v5.0)
 
 Execute the Nelson Muntz loop:
 
@@ -14,15 +14,18 @@ Execute the Nelson Muntz loop:
 
 ## What is Nelson Muntz?
 
-Nelson Muntz is the evolved successor to Ralph Wiggum - a peak performance AI development loop with:
+Nelson Muntz is a harness-engineered AI development loop — the agent isn't the hard part, the harness is:
 
-- **Fresh Context Every Iteration** - No context rot, 200k clean tokens per session
-- **Ultrathink Integration** - Extended reasoning before every action
-- **Two-Stage Validation** - Spec compliance + quality checks
-- **3-Fix Rule** - Auto-escalate after 3 failed attempts
-- **Git Checkpointing** - Automatic commits on feature completion
-- **Single-Feature Focus** - ONE feature per iteration, enforced
-- **Clean State Gate** - Cannot exit with broken code
+- **Fresh Context Every Iteration** — No context rot, 200k clean tokens per session
+- **Ultrathink Integration** — Extended reasoning before every action
+- **Two-Stage Validation** — Spec compliance + quality checks (3-stage in HA-HA mode)
+- **3-Fix Rule** — Auto-escalate after 3 failed attempts
+- **Git Checkpointing** — Automatic commits on feature completion
+- **Single-Feature Focus** — ONE feature per iteration, enforced
+- **Clean State Gate** — Cannot exit with broken code
+- **Drift Detection** (v5.0) — Active monitoring with circuit breaker at score >= 7
+- **Compound Learning** (v5.0) — Each iteration makes the next easier
+- **Tiered Context Loading** (v5.0) — L0/L1/L2 progressive disclosure, ~80% token savings
 
 ## Usage
 
@@ -37,69 +40,72 @@ Nelson Muntz is the evolved successor to Ralph Wiggum - a peak performance AI de
 
 # With bracket-delimited task list
 /nelson-muntz:nelson "( task1, task2, task3 )" --max-iterations 10
+
+# For peak performance, use HA-HA mode instead:
+/nelson:ha-ha "Complex task" --max-iterations 30
 ```
 
 ## Options
 
-| Option | Description |
-|--------|-------------|
-| `--max-iterations N` | Stop after N iterations (default: unlimited) |
-| `--completion-promise TXT` | Text that signals completion |
-| `--model MODEL` | Claude model (default: opus) |
-| `--delay N` | Seconds between iterations (default: 3) |
-| `--background` | Run in background |
+| Option | Description | Default |
+|--------|-------------|---------|
+| `--max-iterations N` | Stop after N iterations | 16 (max: 36) |
+| `--completion-promise TXT` | Text that signals completion | none |
+| `--model MODEL` | Claude model | opus |
+| `--delay N` | Seconds between iterations | 3 |
+| `--background` | Run in background | false |
+| `--ha-ha` | Enable HA-HA Mode (all v5 enhancements) | false |
+| `--parallel` | Enable worktree-isolated parallel agents (v5.0) | false |
 
 ## State Files
 
 ```
-.claude/ralph-v3/
-├── config.json         # Loop configuration
-├── features.json       # Feature list with status
-├── scratchpad.md       # Debug notes (persistent)
-├── progress.md         # Iteration log (append-only)
-├── handoff.md          # Context for next iteration
-└── validation/
-    ├── spec-check.json     # Requirements tracking
-    └── quality-check.json  # Quality metrics
+.claude/
+├── nelson-loop.local.md          # Loop state (YAML frontmatter + prompt)
+├── nelson-handoff.local.md       # Iteration handoff
+├── nelson-scratchpad.local.md    # Persistent notes
+├── nelson-verification.local.md  # Validation results
+├── nelson-edit-tracker.local.json # v5.0: Edit tracking for drift scoring
+└── nelson-debug.log              # Debug log
 ```
 
 ## Monitoring
 
 ```bash
-# Watch live log
-tail -f .claude/nelson-muntz.log
-
-# Check status
+# Check status (includes drift score in v5)
 /nelson-muntz:nelson-status
 
 # Stop loop
 /nelson-muntz:nelson-stop
 
-# Check features
-cat .claude/ralph-v3/features.json | jq '.summary'
+# Watch debug log
+tail -f .claude/nelson-debug.log
 ```
 
 ## How It Works
 
 1. **Iteration 1 (Initializer)**
+   - Boot sequence: tiered context loading (v5.0)
    - Sets up project scaffolding
    - Decomposes task into features
-   - Creates init.sh for subsequent iterations
    - Writes handoff for iteration 2
 
 2. **Iteration 2+ (Executor)**
    - Reads handoff from previous iteration
    - Selects highest-priority feature
    - Implements single feature
-   - Validates with two-stage check
+   - Validates with two-stage check (three-stage in HA-HA)
    - Creates git checkpoint on success
+   - Compound learning: extracts patterns (v5.0)
+   - Drift check: circuit breaker if score >= 7 (v5.0)
    - Writes handoff for next iteration
 
 3. **Completion**
    - When all features pass OR completion promise detected
+   - Verification challenge (must pass quality gates)
    - Final status report
    - HA-HA!
 
 ## HA-HA!
 
-Nelson Muntz is named after the bully from The Simpsons who famously says "HA-HA!" when something fails. In this context, the HA-HA comes when we successfully complete - because we've conquered the problem!
+Nelson Muntz is named after the bully from The Simpsons who famously says "HA-HA!" when something fails. In this context, the HA-HA comes when we successfully complete — because we've conquered the problem!

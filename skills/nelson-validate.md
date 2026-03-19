@@ -1,12 +1,13 @@
 ---
 name: nelson-validate
-description: "Two-stage validation protocol for Nelson Muntz iterations"
+description: "Three-stage validation protocol for Nelson Muntz v5.0 iterations — spec compliance, quality assurance, and adversarial red-team review with compound learning extraction"
+version: 5.0.0
 ---
 
-# Nelson Validate - Two-Stage Validation Protocol
+# Nelson Validate — Three-Stage Validation Protocol (v5.0)
 
 ## Purpose
-Execute structured validation to ensure feature completeness and code quality before marking a feature as complete.
+Execute structured three-stage validation to ensure feature completeness, code quality, and adversarial resilience before marking a feature as complete. Extract compound learning after validation.
 
 ---
 
@@ -88,14 +89,14 @@ npm run build
 - Success/failure
 - Any build warnings
 
-### Step 5: Create Verification File (v3.3.1)
+### Step 5: Create Verification File (v5.0)
 Create `.claude/nelson-verification.local.md`:
 ```markdown
 ## Tests
-[Actual test output - must show pass/fail counts]
+[Actual test output — must show pass/fail counts]
 
 ## Build
-[Build result - must contain success/pass/complete]
+[Build result — must contain success/pass/complete]
 
 ## Edge Cases
 1. [Edge case 1 handled]
@@ -103,44 +104,115 @@ Create `.claude/nelson-verification.local.md`:
 3. [Edge case 3 handled]
 
 ## Self-Review
-[Weaknesses, technical debt, TODOs, criticism]
+- Weakest part: [honest assessment]
+- Potential criticism: [what would be flagged]
+- Tech debt: [any introduced, or 'None']
+- TODOs remaining: [count, or 'None']
+
+## Red-Team Review (v5.0)
+1. [Attack vector tested]: [result and how handled]
+2. [Assumption challenged]: [still valid or invalidated]
+3. [Hostile reviewer finding]: [addressed or accepted risk]
+
+## Compound Learning (v5.0)
+- Pattern extracted: [name, or 'None']
+- Anti-pattern found: [name, or 'None']
+- Insight for next iteration: [what makes next work easier]
 
 ## Git Status
-[Current git status]
+[Current git status — uncommitted should be 0]
 ```
 
-**Note:** The stop hook validates content quality. Weak sections get REJECTED.
+**Note:** The v5.0 stop hook validates content quality. Weak sections get REJECTED. Red-Team and Compound Learning sections are checked when present.
 
 ### Stage 2 Gate
-- **All checks pass** → Feature COMPLETE
+- **All checks pass** → Proceed to Stage 3
 - **Any check fails** → STOP, fix issues first
+
+---
+
+## STAGE 3: ADVERSARIAL RED-TEAM REVIEW (v5.0)
+
+Only run after Stage 2 passes. Think like an attacker, a hostile code reviewer, and a pessimistic QA engineer.
+
+### Step 1: Input Adversarial Testing
+```
+For each user-facing input in this feature:
+  □ What happens with empty/null/undefined input?
+  □ What happens with extremely long input?
+  □ What happens with special characters / injection attempts?
+  □ What happens with unexpected types?
+```
+
+### Step 2: Error Cascade Analysis
+```
+For each external dependency (API, database, file system):
+  □ What happens if it's unavailable?
+  □ What happens if it responds slowly (timeout)?
+  □ What happens if it returns unexpected data?
+  □ Does error handling prevent cascading failure?
+```
+
+### Step 3: Security Spot-Check
+```
+□ Are secrets hardcoded anywhere? (check for passwords, API keys, tokens)
+□ Is user input sanitized before database queries?
+□ Are authentication/authorization checks in place?
+□ Is sensitive data logged or exposed in errors?
+```
+
+### Step 4: Assumption Challenge
+```
+□ What ordering assumptions did I make? (Could things happen out of order?)
+□ What state assumptions did I make? (Could state be different than expected?)
+□ What concurrency assumptions did I make? (Could parallel requests conflict?)
+```
+
+### Step 5: Document Red-Team Findings
+
+For each finding, classify severity:
+- **CRITICAL** — Must fix before merge (security, data loss)
+- **HIGH** — Should fix (logic errors, missing error handling)
+- **MEDIUM** — Consider fixing (edge cases, code quality)
+- **LOW** — Nice to have (style, optimization)
+
+### Stage 3 Gate
+- **No CRITICAL findings** → Feature validated
+- **Any CRITICAL finding** → STOP, fix before proceeding
+- **HIGH/MEDIUM/LOW findings** → Document, decide per-item whether to fix now or accept
 
 ---
 
 ## VALIDATION DECISION MATRIX
 
-| Stage 1 (Spec) | Stage 2 (Quality) | Result |
-|----------------|-------------------|--------|
-| PASS | PASS | Feature COMPLETE - Git checkpoint |
-| PASS | FAIL | Fix quality issues, re-validate |
-| FAIL | - | Implement missing requirements |
+| Stage 1 (Spec) | Stage 2 (Quality) | Stage 3 (Red-Team) | Result |
+|----------------|-------------------|-------------------|--------|
+| PASS | PASS | PASS (no CRITICAL) | Feature COMPLETE — git checkpoint + compound learning |
+| PASS | PASS | FAIL (CRITICAL) | Fix critical findings, re-validate Stage 3 |
+| PASS | FAIL | — | Fix quality issues, re-validate from Stage 2 |
+| FAIL | — | — | Implement missing requirements, re-validate from Stage 1 |
 
 ---
 
 ## POST-VALIDATION ACTIONS
 
-### If BOTH Stages Pass:
+### If ALL THREE Stages Pass:
 1. Update features.json: `"passes": true, "status": "complete"`
-2. Git checkpoint: `git commit -m "feat(F[N]): [description] - Nelson iter [X]"`
-3. Update config.json stats
-4. Write handoff for next iteration
+2. Update features.json v5 fields: `validation_stages`, `red_team_findings`, `drift_score_at_completion`
+3. Git checkpoint: `git commit -m "feat(F[N]): [description] - Nelson v5.0 iter [X]"`
+4. **Compound learning extraction** (MANDATORY in v5.0):
+   - Extract at least ONE pattern or anti-pattern
+   - Document in handoff compound learning section
+   - Add to `patterns/successes.md` or `patterns/failures.md` if reusable
+   - Update `MEMORY.md` if insight is durable (lasts 10+ sessions)
+5. Write handoff for next iteration (include compound transfer)
 
 ### If ANY Stage Fails:
 1. Document what failed in nelson-scratchpad.local.md
 2. Increment attempts counter
 3. Check 3-fix rule (5 in HA-HA mode)
-4. If under limit: Fix and re-validate
-5. If at limit: Mark feature as "blocked"
+4. If under limit: Fix and re-validate (from the failing stage, not from scratch)
+5. If at limit: Mark feature as "blocked" with detailed blocker documentation
 
 ---
 
@@ -175,18 +247,29 @@ Create `.claude/nelson-verification.local.md`:
     [ ] Build succeeds
     [ ] Stage 2 passes
 
-[ ] Verification Challenge (v3.3.1)
+[ ] Stage 3: Red-Team Review (v5.0)
+    [ ] Input adversarial testing done
+    [ ] Error cascade analysis done
+    [ ] Security spot-check done
+    [ ] Assumptions challenged
+    [ ] No CRITICAL findings
+    [ ] Stage 3 passes
+
+[ ] Verification File (v5.0)
     [ ] nelson-verification.local.md created
     [ ] Tests section has real output
     [ ] Build section confirms success
     [ ] 3+ edge cases listed
     [ ] Self-review includes weaknesses/debt
+    [ ] Red-Team section has 2+ findings
+    [ ] Compound Learning section filled
 
 [ ] Post-Validation
     [ ] Git commit created
-    [ ] Handoff updated
+    [ ] Compound learning extracted (pattern or anti-pattern)
+    [ ] Handoff updated with compound transfer
 ```
 
 ---
 
-*Run this validation protocol before claiming any feature is complete.*
+*Run this three-stage validation protocol before claiming any feature is complete. HA-HA!*

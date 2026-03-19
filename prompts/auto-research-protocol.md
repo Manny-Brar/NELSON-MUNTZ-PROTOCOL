@@ -1,10 +1,58 @@
-# Nelson Muntz - Auto-Research Protocol
+# Nelson Muntz v5.0 — Auto-Research Protocol
 
 ## Purpose
 
-When Nelson encounters obstacles, errors, or knowledge gaps, this protocol automatically triggers research to find solutions rather than blindly retrying failed approaches.
+When Nelson encounters obstacles, errors, or knowledge gaps, this protocol automatically triggers tiered research to find solutions rather than blindly retrying failed approaches.
 
 **Principle:** "Research before retry. Intelligence over persistence."
+
+**v5.0 Enhancement:** Research now follows tiered loading (L1 local → L2 web), integrates with the Nelson Scout subagent for parallel research, and extracts compound learning from every research session.
+
+---
+
+## TIERED RESEARCH (v5.0)
+
+Before doing broad web searches, follow the research tier hierarchy:
+
+```
+TIER 1 — LOCAL SKILLS (fastest, highest quality)
+  Check .claude/skills/ and plugin skills/ for relevant skill files
+  These contain pre-researched, synthesized best practices
+  ↓ (if skill doesn't cover it)
+
+TIER 2 — MEMORY SEARCH (fast, project-specific)
+  Search .nelson/MEMORY.md for prior research on this topic
+  Search .nelson/patterns/ for related success/failure patterns
+  Check handoff/scratchpad for recent context
+  ↓ (if memory doesn't cover it)
+
+TIER 3 — WEB RESEARCH (slower, broadest)
+  Execute targeted web searches (3-10 queries)
+  Prefer official docs over blogs
+  Prefer 2025-2026 sources
+  ↓ (results)
+
+TIER 4 — COMPOUND CAPTURE (always)
+  Document findings in scratchpad
+  Extract reusable insight for future iterations
+  Update MEMORY.md if durable
+```
+
+### Scout Subagent Delegation (v5.0)
+
+For research-heavy tasks in HA-HA mode, delegate to the Nelson Scout:
+
+```
+When to use Scout:
+  - 3+ searches needed on unfamiliar topic
+  - Multiple competing approaches to evaluate
+  - Need to read external documentation
+
+How to invoke:
+  Use Agent tool with subagent_type="nelson-scout"
+  Scout runs on Haiku (fast, cost-efficient)
+  Returns structured report with sources and confidence levels
+```
 
 ---
 
@@ -113,7 +161,7 @@ Auto-research activates when ANY of these occur:
 **Search Sequence:**
 ```
 1. WebSearch: "how to [task] [technology] tutorial"
-2. WebSearch: "[task] [technology] best practices 2025"
+2. WebSearch: "[task] [technology] best practices 2026"
 3. WebSearch: "[task] [technology] example code"
 4. WebFetch: [official documentation URL if known]
 5. WebSearch: "[task] [technology] guide"
@@ -159,7 +207,7 @@ Auto-research activates when ANY of these occur:
 2. WebSearch: "[option A] pros cons"
 3. WebSearch: "[option B] pros cons"
 4. WebSearch: "when to use [option A] vs [option B]"
-5. WebSearch: "[option A] [option B] comparison 2025"
+5. WebSearch: "[option A] [option B] comparison 2026"
 ```
 
 **Parse Results For:**
@@ -237,7 +285,7 @@ Auto-research activates when ANY of these occur:
 # Start broad, get specific
 1. WebSearch: "[feature type] implementation guide [technology]"
 2. WebSearch: "[feature type] architecture patterns"
-3. WebSearch: "[feature type] [technology] tutorial 2025"
+3. WebSearch: "[feature type] [technology] tutorial 2026"
 4. WebSearch: "[feature type] common mistakes"
 5. WebSearch: "[feature type] [technology] github example"
 
@@ -288,7 +336,7 @@ Auto-research activates when ANY of these occur:
 2. WebSearch: "[dependency] replacement [technology]"
 3. WebSearch: "[what dependency does] without [dependency]"
 4. WebSearch: "[dependency] workaround"
-5. WebSearch: "best [type of tool] [technology] 2025"
+5. WebSearch: "best [type of tool] [technology] 2026"
 ```
 
 **Parse Results For:**
@@ -333,7 +381,7 @@ Auto-research activates when ANY of these occur:
 1. WebSearch: "[technology] performance optimization"
 2. WebSearch: "[specific operation] slow [technology]"
 3. WebSearch: "[technology] profiling guide"
-4. WebSearch: "[technology] performance best practices 2025"
+4. WebSearch: "[technology] performance best practices 2026"
 5. WebSearch: "[operation] optimization techniques"
 ```
 
@@ -423,9 +471,11 @@ Before concluding research, verify:
 - [ ] Found at least 2 sources confirming solution
 - [ ] Understand WHY solution works (not just WHAT to do)
 - [ ] Solution is compatible with our tech stack
-- [ ] Solution is recent (2024-2025 preferred)
+- [ ] Solution is recent (2025-2026 preferred)
 - [ ] Documented findings in scratchpad.md
 - [ ] Identified how to prevent this issue in future
+- [ ] **v5.0:** Extracted compound learning (pattern or insight for future iterations)
+- [ ] **v5.0:** Updated MEMORY.md if research found a durable insight
 
 ---
 
@@ -480,4 +530,29 @@ Step 6: Add to pattern library for future reference
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-**Remember:** The smartest approach isn't trying harder - it's learning faster.
+---
+
+## COMPOUND LEARNING FROM RESEARCH (v5.0)
+
+Every research session should produce reusable knowledge:
+
+```markdown
+## Research Compound: [Topic]
+
+**Problem Type:** [error/knowledge/design/dependency/complexity]
+**Research Effort:** [N searches, M minutes]
+
+**Reusable Insight:**
+[One sentence that helps future iterations avoid this research]
+
+**Pattern for Library:**
+[If this is a generalizable pattern, document it for patterns/successes.md]
+
+**Update MEMORY.md?** [Yes — if insight lasts 10+ sessions / No — if one-time]
+```
+
+**The research that teaches is worth more than the research that solves.**
+
+---
+
+**Remember:** The smartest approach isn't trying harder — it's learning faster. And the smartest learning is compounding.

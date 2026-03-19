@@ -1,8 +1,8 @@
 {
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
   "name": "nelson-muntz-marketplace",
-  "version": "1.0.0",
-  "description": "Nelson Muntz Protocol - Peak performance AI development loops with fresh context",
+  "version": "2.0.0",
+  "description": "Nelson Muntz Protocol - Harness-engineered AI development loops with drift detection, compound learning, and multi-agent orchestration",
   "owner": {
     "name": "Manny Brar",
     "email": "dev@projectaurora.ai"
@@ -10,14 +10,23 @@
   "plugins": [
     {
       "name": "nelson-muntz",
-      "description": "Peak performance AI development loops with AGGRESSIVE validation. v3.10.0: Fixed empty prompt array handling. HA-HA!",
-      "version": "3.10.0",
+      "description": "Harness-engineered AI development loops with Phase-Gate Execution Engine, three-stage validation, compound learning, drift detection, and Planner-Worker-Judge-Scout multi-agent. v5.1.0: Phase-gate mandatory execution cycle, tiered L0/L1/L2 context loading, GEPA-inspired self-evolving evaluation, Obsidian graph memory bridge. HA-HA!",
+      "version": "5.1.0",
       "author": {
         "name": "Manny Brar",
         "email": "dev@projectaurora.ai"
       },
       "source": ".",
-      "category": "development"
+      "category": "development",
+      "keywords": [
+        "agent-harness",
+        "development-loop",
+        "drift-detection",
+        "compound-learning",
+        "multi-agent",
+        "ultrathink",
+        "validation"
+      ]
     }
   ]
 }

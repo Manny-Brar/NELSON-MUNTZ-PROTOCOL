@@ -1,13 +1,15 @@
 {
   "name": "nelson-muntz",
-  "version": "4.0.0",
-  "description": "Memory-augmented AI development protocol with persistent memory system, ULTRATHINK planning, session-level retrieval, and critical self-assessment. The evolved successor to Ralph Wiggum with long-term memory. HA-HA!",
+  "version": "5.1.0",
+  "description": "Harness-engineered AI development protocol with Phase-Gate Execution Engine, tiered L0/L1/L2 context loading, 5-level ULTRATHINK, three-stage validation (spec + quality + adversarial red-team), compound learning engine, drift detection with circuit breakers, Planner-Worker-Judge-Scout multi-agent orchestration, Obsidian graph memory integration, GWS workspace orchestration, and GEPA-inspired self-evolving evaluation. The evolved successor to Ralph Wiggum. HA-HA!",
   "author": {
     "name": "Manny Brar",
     "email": "dev@projectaurora.ai"
   },
   "keywords": [
     "agent-loop",
+    "agent-harness",
+    "harness-engineering",
     "memory-system",
     "ultrathink",
     "peak-performance",
@@ -15,8 +17,17 @@
     "automation",
     "vector-database",
     "session-management",
-    "long-running-agents"
+    "long-running-agents",
+    "drift-detection",
+    "compound-learning",
+    "multi-agent",
+    "self-evolving",
+    "tiered-context",
+    "red-team-review",
+    "obsidian-integration",
+    "eval-assertions"
   ],
   "license": "MIT",
-  "repository": "https://github.com/Manny-Brar/NELSON-MUNTZ-PROTOCOL"
+  "repository": "https://github.com/Manny-Brar/NELSON-MUNTZ-PROTOCOL",
+  "homepage": "https://github.com/Manny-Brar/NELSON-MUNTZ-PROTOCOL#readme"
 }

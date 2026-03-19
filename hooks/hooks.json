@@ -1,5 +1,5 @@
 {
-  "description": "Nelson Muntz plugin hooks for in-session self-referential loops",
+  "description": "Nelson Muntz v5.0 plugin hooks — loop enforcement, drift detection, quality gates, and compound learning",
   "hooks": {
     "Stop": [
       {
@@ -10,11 +10,29 @@
           }
         ]
       }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/post-edit-hook.sh"
+          }
+        ]
+      }
     ]
   },
   "notes": {
-    "architecture": "Nelson Muntz now uses in-session stop hooks (like Ralph Wiggum v2) instead of external bash loops. This enables proper looping in VS Code and other Claude Code environments.",
+    "architecture": "Nelson Muntz v5.0 uses a multi-hook harness architecture. Stop hook drives the iteration loop. PostToolUse hooks enforce incremental validation after file edits. All hooks are backwards-compatible with v4 state files.",
     "state_file": ".claude/nelson-loop.local.md - YAML frontmatter with prompt content",
-    "completion": "Loop stops when: max_iterations reached, <promise>PHRASE</promise> detected, or <nelson-complete>ALL_FEATURES_COMPLETE</nelson-complete> output"
+    "completion": "Loop stops when: max_iterations reached, <promise>PHRASE</promise> detected, or <nelson-complete>ALL_FEATURES_COMPLETE</nelson-complete> output",
+    "v5_enhancements": {
+      "drift_detection": "Stop hook calculates drift score from iteration metrics and triggers circuit breaker when score >= 7",
+      "compound_learning": "Verification challenge now requires compound learning artifact (pattern or anti-pattern documented)",
+      "three_stage_validation": "Stage 3 red-team review added to verification challenge",
+      "post_edit_validation": "PostToolUse hook tracks edit count for drift scoring and optionally runs incremental lint/type checks",
+      "hook_events_used": ["Stop", "PostToolUse"]
+    }
   }
 }

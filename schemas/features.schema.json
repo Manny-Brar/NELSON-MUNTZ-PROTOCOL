@@ -1,15 +1,15 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://ralph-wiggum.claude.dev/schemas/features.schema.json",
-  "title": "Ralph v3.0 Features Schema",
-  "description": "Schema for structured feature tracking in Ralph v3.0 loops. JSON format chosen because models are less likely to corrupt JSON compared to Markdown.",
+  "$id": "https://nelson-muntz.claude.dev/schemas/features.schema.json",
+  "title": "Nelson Muntz v5.0 Features Schema",
+  "description": "Schema for structured feature tracking in Nelson Muntz v5.0 loops. JSON format chosen because models are less likely to corrupt JSON compared to Markdown. Backwards-compatible with v3.0.0 — all v5 fields are optional with defaults.",
   "type": "object",
   "required": ["version", "features", "summary"],
   "properties": {
     "version": {
       "type": "string",
-      "const": "3.0.0",
-      "description": "Schema version for compatibility checking"
+      "enum": ["3.0.0", "5.0.0"],
+      "description": "Schema version for compatibility checking. v5.0.0 adds compound learning, drift scoring, and red-team fields."
     },
     "created_at": {
       "type": "string",
@@ -101,6 +101,87 @@
           "notes": {
             "type": "string",
             "description": "Additional notes about implementation"
+          },
+          "compound_value": {
+            "type": "string",
+            "default": "",
+            "description": "v5.0: What reusable pattern or institutional knowledge this feature creates. Guides compound learning extraction."
+          },
+          "skills_required": {
+            "type": "array",
+            "items": {"type": "string"},
+            "default": [],
+            "description": "v5.0: Skill files that executor should read before implementing (e.g., 'nelson-wall-breaker.md')"
+          },
+          "red_team_findings": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "attack_vector": {
+                  "type": "string",
+                  "description": "What was tested (e.g., 'SQL injection on search input')"
+                },
+                "result": {
+                  "type": "string",
+                  "enum": ["safe", "vulnerable", "mitigated", "accepted_risk"],
+                  "description": "Outcome of the red-team test"
+                },
+                "notes": {
+                  "type": "string",
+                  "description": "Details about the finding"
+                }
+              }
+            },
+            "default": [],
+            "description": "v5.0: Adversarial red-team review findings from Stage 3 validation"
+          },
+          "drift_score_at_completion": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 10,
+            "description": "v5.0: Drift score (0-10) when this feature was completed. Useful for trend analysis."
+          },
+          "pattern_extracted": {
+            "type": "string",
+            "default": "",
+            "description": "v5.0: Name of success pattern extracted after completing this feature"
+          },
+          "anti_pattern_found": {
+            "type": "string",
+            "default": "",
+            "description": "v5.0: Name of anti-pattern discovered during implementation"
+          },
+          "asi_notes": {
+            "type": "string",
+            "default": "",
+            "description": "v5.0: Actionable Side Information — diagnostic insight explaining WHY success/failure occurred (GEPA-inspired)"
+          },
+          "iteration_completed": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "v5.0: Which iteration number completed this feature"
+          },
+          "validation_stages": {
+            "type": "object",
+            "description": "v5.0: Three-stage validation results",
+            "properties": {
+              "spec_compliance": {
+                "type": "boolean",
+                "default": false,
+                "description": "Stage 1: All requirements implemented?"
+              },
+              "quality_assurance": {
+                "type": "boolean",
+                "default": false,
+                "description": "Stage 2: Tests, lint, build, types pass?"
+              },
+              "red_team_review": {
+                "type": "boolean",
+                "default": false,
+                "description": "Stage 3: Adversarial review completed?"
+              }
+            }
           }
         }
       }
@@ -134,6 +215,78 @@
           "type": "integer",
           "minimum": 0,
           "description": "Features not yet started"
+        },
+        "patterns_extracted": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 0,
+          "description": "v5.0: Total success patterns extracted across all features"
+        },
+        "anti_patterns_found": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 0,
+          "description": "v5.0: Total anti-patterns discovered across all features"
+        },
+        "avg_drift_score": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 10,
+          "description": "v5.0: Average drift score across completed features"
+        },
+        "compound_learning_rate": {
+          "type": "string",
+          "enum": ["accelerating", "stable", "decelerating", "unknown"],
+          "default": "unknown",
+          "description": "v5.0: Whether iterations are getting easier (accelerating) or harder (decelerating)"
+        }
+      }
+    },
+    "v5_metrics": {
+      "type": "object",
+      "description": "v5.0: Aggregate metrics for self-evolving evaluation. Optional — only present in v5.0.0 schemas.",
+      "properties": {
+        "total_iterations": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 0,
+          "description": "Total iterations executed"
+        },
+        "total_research_queries": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 0,
+          "description": "Total web searches conducted across all iterations"
+        },
+        "walls_encountered": {
+          "type": "object",
+          "description": "Count of each wall type hit across all iterations",
+          "properties": {
+            "error": {"type": "integer", "default": 0},
+            "knowledge": {"type": "integer", "default": 0},
+            "design": {"type": "integer", "default": 0},
+            "dependency": {"type": "integer", "default": 0},
+            "complexity": {"type": "integer", "default": 0}
+          }
+        },
+        "circuit_breakers_triggered": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 0,
+          "description": "Number of times drift circuit breaker fired"
+        },
+        "skills_refined": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "skill_name": {"type": "string"},
+              "revision": {"type": "string"},
+              "iteration": {"type": "integer"}
+            }
+          },
+          "default": [],
+          "description": "GEPA-inspired skill refinements applied during this loop"
         }
       }
     },
@@ -158,9 +311,9 @@
   },
   "examples": [
     {
-      "version": "3.0.0",
-      "created_at": "2026-01-13T00:00:00Z",
-      "last_updated": "2026-01-13T00:00:00Z",
+      "version": "5.0.0",
+      "created_at": "2026-03-19T00:00:00Z",
+      "last_updated": "2026-03-19T00:00:00Z",
       "original_prompt": "Build a REST API with authentication",
       "features": [
         {
@@ -173,12 +326,36 @@
             "Return JWT token on success"
           ],
           "verification": "npm run test:auth",
-          "passes": false,
-          "status": "pending",
+          "passes": true,
+          "status": "completed",
           "priority": 1,
-          "attempts": 0,
+          "attempts": 1,
           "max_attempts": 3,
-          "blocked_by": []
+          "blocked_by": [],
+          "compound_value": "Establishes auth pattern reusable by F2-F4",
+          "skills_required": ["database-supabase.md"],
+          "red_team_findings": [
+            {
+              "attack_vector": "SQL injection on email field",
+              "result": "safe",
+              "notes": "Parameterized queries via ORM"
+            },
+            {
+              "attack_vector": "Password brute force",
+              "result": "mitigated",
+              "notes": "Rate limiting added"
+            }
+          ],
+          "drift_score_at_completion": 1,
+          "pattern_extracted": "auth-endpoint-pattern",
+          "anti_pattern_found": "",
+          "asi_notes": "Success enabled by reading database-supabase skill first — RLS setup was correct on first attempt",
+          "iteration_completed": 2,
+          "validation_stages": {
+            "spec_compliance": true,
+            "quality_assurance": true,
+            "red_team_review": true
+          }
         },
         {
           "id": "F2",
@@ -195,15 +372,34 @@
           "priority": 2,
           "attempts": 0,
           "max_attempts": 3,
-          "blocked_by": ["F1"]
+          "blocked_by": ["F1"],
+          "compound_value": "Reuses auth-endpoint-pattern from F1",
+          "skills_required": []
         }
       ],
       "summary": {
         "total": 2,
-        "completed": 0,
+        "completed": 1,
         "blocked": 0,
         "in_progress": 0,
-        "pending": 2
+        "pending": 1,
+        "patterns_extracted": 1,
+        "anti_patterns_found": 0,
+        "avg_drift_score": 1.0,
+        "compound_learning_rate": "accelerating"
+      },
+      "v5_metrics": {
+        "total_iterations": 2,
+        "total_research_queries": 6,
+        "walls_encountered": {
+          "error": 0,
+          "knowledge": 1,
+          "design": 0,
+          "dependency": 0,
+          "complexity": 0
+        },
+        "circuit_breakers_triggered": 0,
+        "skills_refined": []
       },
       "completion_criteria": {
         "all_features_pass": false,

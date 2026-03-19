@@ -1,22 +1,28 @@
-# Nelson Protocol v4.0 - Complete Usage Guide
+# Nelson Protocol v5.1 — Complete Usage Guide
 
-> **"Context is perishable. Memory is forever."**
+> **"The agent isn't the hard part. The harness is."**
 
-The Nelson Protocol is a memory-augmented development system that enables AI agents to maintain context across unlimited sessions, learn from past work, and operate with maximum efficiency.
+The Nelson Protocol is a **harness-engineered** development system with a **Phase-Gate Execution Engine** that wraps AI agents with strategic multi-phase decomposition, mandatory 4-gate cycles (Execute → Self-Assess → Test → Document), tiered context loading, drift detection, compound learning, multi-agent orchestration, and self-evolving evaluation — enabling peak performance across unlimited iterations.
 
 ---
 
 ## Table of Contents
 
 1. [Core Concepts](#core-concepts)
-2. [Session Lifecycle](#session-lifecycle)
-3. [Memory System](#memory-system)
-4. [Token Optimization](#token-optimization)
-5. [Tool Discovery](#tool-discovery)
-6. [Best Practices](#best-practices)
-7. [Command Reference](#command-reference)
-8. [Integration with CLAUDE.md](#integration-with-claudemd)
-9. [Troubleshooting](#troubleshooting)
+2. [Phase-Gate Execution Engine](#phase-gate-execution-engine)
+3. [Session Lifecycle](#session-lifecycle)
+4. [Memory System](#memory-system)
+5. [Token Optimization](#token-optimization)
+6. [Drift Detection](#drift-detection)
+7. [Compound Learning](#compound-learning)
+8. [Multi-Agent Orchestration](#multi-agent-orchestration)
+9. [Tool Discovery](#tool-discovery)
+10. [Eval Assertions](#eval-assertions)
+11. [Best Practices](#best-practices)
+12. [Command Reference](#command-reference)
+13. [Migration from v4](#migration-from-v4)
+14. [Integration with CLAUDE.md](#integration-with-claudemd)
+15. [Troubleshooting](#troubleshooting)
 
 ---
 
@@ -38,80 +44,149 @@ AI agents work in discrete sessions with no memory of previous work. This leads 
 4. **Token Optimization** - On-demand retrieval instead of loading everything
 5. **Auto-Indexing** - Git hooks keep memory current
 
-### The Three Pillars
+### The Five Pillars (v5.0)
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                    NELSON PROTOCOL v4.0                      │
+│                    NELSON PROTOCOL v5.0                      │
 ├─────────────────────────────────────────────────────────────┤
 │                                                              │
-│   1. MEMORY          2. WORKFLOW         3. OPTIMIZATION     │
-│   ───────────        ──────────          ─────────────────   │
-│   • MEMORY.md        • session-startup   • Token-optimized   │
-│   • Daily logs       • single-focus      • On-demand docs    │
-│   • Patterns DB      • session-end       • MCP/Skill index   │
-│   • Vector search    • ULTRATHINK        • Compressed CLAUDE │
+│  1. HARNESS           2. MEMORY          3. WORKFLOW         │
+│  ────────────         ───────────        ──────────          │
+│  • Scaffolding        • MEMORY.md        • Tiered boot       │
+│  • Runtime engine     • Daily logs       • 5-level THINK     │
+│  • Drift detection    • Patterns DB      • 3-stage validate  │
+│  • Circuit breaker    • Vector search    • Single-feature    │
+│  • Tool detection     • Obsidian graph   • Compound learn    │
+│                                                              │
+│  4. OPTIMIZATION      5. EVALUATION                          │
+│  ─────────────────    ──────────────                         │
+│  • L0/L1/L2 tiered   • Binary assertions                    │
+│  • On-demand docs     • Execution traces                     │
+│  • Compressed CLAUDE  • GEPA reflection                      │
+│  • ~87% token save    • Skill evolution                      │
 │                                                              │
 └─────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## Session Lifecycle
+## Phase-Gate Execution Engine (v5.1)
 
-### Phase 1: Session Startup (MANDATORY)
+The Phase-Gate Engine is the **master orchestrator** for HA-HA mode. Every request is automatically processed through it.
 
-Every session MUST begin with context retrieval:
+### How It Works
 
-```bash
-# 1. Load mandatory files
-Read: .nelson/NELSON_SOUL.md      # Agent identity
-Read: .nelson/MEMORY.md           # Long-term knowledge
-Read: .nelson/memory/YYYY-MM-DD.md # Today's log
-Read: .nelson/memory/[yesterday].md # Yesterday's log
-
-# 2. Search for task-relevant context
-node .nelson/search.cjs "task keywords"
-
-# 3. Get tool recommendations
-node .nelson/tools-indexer.cjs recommend "task description"
-
-# 4. Check patterns
-Read: .nelson/patterns/successes.md
-Read: .nelson/patterns/failures.md
+```
+1. DECOMPOSE: Break request into strategic multi-phase plan (5-level ULTRATHINK)
+2. SELF-ASSESS: Critically evaluate plan for gaps, risks, enhancements → revise
+3. FOR EACH PHASE:
+   Gate A — EXECUTE: Complete all tasks in the phase
+   Gate B — SELF-ASSESS: Research best practices, identify gaps/improvements, fix them
+   Gate C — TEST: All tests must pass, apply fixes, retest until green
+   Gate D — DOCUMENT: Update ALL affected docs, cross-reference overlapping workflows
+   → Phase gate checkpoint: all 4 gates must pass before advancing
+4. REPEAT until all phases complete
 ```
 
-**Use the `session-startup` skill to automate this.**
+### Strategic Decomposition
 
-### Phase 2: During Work (ULTRATHINK)
+Every request — even simple ones — gets decomposed into phases:
+- **Simple requests:** 1-2 phases (still go through gate cycle)
+- **Medium requests:** 3-4 phases
+- **Complex requests:** 5+ phases with dependency mapping
 
-For each task, follow the ULTRATHINK cycle:
+Each phase gets:
+- Detailed task list with acceptance criteria
+- Success criteria (measurable)
+- Risk assessment with mitigations
+- Documentation impact analysis
+
+### The 4 Gates
+
+| Gate | Purpose | Passes When |
+|------|---------|-------------|
+| A. Execute | Complete the work | All tasks done, acceptance criteria met |
+| B. Self-Assess | Quality check + improve | Gaps identified and fixed, best practices researched |
+| C. Test | Verify correctness | All tests pass, lint clean, build succeeds |
+| D. Document | Update all docs | ALL affected docs updated, cross-references verified |
+
+**Gate B is critical.** It's not a rubber stamp — the agent must genuinely research best practices for the work done, identify gaps, and implement improvements before proceeding to testing.
+
+**Gate D requires documentation awareness.** The agent must identify EVERY document affected by the phase's changes, including docs that reference overlapping workflows, patterns, or data flows.
+
+See `skills/nelson-phase-gate.md` for the complete protocol with templates and checklists.
+
+---
+
+## Session Lifecycle
+
+### Phase 1: Boot Sequence — Tiered Context Loading (MANDATORY)
+
+Every session MUST begin with progressive context loading:
+
+```bash
+# L0 — METADATA (always load, ~300 tokens)
+Read: .claude/nelson-loop.local.md       # Loop state
+Read: .claude/nelson-handoff.local.md    # Previous iteration context
+Read: head -30 .nelson/NELSON_SOUL.md    # Identity core (first section)
+Read: head -40 .nelson/MEMORY.md         # Memory index (first 40 lines)
+
+# L1 — OVERVIEW (selective, ~2000 tokens)
+Read: head -30 .claude/nelson-scratchpad.local.md  # Recent reasoning
+Search: node .nelson/search.cjs "task keywords"     # Task-relevant context
+Read: head -20 .nelson/memory/YYYY-MM-DD.md         # Today's log summary
+
+# L2 — FULL CONTENT (on-demand, loaded at trigger points)
+# Load skill files ONLY when their trigger fires:
+#   Hit an error → Read skills/nelson-wall-breaker.md
+#   Feature done → Read skills/nelson-validate.md
+#   Writing handoff → Read skills/nelson-handoff.md
+#   Working on UI → Read skills/frontend-ui-ux.md
+```
+
+**v5 vs v4:** Token savings of ~87% at startup. v4 loaded ~18,000 tokens upfront; v5 loads ~2,300 tokens via tiered L0/L1/L2.
+
+**If Obsidian MCP available:** Replace L1 keyword search with graph-aware search via `mcp__obsidian__search`.
+
+### Phase 2: During Work (5-Level ULTRATHINK + v5 Harness)
+
+For each task, follow the v5.0 execution cycle:
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                   ULTRATHINK CYCLE                           │
+│                NELSON v5.0 EXECUTION CYCLE                   │
 ├─────────────────────────────────────────────────────────────┤
 │                                                              │
 │  1. RECEIVE TASK                                             │
 │     ↓                                                        │
-│  2. RETRIEVE CONTEXT (from memory DB)                        │
+│  2. RETRIEVE CONTEXT (tiered L0/L1/L2 loading)               │
 │     ↓                                                        │
-│  3. ULTRATHINK PLANNING                                      │
-│     • Level 1: Standard analysis (what needs to be done)     │
-│     • Level 2: Deep analysis (how to implement)              │
+│  3. 5-LEVEL ULTRATHINK PLANNING                              │
+│     • Level 1: Standard (what needs to be done)              │
+│     • Level 2: Deep (edge cases, dependencies)               │
 │     • Level 3: Adversarial (what could go wrong)             │
 │     • Level 4: Meta (is this the best approach)              │
+│     • Level 5: Compound (how does this make NEXT easier)     │
 │     ↓                                                        │
 │  4. EXECUTE (single-feature focus)                           │
 │     ↓                                                        │
-│  5. SELF-ASSESS                                              │
-│     □ Does implementation match the goal?                    │
-│     □ Did I actually test it?                                │
-│     □ Would I bet money on this in production?               │
+│  5. THREE-STAGE VALIDATION                                   │
+│     □ Stage 1: Spec compliance (requirements met?)           │
+│     □ Stage 2: Quality (tests/lint/build/types pass?)        │
+│     □ Stage 3: Red-team review (how would I break this?)     │
 │     ↓                                                        │
-│  6. UPDATE MEMORY (write learnings)                          │
+│  6. COMPOUND LEARNING                                        │
+│     □ Extract pattern or anti-pattern                        │
+│     □ Document in handoff compound section                   │
 │     ↓                                                        │
-│  7. NEXT TASK (or end session)                               │
+│  7. DRIFT CHECK (score 0-10)                                 │
+│     □ Score < 7 → Continue                                   │
+│     □ Score >= 7 → CIRCUIT BREAKER (fresh context)           │
+│     ↓                                                        │
+│  8. UPDATE MEMORY (write learnings to correct tier)          │
+│     ↓                                                        │
+│  9. HANDOFF (with compound learning transfer)                │
 │                                                              │
 └─────────────────────────────────────────────────────────────┘
 ```
@@ -343,6 +418,171 @@ When you add a new MCP or skill:
 
 ---
 
+## Drift Detection
+
+### What is Agent Drift?
+
+Agent drift is the progressive degradation of decision quality, instruction following, and output coherence over extended sessions. Research shows every agent experiences success rate decrease after 35 minutes, and doubling task duration quadruples failure rate.
+
+### Drift Scoring (0-10)
+
+The stop hook calculates drift from:
+- Edit count this iteration (+1 at 20+, +2 at 30+)
+- Unique files touched (+1 at 5+, +2 at 8+)
+- Iteration count (+1 at 5+, +2 at 10+)
+- Session duration (+1 at 35min+, +2 at 60min+)
+
+| Score | Status | Action |
+|-------|--------|--------|
+| 0-2 | HEALTHY | Continue normally |
+| 3-4 | WATCH | Monitor, consider compaction |
+| 5-6 | WARNING | Prepare for fresh context |
+| 7+ | CIRCUIT BREAKER | Auto-triggers recovery prompt |
+
+### Circuit Breaker Protocol
+
+When drift >= 7, the stop hook automatically:
+1. Injects a recovery prompt with behavioral anchors
+2. Resets the edit tracker for fresh metrics
+3. Instructs the agent to re-read handoff from scratch
+4. Prevents inheriting degraded assumptions
+
+**Nelson's core insight: fresh 200k token windows are the primary defense against drift. v5 adds active monitoring to trigger fresh contexts BEFORE drift causes failures.**
+
+See: `skills/nelson-drift-detection.md` for full protocol.
+
+---
+
+## Compound Learning
+
+### The Compound Principle
+
+Traditional development accumulates technical debt — each feature makes the next harder. Compound engineering inverts this by extracting learnings that accelerate future work.
+
+```
+WITHOUT compound: F1 (45 min) → F2 (50 min) → F3 (60 min) ← debt accumulates
+WITH compound:    F1 (45 min) → F2 (35 min) → F3 (20 min) ← knowledge accelerates
+```
+
+### After Each Feature Completion
+
+1. **Extract** pattern or anti-pattern from the work
+2. **Document** in handoff compound learning section
+3. **Classify** as durable (MEMORY.md) or temporal (daily log)
+4. **Consolidate** with existing entries (don't duplicate)
+
+### Compound Artifacts
+
+```markdown
+## Pattern: [Name]
+Context: When [situation]
+Solution: [What worked]
+Evidence: [file:line]
+
+## Anti-Pattern: [Name]
+Trap: [What seems right but isn't]
+Better: [What to do instead]
+```
+
+### Memory Consolidation (every 5 iterations)
+
+```bash
+# Check memory health
+node .nelson/consolidate.cjs --stats
+
+# Find duplicate entries
+node .nelson/consolidate.cjs --find-dupes
+
+# Trim MEMORY.md to 200 lines
+node .nelson/consolidate.cjs --trim
+```
+
+See: `skills/nelson-compound-learning.md` for full protocol.
+
+---
+
+## Multi-Agent Orchestration
+
+### The Planner-Worker-Judge-Scout Pattern
+
+v5.0 introduces 4 specialized subagents for complex tasks:
+
+| Agent | Model | Role | Tools |
+|-------|-------|------|-------|
+| **nelson-planner** | Sonnet | Analyze, plan, decompose | Read-only |
+| **nelson-worker** | Opus | Implement single feature | Full access |
+| **nelson-judge** | Opus | Three-stage validation | Read + Bash |
+| **nelson-scout** | Haiku | Web research, intelligence | Read + Web |
+
+### When to Use Multi-Agent
+
+- **Single agent (default):** Simple bugs, well-understood patterns, routine work
+- **Multi-agent:** Cross-layer changes, competing approaches, research-heavy tasks, complex features
+
+### Workflow
+
+```
+User task → Planner analyzes → Worker implements → Judge validates
+                                    ↑                      │
+                                    └── Scout researches ←──┘ (if walls hit)
+```
+
+### Worktree Isolation
+
+With `--parallel` flag, each worker gets an isolated git worktree:
+- No file conflicts between parallel agents
+- Changes merge only on successful validation
+- Automatic cleanup if no changes made
+
+See: `agents/nelson-planner.md`, `nelson-worker.md`, `nelson-judge.md`, `nelson-scout.md`
+
+---
+
+## Eval Assertions
+
+### Binary Assertion Framework
+
+v5.0 includes `scripts/eval-assertions.sh` — a test suite for protocol compliance:
+
+```bash
+# Run all assertions
+./scripts/eval-assertions.sh --verbose
+
+# Run specific category
+./scripts/eval-assertions.sh --category quality
+
+# JSON output for automation
+./scripts/eval-assertions.sh --json
+
+# CI mode (exit 1 on failure)
+./scripts/eval-assertions.sh --ci
+```
+
+### Assertion Categories
+
+| Category | Checks | Count |
+|----------|--------|-------|
+| Protocol | Loop state, v5 version, handoff, planning, scope | 5 |
+| Quality | Verification file, 3 stages, edge cases, self-review, git | 7 |
+| Compound | Compound in verification/handoff, patterns, reasoning trail | 4 |
+| Drift | Edit tracker, velocity, file spread, circuit breaker threshold | 4 |
+| Handoff | Exists, substance, file paths, next action, conciseness | 5 |
+
+Each assertion returns PASS, FAIL, or SKIP with detail strings.
+
+### Self-Evolving Evaluation (GEPA-Inspired)
+
+Every 5 iterations, analyze execution traces:
+1. **Sample** tool calls, decisions, and outcomes
+2. **Reflect** on what guidance helped vs. hindered
+3. **Propose** targeted skill revisions
+4. **Validate** revision doesn't contradict other skills
+5. **Apply** or defer with comment for human review
+
+See: `skills/nelson-self-evolving-eval.md` for full protocol.
+
+---
+
 ## Best Practices
 
 ### 1. Always Start with Memory
@@ -445,16 +685,39 @@ node .nelson/mcp-skill-docs-extractor.cjs retrieve "stripe"
 | `node .nelson/context-optimizer.cjs compress-claude` | Generate compressed CLAUDE.md |
 | `node .nelson/context-optimizer.cjs mcp-profile` | Show MCP profile options |
 
-### Session Commands (Skills)
+### v5.0 Commands
+
+| Command | Description |
+|---------|-------------|
+| `./scripts/eval-assertions.sh` | Run binary assertions for protocol compliance |
+| `./scripts/eval-assertions.sh --json` | JSON output for automation |
+| `node .nelson/obsidian-bridge.cjs status` | Check Obsidian MCP availability |
+| `node .nelson/obsidian-bridge.cjs sync-patterns` | Sync patterns to Obsidian vault |
+| `node .nelson/obsidian-bridge.cjs hubs` | Find most-connected knowledge nodes |
+| `node .nelson/consolidate.cjs` | Run memory consolidation |
+| `node .nelson/consolidate.cjs --stats` | Memory health dashboard |
+| `node .nelson/consolidate.cjs --find-dupes` | Detect duplicate entries |
+| `node .nelson/consolidate.cjs --trim` | Trim MEMORY.md to 200 lines |
+
+### Loop Commands
+
+| Command | Description |
+|---------|-------------|
+| `/nelson:ha-ha "task"` | v5 HA-HA mode (primary format) |
+| `/nelson-muntz:nelson "task"` | Standard dev loop |
+| `/nelson-muntz:ha-ha "task"` | Peak performance mode |
+| `/nelson-muntz:nelson-status` | Check status + drift score |
+| `/nelson-muntz:nelson-stop` | Stop loop + cleanup |
+
+### Session Skills
 
 | Skill | When to Use |
 |-------|-------------|
-| `session-startup` | START of every session |
-| `single-feature-focus` | DURING work |
-| `session-completion` | END of every session |
-| `nelson-protocol-v4` | Full ULTRATHINK cycle |
-| `/nelson-muntz:nelson "task"` | Standard dev loop |
-| `/nelson-muntz:ha-ha "task"` | Peak performance mode |
+| `nelson-protocol-v5` | Full v5 harness protocol |
+| `nelson-compound-learning` | After feature completion |
+| `nelson-drift-detection` | When feeling slow/stuck |
+| `nelson-self-evolving-eval` | Every 5 iterations |
+| `nelson-integrations-v5` | Setting up Obsidian/GWS |
 
 ---
 
@@ -548,18 +811,51 @@ Use the `session-startup` skill to automate this.
 
 ---
 
-## The Nelson Oath
+## Migration from v4
+
+### Zero-Effort Migration
+
+v5.0 is fully backwards-compatible with v4.0:
+
+- All v4 state files work unchanged
+- All v5 fields are optional with defaults
+- v5 features activate progressively
+
+### What Activates When
+
+| Feature | When Active |
+|---------|-------------|
+| Tiered L0/L1/L2 loading | Immediately (new boot sequence) |
+| 5-level ULTRATHINK | Immediately (compound analysis added) |
+| Edit tracker / drift scoring | Immediately (stop hook v5) |
+| Three-stage validation | HA-HA mode |
+| Compound learning extraction | HA-HA mode |
+| GEPA self-evolving evaluation | HA-HA mode (every 5 iterations) |
+| Worktree-isolated parallel agents | `--parallel` flag |
+| Obsidian graph memory | When Obsidian MCP detected (port 22360) |
+| GWS workspace orchestration | When `gws` CLI installed |
+| Eval assertions | Manual (`./scripts/eval-assertions.sh`) |
+
+### No Config Changes Needed
+
+Update the plugin and v5 kicks in. The setup script auto-detects tools and initializes v5 state files automatically.
+
+---
+
+## The Nelson Oath (v5.0)
 
 ```
-I will LOAD memory before starting work.
-I will THINK before executing.
-I will ASSESS before claiming completion.
+I will SCAFFOLD before executing.
+I will LOAD context progressively, not greedily.
+I will THINK five levels deep before every action.
+I will VALIDATE three ways before claiming completion.
+I will COMPOUND — each iteration makes the next easier.
+I will DETECT drift before it causes failure.
 I will WRITE insights before they're lost.
-I will LEARN from both successes and failures.
 
-Context is perishable. Memory is forever.
+The harness is the hard part. The agent follows.
 ```
 
 ---
 
-*Nelson Protocol v4.0 - "Others try. We triumph. HA-HA!"* 🥊
+*Nelson Protocol v5.1 — "The agent isn't the hard part. The harness is. HA-HA!"* 🥊

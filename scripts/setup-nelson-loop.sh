@@ -1,29 +1,39 @@
 #!/bin/bash
 
-# Nelson Muntz In-Session Loop Setup (v3.10.0)
-# Creates state file for stop hook-based looping in VS Code
+# Nelson Muntz In-Session Loop Setup (v5.0.0)
+# Harness-engineered loop initialization with drift detection, compound learning, and tool auto-detection
 #
 # Enhanced with:
 #   - Mandatory planning phase
-#   - Two-stage validation gates
-#   - Structured handoff requirements
+#   - Three-stage validation gates (spec + quality + red-team review)
+#   - Structured handoff requirements with compound learning transfer
 #   - Quality enforcement before completion
+#   - v5.0: --parallel flag for worktree-isolated parallel agents
+#   - v5.0: Drift detection initialization (edit tracker)
+#   - v5.0: Tool auto-detection (Obsidian MCP, GWS CLI)
+#   - v5.0: Compound learning setup
+#   - v5.0: Enhanced state file with v5 fields
 #
-# v3.10.0 Changes:
+# v5.0.0 Changes:
+#   - NEW: --parallel flag for worktree-isolated parallel execution
+#   - NEW: Auto-detect Obsidian MCP (port 22360) and GWS CLI
+#   - NEW: Initialize edit tracker for drift scoring
+#   - NEW: v5 fields in state file (protocol_version, parallel_mode, tools_detected)
+#   - NEW: Updated iteration protocol display with three-stage validation
+#   - NEW: Compound learning in HA-HA mode extras
+#   - PRESERVED: All v3.x backwards compatibility
+#
+# v3.10.0 Changes (preserved):
 #   - FIX: Handle empty PROMPT_PARTS array with set -u
 #
-# v3.9.0 Changes:
+# v3.9.0 Changes (preserved):
 #   - FIX: Disable glob expansion to handle ? and * in prompts
 #   - FIX: Proper handling of special characters (!, ?, ", etc.)
-#   - FIX: Escape sequences handled correctly
 #
-# v3.8.0 Changes:
+# v3.8.0 Changes (preserved):
 #   - NEW: Bracket-delimited task lists for flexible formatting
-#   - Supports: (task1, task2, task3) or multi-line with newlines
-#   - Auto-parses numbered, comma-separated, and newline-separated tasks
-#   - Includes v3.7.0 resilient error handling fixes
 #
-# v3.5.0 Changes:
+# v3.5.0 Changes (preserved):
 #   - Default iterations: 16 (was unlimited)
 #   - Maximum cap: 36 iterations
 #   - 0 = unlimited (for advanced users who need extended loops)
@@ -41,16 +51,18 @@ PROMPT_PARTS=()
 MAX_ITERATIONS=$DEFAULT_ITERATIONS
 COMPLETION_PROMISE="null"
 HA_HA_MODE=false
+PARALLEL_MODE=false
 
 while [[ $# -gt 0 ]]; do
   case $1 in
     -h|--help)
       cat << 'HELP_EOF'
-Nelson Muntz - In-Session Development Loop (v3.10.0)
+Nelson Muntz - Harness-Engineered Development Loop (v5.0.0)
 
 USAGE:
   /nelson [PROMPT...] [OPTIONS]
   /ha-ha [PROMPT...] [OPTIONS]
+  /nelson:ha-ha [PROMPT...] [OPTIONS]
 
 ARGUMENTS:
   PROMPT...    Task to accomplish (can be multiple words)
@@ -59,15 +71,9 @@ TASK LIST FORMAT (use brackets for multiple tasks):
   Use ( ) to wrap your task list with flexible formatting:
 
   Examples:
+    /nelson:ha-ha ( task1, task2, task3 ) --max-iterations 20
     /ha-ha ( task1, task2, task3 )
-    /nelson (
-      task 1
-      task 2
-      task 3
-    )
-    /ha-ha ( 1. First task, 2. Second task )
-    /nelson ( task one, task two
-              task three )
+    /nelson ( task one, task two, task three )
 
   Parsing rules:
     - Newlines create separate tasks
@@ -81,13 +87,23 @@ OPTIONS:
                                  Use 0 for unlimited (advanced)
   --completion-promise '<text>'  Promise phrase (USE QUOTES for multi-word)
   --ha-ha                        Enable HA-HA Mode (Peak Performance)
+  --parallel                     Enable worktree-isolated parallel agents (v5.0)
   -h, --help                     Show this help
 
-ITERATION PROTOCOL:
-  1. PLAN   - Read handoff, understand state, select ONE feature
-  2. WORK   - Implement with single-feature focus
-  3. VERIFY - Two-stage validation (spec + quality)
-  4. HANDOFF - Write structured handoff for next iteration
+ITERATION PROTOCOL (v5.0):
+  1. BOOT    - Tiered L0/L1/L2 context loading
+  2. PLAN    - 5-level ULTRATHINK, select ONE feature
+  3. WORK    - Implement with single-feature focus
+  4. VERIFY  - Three-stage validation (spec + quality + red-team)
+  5. COMPOUND - Extract pattern/anti-pattern (v5.0)
+  6. HANDOFF  - Write structured handoff with compound learning
+
+V5.0 FEATURES:
+  - Drift detection with circuit breaker (score >= 7)
+  - Compound learning (each iteration makes next easier)
+  - Tiered context loading (L0/L1/L2 progressive disclosure)
+  - Three-stage validation (spec + quality + adversarial red-team)
+  - Tool auto-detection (Obsidian MCP, GWS CLI)
 
 COMPLETION SIGNALS:
   - <promise>YOUR_PHRASE</promise>
@@ -95,9 +111,9 @@ COMPLETION SIGNALS:
 
 EXAMPLES:
   /nelson Build a REST API --max-iterations 20
-  /ha-ha Build OAuth authentication system
-  /nelson --completion-promise 'ALL TESTS PASS' Add user auth
+  /nelson:ha-ha Build OAuth authentication system --max-iterations 30
   /ha-ha ( fix the login bug, add logout button, update tests )
+  /nelson --parallel "Complex multi-file feature" --max-iterations 20
 
 HA-HA!
 HELP_EOF
@@ -128,6 +144,10 @@ HELP_EOF
       HA_HA_MODE=true
       shift
       ;;
+    --parallel)
+      PARALLEL_MODE=true
+      shift
+      ;;
     *)
       PROMPT_PARTS+=("$1")
       shift
@@ -151,6 +171,36 @@ fi
 
 # Create state file
 mkdir -p .claude
+
+# ============================================================
+# v5.0: Tool Auto-Detection
+# ============================================================
+TOOLS_DETECTED=""
+
+# Check for Obsidian MCP (WebSocket on port 22360)
+if command -v nc &> /dev/null && nc -z localhost 22360 2>/dev/null; then
+  TOOLS_DETECTED="${TOOLS_DETECTED}obsidian,"
+fi
+
+# Check for GWS CLI
+if command -v gws &> /dev/null; then
+  TOOLS_DETECTED="${TOOLS_DETECTED}gws,"
+fi
+
+# Check for jq (needed for drift scoring)
+if command -v jq &> /dev/null; then
+  TOOLS_DETECTED="${TOOLS_DETECTED}jq,"
+fi
+
+# Trim trailing comma
+TOOLS_DETECTED="${TOOLS_DETECTED%,}"
+
+# ============================================================
+# v5.0: Initialize Edit Tracker (for drift scoring)
+# ============================================================
+cat > .claude/nelson-edit-tracker.local.json <<TRACKER_EOF
+{"edit_count":0,"files_touched":[],"timestamps":[],"iteration_start":"$(date -u +%Y-%m-%dT%H:%M:%SZ)"}
+TRACKER_EOF
 
 # Quote completion promise for YAML
 if [[ -n "$COMPLETION_PROMISE" ]] && [[ "$COMPLETION_PROMISE" != "null" ]]; then
@@ -242,6 +292,9 @@ task_count: $TASK_COUNT
 max_iterations: $MAX_ITERATIONS
 completion_promise: $COMPLETION_PROMISE_YAML
 ha_ha_mode: $HA_HA_MODE
+parallel_mode: $PARALLEL_MODE
+protocol_version: "5.0.0"
+tools_detected: "$TOOLS_DETECTED"
 started_at: "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 ---
 
@@ -301,18 +354,28 @@ Completion promise: $(if [[ "$COMPLETION_PROMISE" != "null" ]]; then echo "$COMP
 NOTE: One "iteration" = completing ALL $TASK_COUNT tasks once.
 
 ═══════════════════════════════════════════════════════════════════
-                    ITERATION PROTOCOL (MANDATORY)
+                 ITERATION PROTOCOL v5.0 (MANDATORY)
 ═══════════════════════════════════════════════════════════════════
 
-PHASE 1: PLAN (Start of every iteration)
+PHASE 1: BOOT (Tiered context loading)
 ┌─────────────────────────────────────────────────────────────────┐
-│ 1. Read handoff: cat .claude/nelson-handoff.local.md            │
-│ 2. Think hard about current state and what's done               │
-│ 3. Select ONE feature/task to complete this iteration           │
-│ 4. Write brief plan to .claude/nelson-scratchpad.local.md       │
+│ L0: Read handoff: cat .claude/nelson-handoff.local.md           │
+│ L0: Read state: cat .claude/nelson-loop.local.md                │
+│ L1: Skim scratchpad (first 30 lines only)                       │
+│ L2: Load full skill files ONLY when triggered                   │
 └─────────────────────────────────────────────────────────────────┘
 
-PHASE 2: WORK (Single-feature focus)
+PHASE 2: PLAN (5-level ULTRATHINK)
+┌─────────────────────────────────────────────────────────────────┐
+│ 1. Standard: What needs to be done?                             │
+│ 2. Deep: Edge cases and dependencies?                           │
+│ 3. Adversarial: What could go wrong?                            │
+│ 4. Meta: Is this the best approach?                             │
+│ 5. Compound: How does this make NEXT iteration easier?          │
+│ Select ONE feature/task to complete this iteration              │
+└─────────────────────────────────────────────────────────────────┘
+
+PHASE 3: WORK (Single-feature focus)
 ┌─────────────────────────────────────────────────────────────────┐
 │ 1. Implement the ONE selected feature                           │
 │ 2. Do NOT touch other features                                  │
@@ -320,7 +383,7 @@ PHASE 2: WORK (Single-feature focus)
 │ 4. Commit working code: git commit -m "feat: description"       │
 └─────────────────────────────────────────────────────────────────┘
 
-PHASE 3: VERIFY (Before claiming completion)
+PHASE 4: VERIFY (Three-stage validation)
 ┌─────────────────────────────────────────────────────────────────┐
 │ Stage 1 - Spec Check:                                           │
 │   □ Does implementation match requirements?                     │
@@ -331,16 +394,30 @@ PHASE 3: VERIFY (Before claiming completion)
 │   □ Does build succeed?                                         │
 │   □ Is code clean? (no TODOs, no hacks)                         │
 │                                                                 │
-│ ⚠️  BOTH stages must pass before claiming done!                  │
+│ Stage 3 - Red-Team Review (v5.0):                               │
+│   □ How would I break this?                                     │
+│   □ What assumptions could be wrong?                            │
+│   □ What would a hostile reviewer flag?                         │
+│                                                                 │
+│ ⚠️  ALL THREE stages must pass before claiming done!             │
 └─────────────────────────────────────────────────────────────────┘
 
-PHASE 4: HANDOFF (Before every exit)
+PHASE 5: COMPOUND (Extract learning — v5.0)
+┌─────────────────────────────────────────────────────────────────┐
+│ Extract at least ONE of:                                        │
+│   • Pattern: what worked and why (reusable)                     │
+│   • Anti-pattern: what failed and why (preventable)             │
+│ Document in handoff compound learning section                   │
+└─────────────────────────────────────────────────────────────────┘
+
+PHASE 6: HANDOFF (Before every exit)
 ┌─────────────────────────────────────────────────────────────────┐
 │ MUST update .claude/nelson-handoff.local.md with:               │
-│   - What was completed this iteration                           │
-│   - What's still pending                                        │
-│   - Any blockers or issues                                      │
-│   - Exact next steps for next iteration                         │
+│   1. What was accomplished (files, commits)                     │
+│   2. Current state (tests, build status)                        │
+│   3. Immediate next step (specific, actionable)                 │
+│   4. Critical context (decisions, gotchas)                      │
+│   5. Compound learning transfer (v5.0)                          │
 │                                                                 │
 │ ⚠️  Loop will NOT exit without updated handoff!                  │
 └─────────────────────────────────────────────────────────────────┘
@@ -350,8 +427,8 @@ PHASE 4: HANDOFF (Before every exit)
 ═══════════════════════════════════════════════════════════════════
 
 To complete the loop, you MUST:
-  1. Verify ALL features are done (two-stage validation)
-  2. Update handoff with final status
+  1. Verify ALL features are done (three-stage validation)
+  2. Update handoff with final status + compound learning
   3. Output completion signal:
 
 EOF
@@ -386,12 +463,28 @@ EOF
 
 if [[ "$HA_HA_MODE" == "true" ]]; then
   cat <<'EOF'
-HA-HA MODE EXTRAS:
+HA-HA MODE v5.0 EXTRAS:
   • Pre-flight research MANDATORY before coding
-  • Multi-dimensional thinking (4 levels of ultrathink)
+  • Multi-dimensional thinking (5 levels — includes compound analysis)
   • Wall-Breaker protocol on ANY obstacle
   • 5-attempt escalation (not 3)
-  • Aggressive self-review before completion
+  • Three-stage validation (spec + quality + adversarial red-team)
+  • Compound learning extraction REQUIRED each iteration
+  • Drift detection active (circuit breaker at score >= 7)
+
+EOF
+fi
+
+# v5.0: Show detected tools
+if [[ -n "$TOOLS_DETECTED" ]]; then
+  cat <<EOF
+v5.0 TOOLS DETECTED: $TOOLS_DETECTED
+EOF
+fi
+
+if [[ "$PARALLEL_MODE" == "true" ]]; then
+  cat <<'EOF'
+PARALLEL MODE: Worktree isolation enabled for parallel agents
 
 EOF
 fi

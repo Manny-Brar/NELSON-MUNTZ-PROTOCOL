@@ -1,15 +1,16 @@
 #!/bin/bash
 
 # =============================================================================
-# Nelson Muntz - Two-Stage Feature Validation Script
+# Nelson Muntz v5.0 — Three-Stage Feature Validation Script
 # =============================================================================
 #
-# Performs two-stage validation on the current feature:
+# Performs three-stage validation on the current feature:
 #   Stage 1: Spec Compliance - Did we implement what was asked?
 #   Stage 2: Quality Check - Is the code good? (tests, lint, build)
+#   Stage 3: Red-Team Review - Automated adversarial checks (v5.0)
 #
-# Both stages must pass for a feature to be marked as complete.
-# This prevents wasted iteration on wrong implementations.
+# Plus v5.0 compound learning prompt and drift score.
+# All three stages must pass for a feature to be marked as complete.
 #
 # Usage:
 #   ./validate-feature.sh [OPTIONS]
@@ -19,6 +20,7 @@
 #   --state-dir DIR        State directory (default: .claude/ralph-v3)
 #   --skip-spec            Skip spec compliance check
 #   --skip-quality         Skip quality check
+#   --skip-redteam         Skip red-team review (v5.0)
 #   --verbose              Show detailed output
 #
 # =============================================================================
@@ -33,6 +35,7 @@ STATE_DIR=".claude/ralph-v3"
 FEATURE_ID=""
 SKIP_SPEC=false
 SKIP_QUALITY=false
+SKIP_REDTEAM=false
 VERBOSE=false
 
 # Colors
@@ -139,6 +142,10 @@ parse_args() {
         SKIP_QUALITY=true
         shift
         ;;
+      --skip-redteam)
+        SKIP_REDTEAM=true
+        shift
+        ;;
       --verbose|-v)
         VERBOSE=true
         shift
@@ -157,7 +164,7 @@ parse_args() {
 
 show_help() {
   cat << 'HELP'
-Nelson Muntz - Two-Stage Feature Validation
+Nelson Muntz v5.0 - Three-Stage Feature Validation
 
 USAGE:
   validate-feature.sh [OPTIONS]
@@ -167,6 +174,7 @@ OPTIONS:
   --state-dir DIR    State directory (default: .claude/ralph-v3)
   --skip-spec        Skip spec compliance check
   --skip-quality     Skip quality check
+  --skip-redteam     Skip red-team review (v5.0 Stage 3)
   --verbose, -v      Show detailed output
   -h, --help         Show this help
 
@@ -182,10 +190,21 @@ STAGES:
     - Runs type check (npx tsc --noEmit)
     - Fails if any check fails
 
+  Stage 3: Red-Team Review (v5.0)
+    - Checks for common security issues (console.log leaks, TODO/FIXME, hardcoded secrets)
+    - Checks for error handling gaps
+    - Reports findings by severity (CRITICAL/HIGH/MEDIUM/LOW)
+    - Fails on any CRITICAL finding
+
+  Compound Learning (v5.0):
+    - After validation, shows drift score
+    - Prompts for pattern/anti-pattern extraction
+
 OUTPUTS:
   - Updates validation/spec-check.json with results
   - Updates validation/quality-check.json with results
-  - Returns exit code 0 if both stages pass, 1 otherwise
+  - Shows red-team findings and drift score
+  - Returns exit code 0 if all stages pass, 1 otherwise
 
 HELP
 }
@@ -377,6 +396,148 @@ EOF
 }
 
 # -----------------------------------------------------------------------------
+# Stage 3: Red-Team Review (v5.0)
+# -----------------------------------------------------------------------------
+
+check_redteam() {
+  log "Stage 3: Red-Team Review (v5.0)"
+
+  local findings=0
+  local critical=0
+  local high=0
+  local medium=0
+  local low=0
+
+  echo ""
+
+  # Check for console.log/console.debug left in production code
+  local console_count=0
+  if cmd_exists grep; then
+    console_count=$(grep -r "console\.\(log\|debug\)" --include="*.ts" --include="*.js" --include="*.tsx" --include="*.jsx" src/ app/ lib/ 2>/dev/null | grep -v "node_modules" | grep -v ".test." | grep -v ".spec." | wc -l | tr -d ' ' || echo "0")
+  fi
+  if [[ "$console_count" -gt 0 ]]; then
+    warn "MEDIUM: $console_count console.log/debug statements in production code"
+    medium=$((medium + 1))
+    findings=$((findings + 1))
+  else
+    success "No console.log leaks in production code"
+  fi
+
+  # Check for TODO/FIXME/HACK/XXX comments
+  local todo_count=0
+  if cmd_exists grep; then
+    todo_count=$(grep -rn "TODO\|FIXME\|HACK\|XXX" --include="*.ts" --include="*.js" --include="*.tsx" --include="*.jsx" --include="*.py" src/ app/ lib/ 2>/dev/null | grep -v "node_modules" | wc -l | tr -d ' ' || echo "0")
+  fi
+  if [[ "$todo_count" -gt 0 ]]; then
+    warn "LOW: $todo_count TODO/FIXME/HACK comments found"
+    low=$((low + 1))
+    findings=$((findings + 1))
+  else
+    success "No TODO/FIXME/HACK comments"
+  fi
+
+  # Check for hardcoded secrets patterns
+  local secret_count=0
+  if cmd_exists grep; then
+    secret_count=$(grep -rnE "(password|secret|api_key|apikey|token)\s*[:=]\s*['\"][^'\"]{8,}" --include="*.ts" --include="*.js" --include="*.tsx" --include="*.py" --include="*.env.example" src/ app/ lib/ 2>/dev/null | grep -v "node_modules" | grep -vi "process\.env" | grep -vi "example\|placeholder\|changeme\|your_" | wc -l | tr -d ' ' || echo "0")
+  fi
+  if [[ "$secret_count" -gt 0 ]]; then
+    fail "CRITICAL: $secret_count potential hardcoded secrets found"
+    critical=$((critical + 1))
+    findings=$((findings + 1))
+  else
+    success "No hardcoded secrets detected"
+  fi
+
+  # Check for missing error handling (catch blocks with no content)
+  local empty_catch=0
+  if cmd_exists grep; then
+    empty_catch=$(grep -rnE "catch\s*\([^)]*\)\s*\{[\s]*\}" --include="*.ts" --include="*.js" --include="*.tsx" src/ app/ lib/ 2>/dev/null | grep -v "node_modules" | wc -l | tr -d ' ' || echo "0")
+  fi
+  if [[ "$empty_catch" -gt 0 ]]; then
+    warn "HIGH: $empty_catch empty catch blocks (swallowed errors)"
+    high=$((high + 1))
+    findings=$((findings + 1))
+  else
+    success "No empty catch blocks"
+  fi
+
+  # Check for files that are too large (>500 lines, potential complexity)
+  local large_files=0
+  if cmd_exists find && cmd_exists wc; then
+    large_files=$(find src/ app/ lib/ -name "*.ts" -o -name "*.js" -o -name "*.tsx" 2>/dev/null | while read -r f; do
+      lines=$(wc -l < "$f" 2>/dev/null | tr -d ' ')
+      if [[ "$lines" -gt 500 ]]; then echo "$f"; fi
+    done | wc -l | tr -d ' ' || echo "0")
+  fi
+  if [[ "$large_files" -gt 0 ]]; then
+    warn "LOW: $large_files files exceed 500 lines (consider splitting)"
+    low=$((low + 1))
+    findings=$((findings + 1))
+  else
+    success "No overly large files"
+  fi
+
+  echo ""
+  echo "Red-Team Summary: $findings findings (Critical:$critical High:$high Medium:$medium Low:$low)"
+
+  # Fail only on CRITICAL findings
+  if [[ "$critical" -gt 0 ]]; then
+    fail "Red-team review: FAIL (critical findings)"
+    return 1
+  elif [[ "$findings" -gt 0 ]]; then
+    warn "Red-team review: PASS with warnings ($findings non-critical findings)"
+    return 0
+  else
+    success "Red-team review: PASS (clean)"
+    return 0
+  fi
+}
+
+# -----------------------------------------------------------------------------
+# v5.0: Drift Score & Compound Learning Prompt
+# -----------------------------------------------------------------------------
+
+show_drift_and_compound() {
+  log "v5.0: Drift & Compound Learning"
+  echo ""
+
+  # Calculate drift score from edit tracker
+  local drift=0
+  local tracker=".claude/nelson-edit-tracker.local.json"
+
+  if [[ -f "$tracker" ]] && cmd_exists jq; then
+    local ec fc
+    ec=$(jq '.edit_count // 0' "$tracker" 2>/dev/null || echo "0")
+    fc=$(jq '.files_touched | length' "$tracker" 2>/dev/null || echo "0")
+
+    [[ "$ec" -gt 30 ]] && drift=$((drift + 2))
+    [[ "$ec" -gt 20 ]] && [[ "$ec" -le 30 ]] && drift=$((drift + 1))
+    [[ "$fc" -gt 8 ]] && drift=$((drift + 2))
+    [[ "$fc" -gt 5 ]] && [[ "$fc" -le 8 ]] && drift=$((drift + 1))
+
+    echo "Drift Score: $drift/10 (edits:$ec files:$fc)"
+    if [[ "$drift" -ge 7 ]]; then
+      fail "CIRCUIT BREAKER TERRITORY — consider fresh context"
+    elif [[ "$drift" -ge 5 ]]; then
+      warn "WARNING — elevated drift, monitor closely"
+    else
+      success "Drift within healthy range"
+    fi
+  else
+    echo "Drift Score: N/A (no edit tracker)"
+  fi
+
+  echo ""
+  echo "Compound Learning Reminder:"
+  echo "  Extract at least ONE of:"
+  echo "    - Pattern: what worked and why (reusable)"
+  echo "    - Anti-pattern: what failed and why (preventable)"
+  echo "  Document in handoff compound learning section."
+  echo ""
+}
+
+# -----------------------------------------------------------------------------
 # Main
 # -----------------------------------------------------------------------------
 
@@ -385,12 +546,13 @@ main() {
 
   echo ""
   echo -e "${CYAN}╔════════════════════════════════════════════════════════════╗${NC}"
-  echo -e "${CYAN}║         Nelson Muntz - Two-Stage Validation                ║${NC}"
+  echo -e "${CYAN}║       Nelson Muntz v5.0 - Three-Stage Validation          ║${NC}"
   echo -e "${CYAN}╚════════════════════════════════════════════════════════════╝${NC}"
   echo ""
 
   local spec_result=0
   local quality_result=0
+  local redteam_result=0
 
   # Stage 1: Spec Compliance
   if [[ "$SKIP_SPEC" != "true" ]]; then
@@ -410,22 +572,36 @@ main() {
     warn "Skipping quality check"
   fi
 
+  # Stage 3: Red-Team Review (v5.0)
+  if [[ "$SKIP_REDTEAM" != "true" ]]; then
+    if ! check_redteam; then
+      redteam_result=1
+    fi
+  else
+    warn "Skipping red-team review"
+  fi
+
+  # v5.0: Drift score and compound learning prompt
+  show_drift_and_compound
+
   # Final result
-  echo ""
   echo "═══════════════════════════════════════════════════════════"
 
-  if [[ $spec_result -eq 0 ]] && [[ $quality_result -eq 0 ]]; then
-    success "VALIDATION PASSED - Feature ready for commit"
+  if [[ $spec_result -eq 0 ]] && [[ $quality_result -eq 0 ]] && [[ $redteam_result -eq 0 ]]; then
+    success "THREE-STAGE VALIDATION PASSED - Feature ready for commit"
     echo ""
-    echo "HA-HA! Feature validated successfully."
+    echo "HA-HA! Feature validated across all three stages."
     exit 0
   else
     fail "VALIDATION FAILED"
     if [[ $spec_result -ne 0 ]]; then
-      echo "  - Spec compliance: FAILED"
+      echo "  - Stage 1 Spec compliance: FAILED"
     fi
     if [[ $quality_result -ne 0 ]]; then
-      echo "  - Quality check: FAILED"
+      echo "  - Stage 2 Quality check: FAILED"
+    fi
+    if [[ $redteam_result -ne 0 ]]; then
+      echo "  - Stage 3 Red-team review: FAILED (critical findings)"
     fi
     echo ""
     echo "Fix the issues and try again."

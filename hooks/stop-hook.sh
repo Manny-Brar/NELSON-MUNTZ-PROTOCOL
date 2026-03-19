@@ -1,17 +1,28 @@
 #!/bin/bash
 
-# Nelson Muntz Stop Hook (v3.7.0) - ROBUST VALIDATION + RESILIENT ERROR HANDLING
-# In-session looping with mandatory verification, self-review, and quality gates
+# Nelson Muntz Stop Hook (v5.0.0) - HARNESS-ENGINEERED VALIDATION
+# In-session looping with drift detection, compound learning, and three-stage validation
 #
 # Key Features:
 #   - Fresh context each iteration (via stop hook blocking)
 #   - Mandatory planning phase
-#   - AGGRESSIVE two-stage validation (not just instructions - ENFORCED)
+#   - AGGRESSIVE three-stage validation (spec + quality + red-team review)
 #   - Self-review requirement before completion
 #   - Handoff verification before exit
 #   - HA-HA mode for peak performance
+#   - v5.0: Drift detection with circuit breaker
+#   - v5.0: Compound learning artifact verification
+#   - v5.0: Stage 3 red-team review in verification challenge
+#   - v5.0: Edit tracker integration for drift scoring
 #
-# v3.7.0 CRITICAL FIX:
+# v5.0.0 ENHANCEMENTS:
+#   - Drift score calculation from edit tracker + iteration metrics
+#   - Circuit breaker triggers fresh context when drift >= 7
+#   - Compound learning section added to verification challenge
+#   - Three-stage validation (spec, quality, adversarial red-team)
+#   - Backwards-compatible with v3.x/v4.x state files
+#
+# v3.7.0 CRITICAL FIX (preserved):
 #   - NO LONGER deletes state file on transient errors
 #   - State preserved across parsing failures
 #   - Graceful degradation when transcript unavailable
@@ -25,6 +36,67 @@ mkdir -p .claude
 
 log_debug() {
   echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" >> "$NELSON_LOG" 2>/dev/null || true
+}
+
+# ============================================================
+# v5.0 DRIFT SCORING FUNCTION
+# ============================================================
+calculate_drift_score() {
+  local score=0
+
+  # Check edit tracker for drift signals
+  EDIT_TRACKER=".claude/nelson-edit-tracker.local.json"
+  if [[ -f "$EDIT_TRACKER" ]] && command -v jq &> /dev/null; then
+    local edit_count file_count
+    edit_count=$(jq '.edit_count // 0' "$EDIT_TRACKER" 2>/dev/null || echo "0")
+    file_count=$(jq '.files_touched | length' "$EDIT_TRACKER" 2>/dev/null || echo "0")
+
+    # High edit count = possible thrashing
+    if [[ "$edit_count" -gt 30 ]]; then
+      score=$((score + 2))
+    elif [[ "$edit_count" -gt 20 ]]; then
+      score=$((score + 1))
+    fi
+
+    # Many files = possible scope creep
+    if [[ "$file_count" -gt 8 ]]; then
+      score=$((score + 2))
+    elif [[ "$file_count" -gt 5 ]]; then
+      score=$((score + 1))
+    fi
+  fi
+
+  # Check iteration count (higher iterations = more drift risk)
+  if [[ "$ITERATION" -gt 10 ]]; then
+    score=$((score + 2))
+  elif [[ "$ITERATION" -gt 5 ]]; then
+    score=$((score + 1))
+  fi
+
+  # Check for session duration (estimate from iteration start time)
+  local started_at
+  started_at=$(echo "$FRONTMATTER" | grep '^started_at:' | sed 's/started_at: *//' | sed 's/^"\(.*\)"$/\1/' || echo "")
+  if [[ -n "$started_at" ]]; then
+    local start_epoch now_epoch elapsed_minutes
+    start_epoch=$(date -j -f "%Y-%m-%dT%H:%M:%SZ" "$started_at" "+%s" 2>/dev/null || echo "0")
+    now_epoch=$(date "+%s")
+    if [[ "$start_epoch" -gt 0 ]]; then
+      elapsed_minutes=$(( (now_epoch - start_epoch) / 60 ))
+      if [[ "$elapsed_minutes" -gt 60 ]]; then
+        score=$((score + 2))
+      elif [[ "$elapsed_minutes" -gt 35 ]]; then
+        score=$((score + 1))
+      fi
+    fi
+  fi
+
+  echo "$score"
+}
+
+# v5.0: Reset edit tracker for new iteration
+reset_edit_tracker() {
+  local tracker=".claude/nelson-edit-tracker.local.json"
+  echo '{"edit_count":0,"files_touched":[],"timestamps":[],"iteration_start":"'"$(date -u +%Y-%m-%dT%H:%M:%SZ)"'"}' > "$tracker" 2>/dev/null || true
 }
 
 # Read hook input from stdin (advanced stop hook API)
@@ -180,6 +252,25 @@ if echo "$LAST_OUTPUT" | grep -q "<nelson-verified>VERIFICATION_COMPLETE</nelson
     if ! grep -q "## Git Status" "$NELSON_VERIFICATION_FILE"; then
       VERIFICATION_FAILURES="${VERIFICATION_FAILURES}\n- Missing '## Git Status' section"
     fi
+
+    # === v5.0 VALIDATION: Red-Team Review (Stage 3) ===
+    if grep -q "## Red-Team" "$NELSON_VERIFICATION_FILE"; then
+      REDTEAM_SECTION=$(sed -n '/## Red-Team/,/## /p' "$NELSON_VERIFICATION_FILE")
+      REDTEAM_ITEMS=$(echo "$REDTEAM_SECTION" | grep -cE '^[0-9]+\.|^- |^\* ' || echo "0")
+      if [[ "$REDTEAM_ITEMS" -lt 2 ]]; then
+        VERIFICATION_FAILURES="${VERIFICATION_FAILURES}\n- Red-Team section needs 2+ adversarial findings (found: $REDTEAM_ITEMS)"
+      fi
+    fi
+    # Note: Red-Team section is recommended but not blocking for v4 compat
+
+    # === v5.0 VALIDATION: Compound Learning ===
+    if grep -q "## Compound Learning" "$NELSON_VERIFICATION_FILE"; then
+      COMPOUND_SECTION=$(sed -n '/## Compound Learning/,/## /p' "$NELSON_VERIFICATION_FILE")
+      if ! echo "$COMPOUND_SECTION" | grep -qiE '(pattern|anti-pattern|learning|insight)'; then
+        VERIFICATION_FAILURES="${VERIFICATION_FAILURES}\n- Compound Learning section lacks pattern/insight content"
+      fi
+    fi
+    # Note: Compound Learning section is recommended but not blocking for v4 compat
 
     # If all validations passed, allow exit
     if [[ -z "$VERIFICATION_FAILURES" ]]; then
@@ -391,6 +482,16 @@ Create .claude/nelson-verification.local.md with:
 - Tech debt: [any introduced, or 'None']
 - TODOs remaining: [count and list, or 'None']
 
+## Red-Team Review (v5.0)
+1. Attack vector tested: [what could break this?] → [result]
+2. Assumption challenged: [what was assumed?] → [still valid?]
+3. Hostile reviewer finding: [what would be flagged?] → [addressed?]
+
+## Compound Learning (v5.0)
+- Pattern extracted: [name of pattern, or 'None']
+- Anti-pattern found: [name, or 'None']
+- Insight for next iteration: [what makes next work easier]
+
 ## Git Status
 - Uncommitted changes: [count, should be 0]
 - Last commit: [hash and message]
@@ -416,6 +517,70 @@ Nelson is watching. HA-HA!
   jq -n \
     --arg prompt "$VERIFICATION_PROMPT" \
     --arg msg "🔴 VERIFICATION CHALLENGE | Tests + Build + Self-Review required | <nelson-verified>VERIFICATION_COMPLETE</nelson-verified>" \
+    '{
+      "decision": "block",
+      "reason": $prompt,
+      "systemMessage": $msg
+    }'
+
+  exit 0
+fi
+
+# ============================================================
+# v5.0 DRIFT DETECTION & CIRCUIT BREAKER
+# ============================================================
+
+DRIFT_SCORE=0
+if [[ -n "$FRONTMATTER" ]]; then
+  DRIFT_SCORE=$(calculate_drift_score)
+  log_debug "Drift score: $DRIFT_SCORE/10 (iteration $ITERATION)"
+fi
+
+# Circuit breaker: drift score >= 7 triggers fresh context warning
+if [[ "$DRIFT_SCORE" -ge 7 ]]; then
+  log_debug "CIRCUIT BREAKER: Drift score $DRIFT_SCORE >= 7, injecting recovery prompt"
+
+  NEXT_ITERATION=$((ITERATION + 1))
+  TEMP_FILE="${NELSON_STATE_FILE}.tmp.$$"
+  sed "s/^iteration: .*/iteration: $NEXT_ITERATION/" "$NELSON_STATE_FILE" > "$TEMP_FILE"
+  mv "$TEMP_FILE" "$NELSON_STATE_FILE"
+
+  # Reset edit tracker for fresh start
+  reset_edit_tracker
+
+  CIRCUIT_PROMPT="
+## ⚡ CIRCUIT BREAKER TRIGGERED — DRIFT SCORE: $DRIFT_SCORE/10
+
+**Context degradation detected.** This iteration may be producing lower quality output.
+
+### Recovery Protocol (MANDATORY)
+1. **STOP** current approach — do not continue where you left off
+2. **COMMIT** any salvageable working code
+3. **RE-READ** handoff fresh: cat .claude/nelson-handoff.local.md
+4. **RE-ASSESS** from scratch — form your own analysis, don't inherit assumptions
+5. **SIMPLIFY** — choose the simplest viable approach
+
+### Drift Indicators Detected
+$(if [[ -f ".claude/nelson-edit-tracker.local.json" ]] && command -v jq &> /dev/null; then
+  echo "- Edits this iteration: $(jq '.edit_count // 0' .claude/nelson-edit-tracker.local.json 2>/dev/null)"
+  echo "- Files touched: $(jq '.files_touched | length' .claude/nelson-edit-tracker.local.json 2>/dev/null)"
+fi)
+- Iteration count: $ITERATION
+- Drift score: $DRIFT_SCORE/10
+
+### Behavioral Anchors
+- I am implementing ONE feature only
+- I will run tests and show output
+- I will write specific file paths in handoff
+- I will not quickly fix unrelated things
+
+---
+Continue with fresh analysis. Start by reading the handoff.
+"
+
+  jq -n \
+    --arg prompt "$CIRCUIT_PROMPT" \
+    --arg msg "⚡ CIRCUIT BREAKER | Drift $DRIFT_SCORE/10 | Fresh context recovery" \
     '{
       "decision": "block",
       "reason": $prompt,
@@ -489,6 +654,9 @@ sed "s/^iteration: .*/iteration: $NEXT_ITERATION/" "$NELSON_STATE_FILE" | \
   sed "s/^current_task: .*/current_task: $NEXT_TASK/" > "$TEMP_FILE"
 mv "$TEMP_FILE" "$NELSON_STATE_FILE"
 
+# v5.0: Reset edit tracker for fresh iteration metrics
+reset_edit_tracker
+
 # Build system message based on mode
 if [[ "$HA_HA_MODE" == "true" ]]; then
   MODE_LABEL="HA-HA MODE"
@@ -538,11 +706,20 @@ Update .claude/nelson-handoff.local.md with:
 - What's still pending
 - Exact next steps
 
-**HA-HA MODE EXTRAS:**
+**HA-HA MODE EXTRAS (v5.1):**
+- ⚡ PHASE-GATE ENGINE: Read skills/nelson-phase-gate.md FIRST
+  → Decompose request into multi-phase plan (ULTRATHINK)
+  → Self-assess plan before executing
+  → Each phase: Execute → Self-Assess → Test → Document
+  → NEVER advance to next phase without passing all 4 gates
 - Pre-flight research MANDATORY before coding
-- Multi-dimensional ultrathink (4 levels)
+- Multi-dimensional ultrathink (5 levels — includes Level 5 Compound Analysis)
 - Wall-Breaker protocol on obstacles
 - 5-attempt escalation ladder
+- Three-stage validation (spec + quality + red-team review)
+- Compound learning artifact REQUIRED (extract pattern or anti-pattern)
+- Documentation gate: update ALL affected docs, cross-reference overlapping workflows
+- Drift score: $DRIFT_SCORE/10 (circuit breaker at 7+)
 
 ---
 

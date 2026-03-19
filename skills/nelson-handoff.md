@@ -1,107 +1,70 @@
 ---
 name: nelson-handoff
-description: "Generate high-quality handoff documents for Nelson Muntz iterations"
+description: "Generate high-quality 5-section handoff documents for Nelson Muntz v5.0 iterations — with compound learning transfer and drift context"
+version: 5.0.0
 ---
 
-# Nelson Handoff - Iteration Handoff Protocol
+# Nelson Handoff — Iteration Handoff Protocol (v5.0)
 
 ## Purpose
-Create clear, actionable handoff documents that enable the next iteration to continue seamlessly with zero ramp-up time.
+Create clear, actionable 5-section handoff documents that enable the next iteration to continue seamlessly with zero ramp-up time — including compound learning transfer so each iteration starts smarter.
 
 ---
 
 ## HANDOFF QUALITY STANDARD
 
-A good handoff answers these questions in <30 seconds of reading:
-1. What was done this iteration?
-2. What's the current state?
-3. What should the next iteration do FIRST?
-4. What gotchas or context is critical?
+A good v5.0 handoff answers these 5 questions in <30 seconds of reading:
+1. **What was accomplished?** (features, files, commits)
+2. **What's the current state?** (tests, build, blockers)
+3. **What's the immediate next step?** (specific, actionable, file-level)
+4. **What critical context matters?** (decisions, gotchas, warnings)
+5. **What compound learning transfers?** (patterns, anti-patterns, difficulty — v5.0)
 
 ---
 
-## HANDOFF TEMPLATE
+## HANDOFF TEMPLATE (v5.0 — 5 Sections)
 
 ```markdown
-# Nelson Muntz v3.3.1 - Iteration [N] Handoff
+# Nelson Muntz v5.0 — Iteration [N] Handoff
 
-## Status Summary
-- **Iteration:** [N]
-- **Mode:** [Standard / HA-HA]
-- **Feature Worked On:** F[X] - [Feature Name]
-- **Result:** [COMPLETED / IN_PROGRESS / BLOCKED]
-- **Git Commit:** [hash if committed]
+## 1. What Was Accomplished?
+- **Feature:** F[X] — [name]
+- **Result:** COMPLETED / IN_PROGRESS / BLOCKED
+- **Files changed:**
+  - `path/to/file.ts:45-67` — [what was added/changed]
+  - `path/to/other.ts:12` — [what was modified]
+- **Tests:** `test/file.test.ts` — added [N] tests for [what]
+- **Commit:** [hash] `feat(F[X]): [description]`
 
-## What Was Done
+## 2. What's the Current State?
+- Features: [X/Y completed], [Z blocked]
+- Tests: [X/Y passing]
+- Build: [PASS/FAIL]
+- Lint: [PASS/FAIL]
+- Blockers: [none / specific blocker description]
 
-### Completed This Iteration
-- [Specific action 1] → [file:line]
-- [Specific action 2] → [file:line]
-- [Specific action 3] → [file:line]
+## 3. What's the Immediate Next Step?
+- **Task:** [exact description — one sentence]
+- **Start at:** [file:line or "create new file at path"]
+- **Approach:** [specific strategy — not vague]
+- **Read first:** `[file to read]` — [why]
 
-### Files Modified
-| File | Changes |
-|------|---------|
-| `path/to/file.ts` | Added [what], lines [X-Y] |
-| `path/to/other.ts` | Modified [what], line [Z] |
+## 4. What Critical Context Matters?
+- **Decision:** [key decision made] — because [WHY]
+- **Gotcha:** [non-obvious thing the next iteration must know]
+- **Avoid:** [specific thing NOT to do and why]
 
-### Tests Added/Modified
-- `test/file.test.ts` - Added [N] tests for [what]
-
-## Current State
-
-### Validation Status
-- **Spec Compliance:** [PASS/FAIL] - [details]
-- **Tests:** [PASS/FAIL] - [X/Y passing]
-- **Lint:** [PASS/FAIL] - [error count]
-- **Build:** [PASS/FAIL]
-
-### Code State
-- [ ] All changes committed
-- [ ] No uncommitted work
-- [ ] Tests passing
-- [ ] No lint errors
-
-## Next Iteration Instructions
-
-### IMMEDIATE FIRST ACTION
-> [Single, specific instruction - what to do FIRST]
-
-### Priority Tasks
-1. [Task 1 - specific and actionable]
-2. [Task 2 - specific and actionable]
-3. [Task 3 - specific and actionable]
-
-### Files to Read First
-1. `path/to/critical/file.ts` - [why]
-2. `.claude/nelson-loop.local.md` - Check loop state
-
-## Critical Context
-
-### Gotchas / Warnings
-- [Thing that might trip up next iteration]
-- [Non-obvious behavior or constraint]
-
-### Decisions Made
-- [Decision 1]: Chose [X] over [Y] because [reason]
-- [Decision 2]: [explanation]
-
-### Research Notes (if any)
-- [Finding 1] - Source: [URL or file]
-- [Finding 2] - Source: [URL or file]
-
-## Features Overview
-
-| ID | Feature | Status | Progress |
-|----|---------|--------|----------|
-| F1 | [Name] | [status] | [X/Y steps] |
-| F2 | [Name] | [status] | [X/Y steps] |
-| ... | ... | ... | ... |
+## 5. Compound Learning Transfer (v5.0)
+- **Pattern extracted:** [name] — [one-sentence description]
+  OR "None this iteration"
+- **Anti-pattern found:** [name] — [one-sentence description]
+  OR "None this iteration"
+- **Insight for next iteration:** [specific advice that saves time]
+- **Iteration difficulty:** [1-10] — [why this number]
+- **Drift score at handoff:** [0-10]
 
 ---
-
-*Handoff generated: [timestamp]*
-*Next iteration: Read this, then execute IMMEDIATE FIRST ACTION*
+*Handoff: [timestamp] | Next: Read this → Execute Section 3*
 ```
 
 ---
@@ -141,13 +104,14 @@ considered the tradeoffs of each approach...
 Before writing handoff, verify:
 
 ```
-[ ] Feature status is clear (complete/in_progress/blocked)
-[ ] All file changes documented with line numbers
-[ ] Validation status is current and accurate
-[ ] Next action is SPECIFIC and SINGLE
+[ ] Section 1: Feature status clear, files listed with line numbers, commit hash
+[ ] Section 2: Test/build/lint status current and accurate
+[ ] Section 3: Next action is SPECIFIC, SINGLE, and references a file
+[ ] Section 4: At least one decision or gotcha documented
+[ ] Section 5: Compound learning — pattern OR anti-pattern extracted (v5.0)
+[ ] Section 5: Iteration difficulty rated 1-10 with justification (v5.0)
 [ ] No uncommitted changes remain
-[ ] Gotchas section includes anything non-obvious
-[ ] Features overview is up to date
+[ ] Handoff fits on one screen (< 60 lines)
 ```
 
 ---
@@ -176,31 +140,36 @@ Before writing handoff, verify:
 
 ---
 
-## STATE FILE LOCATIONS (v3.3.1)
+## STATE FILE LOCATIONS (v5.0)
 
 All state files are in `.claude/` directory:
-- `nelson-loop.local.md` - YAML frontmatter + prompt
-- `nelson-handoff.local.md` - THIS handoff document
-- `nelson-scratchpad.local.md` - Planning notes (optional)
-- `nelson-verification.local.md` - Created during verification
+- `nelson-loop.local.md` — YAML frontmatter + prompt (L0: always load)
+- `nelson-handoff.local.md` — THIS handoff document (L0: always load)
+- `nelson-scratchpad.local.md` — Planning notes + reasoning trail (L1: selective)
+- `nelson-verification.local.md` — Created during verification (L2: on-demand)
+- `nelson-edit-tracker.local.json` — Edit metrics for drift scoring (v5.0)
 
 ---
 
 ## EMERGENCY HANDOFF
 
-If context is almost exhausted, minimum viable handoff:
+If context is almost exhausted or drift circuit breaker triggers, minimum viable handoff:
 
 ```markdown
-# Emergency Handoff - Iteration [N]
+# EMERGENCY HANDOFF — Iteration [N]
 
-**Feature:** F[X] - [Name]
-**Status:** [status]
-**Last Action:** [what you just did]
-**Next Action:** [what to do next]
-**Files Changed:** [list]
-**Commit:** [hash or "uncommitted - run git add -A && git commit"]
+STATE: [working / broken / blocked]
+FEATURE: F[X] — [Name]
+LAST GOOD COMMIT: [hash]
+NEXT ACTION: [one specific thing to do]
+CRITICAL: [one sentence of must-know context]
+AVOID: [what caused the problem / drift]
+FILES: [changed files list]
+DRIFT: [score if known]
 ```
+
+**Emergency handoffs skip compound learning.** That's OK — survival is more important than learning in a crisis. Next iteration can extract patterns once stable.
 
 ---
 
-*Write handoff BEFORE exiting iteration. No exceptions.*
+*Write handoff BEFORE exiting iteration. No exceptions. HA-HA!*
