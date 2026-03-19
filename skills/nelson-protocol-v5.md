@@ -485,7 +485,7 @@ CIRCUIT BREAKER PROTOCOL:
 
 ### Fresh Context as Primary Defense
 
-Nelson's core insight remains valid: **fresh 200k token windows are the best defense against drift.**
+Nelson's core insight remains valid: **fresh context windows (up to 1M tokens with Opus 4.6) are the best defense against drift.**
 
 v5.0 adds active monitoring to trigger fresh contexts BEFORE drift causes failures, not after.
 

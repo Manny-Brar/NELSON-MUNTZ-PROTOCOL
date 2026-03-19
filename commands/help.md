@@ -84,14 +84,14 @@ Use the fully qualified `plugin-name:command-name` format:
 
 ### 1. Fresh Context Every Iteration
 
-Each iteration gets a clean 200k token context window. No accumulated garbage, no context rot, no degraded performance.
+Each iteration gets a clean 1M token context window. No accumulated garbage, no context rot, no degraded performance.
 
 ```
-Iteration 1: Fresh 200k context → Tiered L0/L1/L2 loading
+Iteration 1: Fresh 1M context → Tiered L0/L1/L2 loading
      ↓ (state files + compound learning persist)
-Iteration 2: Fresh 200k context → Smarter loading (patterns from iter 1)
+Iteration 2: Fresh 1M context → Smarter loading (patterns from iter 1)
      ↓ (knowledge compounds)
-Iteration N: Fresh 200k context → Fastest iteration (maximum knowledge)
+Iteration N: Fresh 1M context → Fastest iteration (maximum knowledge)
 ```
 
 ### 2. Ultrathink Protocol (5 Levels)

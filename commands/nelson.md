@@ -16,7 +16,7 @@ Execute the Nelson Muntz loop:
 
 Nelson Muntz is a harness-engineered AI development loop — the agent isn't the hard part, the harness is:
 
-- **Fresh Context Every Iteration** — No context rot, 200k clean tokens per session
+- **Fresh Context Every Iteration** — No context rot, 1M clean tokens per session
 - **Ultrathink Integration** — Extended reasoning before every action
 - **Two-Stage Validation** — Spec compliance + quality checks (3-stage in HA-HA mode)
 - **3-Fix Rule** — Auto-escalate after 3 failed attempts

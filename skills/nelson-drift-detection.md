@@ -153,7 +153,7 @@ AVOID: [what caused the drift]
 ```
 
 ### Step 5: FRESH CONTEXT
-Signal for fresh context iteration. The stop hook should detect and restart with clean 200k window.
+Signal for fresh context iteration. The stop hook should detect and restart with clean 1M context window.
 
 ---
 

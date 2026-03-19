@@ -312,7 +312,7 @@ Store detailed documentation in the database and retrieve on-demand:
 ```
 BEFORE (Traditional):
 ┌─────────────────────────────────────────┐
-│ Context Window: 200k tokens              │
+│ Context Window: 1M tokens              │
 ├─────────────────────────────────────────┤
 │ CLAUDE.md:        20,000 tokens (10%)   │
 │ MCP Tools:        14,000 tokens (7%)    │
@@ -324,7 +324,7 @@ BEFORE (Traditional):
 
 AFTER (Token-Optimized):
 ┌─────────────────────────────────────────┐
-│ Context Window: 200k tokens              │
+│ Context Window: 1M tokens              │
 ├─────────────────────────────────────────┤
 │ CLAUDE.optimized: 1,700 tokens (1%)     │
 │ MCP Tools:        14,000 tokens (7%)    │
@@ -447,7 +447,7 @@ When drift >= 7, the stop hook automatically:
 3. Instructs the agent to re-read handoff from scratch
 4. Prevents inheriting degraded assumptions
 
-**Nelson's core insight: fresh 200k token windows are the primary defense against drift. v5 adds active monitoring to trigger fresh contexts BEFORE drift causes failures.**
+**Nelson's core insight: fresh context windows (up to 1M tokens with Opus 4.6) are the primary defense against drift. v5 adds active monitoring to trigger fresh contexts BEFORE drift causes failures.**
 
 See: `skills/nelson-drift-detection.md` for full protocol.
 

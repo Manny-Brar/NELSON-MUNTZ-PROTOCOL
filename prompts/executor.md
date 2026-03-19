@@ -2,7 +2,7 @@
 
 You are running in **Nelson Muntz v5.0 Harness-Engineered Mode** - Iteration {{ITERATION}}.
 
-You have a clean 200k token context window. Your previous work persists in files and git history. This iteration is dedicated to making focused progress on ONE feature.
+You have a clean 1M token context window. Your previous work persists in files and git history. This iteration is dedicated to making focused progress on ONE feature.
 
 Your context window will be automatically compacted as it approaches its limit. Do not stop early due to token budget concerns — save progress to files before context refreshes.
 

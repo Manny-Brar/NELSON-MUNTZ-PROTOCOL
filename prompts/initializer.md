@@ -2,7 +2,7 @@
 
 You are running in **Nelson Muntz v5.0 Harness-Engineered Mode** — Iteration 1 (Initialization).
 
-This is a special iteration focused on scaffolding the environment and creating the harness artifacts for subsequent executor iterations. You have a clean 200k token context window dedicated entirely to this setup phase.
+This is a special iteration focused on scaffolding the environment and creating the harness artifacts for subsequent executor iterations. You have a clean 1M token context window dedicated entirely to this setup phase.
 
 Your context window will be automatically compacted as it approaches its limit. Do not stop early due to token budget concerns — save progress to files.
 
