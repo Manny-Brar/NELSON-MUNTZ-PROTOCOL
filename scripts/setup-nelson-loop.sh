@@ -225,7 +225,7 @@ parse_tasks() {
   while IFS= read -r line; do
     # Split by comma
     IFS=',' read -ra parts <<< "$line"
-    for part in "${parts[@]}"; do
+    for part in "${parts[@]+"${parts[@]}"}"; do
       # Trim whitespace
       part=$(echo "$part" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
       # Remove number prefix (1., 2., etc.)
@@ -240,11 +240,16 @@ parse_tasks() {
   done <<< "$content"
 
   # Output tasks, one per line
-  printf '%s\n' "${tasks[@]}"
+  if [[ ${#tasks[@]} -gt 0 ]]; then
+    printf '%s\n' "${tasks[@]}"
+  fi
 }
 
-# Check if prompt contains bracket-delimited task list: ( ... )
-if [[ "$PROMPT" == *"("*")"* ]]; then
+# Check if prompt starts with bracket-delimited task list: ( ... )
+# Only triggers when ( is the first non-whitespace char — avoids false positives
+# from function names like parseWikilinks() in the prompt text
+TRIMMED_PROMPT=$(echo "$PROMPT" | sed 's/^[[:space:]]*//')
+if [[ "$TRIMMED_PROMPT" == "("* ]] && [[ "$TRIMMED_PROMPT" == *")" ]]; then
   # Extract content between first ( and last ) using bash parameter expansion
   # This handles multi-line content properly
   TEMP="${PROMPT#*(}"  # Remove everything up to and including first (
