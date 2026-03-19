@@ -302,7 +302,7 @@ L2 (variable):     Full skill files, full docs — ON-DEMAND only
 - Use HA-HA mode for anything complex or unfamiliar
 - Let Nelson research before coding (don't skip pre-flight)
 - Keep your terminal open for overnight runs
-- Check `/nelson-status` for drift scores during long runs
+- Check `/nelson-muntz:nelson-status` for drift scores during long runs
 
 **DON'T:**
 - Don't interrupt mid-iteration (let it finish the gate cycle)
