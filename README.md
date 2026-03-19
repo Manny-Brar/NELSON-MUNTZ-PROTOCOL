@@ -31,7 +31,7 @@
 
 Nelson Muntz is a **harness-engineered AI development loop** for [Claude Code](https://claude.com/code). It wraps your AI agent in a system that:
 
-- Spawns **fresh 200k token context** every iteration (no context rot, ever)
+- Spawns **fresh 1M token context** every iteration (no context rot, ever)
 - Decomposes tasks into **strategic multi-phase plans** with mandatory quality gates
 - Thinks **5 levels deep** before touching code (ULTRATHINK protocol)
 - Validates with **3 stages** including adversarial red-team review
@@ -191,7 +191,7 @@ No shortcuts. No skipping gates. No advancing with broken code.
 │   DRIFT CHECK: Score 0-10, circuit break at 7+              │
 │   HANDOFF: Compound learning transfer → next iteration      │
 │                                                              │
-│   Fresh 200k context every iteration.                       │
+│   Fresh 1M context every iteration.                       │
 │   State persists in files. Knowledge compounds.             │
 └─────────────────────────────────────────────────────────────┘
 ```
